@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -207,6 +208,152 @@
   .wa-btn:hover{background:#1ea952;}
   #send-status{margin-top:14px;font-size:0.9rem;color:var(--muted);font-weight:700;min-height:20px;}
   #pdf-report{position:absolute;left:-9999px;top:0;width:750px;background:#fff;padding:30px;}
+
+  /* Mobile / tablet compatibility */
+  html, body{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+    color-scheme:light;
+  }
+
+  @media (max-width: 600px){
+    body{
+      padding:10px;
+      background:#eef2f9;
+    }
+
+    .container{
+      width:100%;
+      max-width:100%;
+    }
+
+    .header{
+      padding:16px 14px;
+      border-radius:12px;
+      flex-direction:column-reverse;
+      align-items:stretch;
+      text-align:right;
+      gap:10px;
+    }
+
+    .header h1{
+      font-size:1.05rem;
+      line-height:1.65;
+    }
+
+    .header p{
+      font-size:0.78rem;
+      line-height:1.6;
+    }
+
+    #timer{
+      align-self:center;
+      min-width:100px;
+      width:auto;
+      padding:8px 16px;
+      font-size:1.2rem;
+    }
+
+    .card{
+      padding:16px 12px;
+      border-radius:12px;
+    }
+
+    #start-screen{
+      padding:24px 14px;
+      border-radius:12px;
+    }
+
+    #start-screen input{
+      max-width:none;
+      width:100%;
+    }
+
+    .exam-info{
+      gap:8px;
+      font-size:0.8rem;
+    }
+
+    .exam-info span{
+      padding:6px 10px;
+      max-width:100%;
+    }
+
+    .q-text{
+      font-size:1rem;
+      line-height:1.85;
+      overflow-wrap:anywhere;
+    }
+
+    .option{
+      padding:12px 10px;
+      font-size:0.94rem;
+      line-height:1.65;
+      align-items:flex-start;
+      overflow-wrap:anywhere;
+    }
+
+    .option input{
+      flex:0 0 auto;
+      margin-top:4px;
+    }
+
+    .q-number{
+      margin-left:6px;
+      padding:0 9px;
+      height:30px;
+      line-height:30px;
+      font-size:0.82rem;
+    }
+
+    .q-type-badge{
+      padding:4px 8px;
+      font-size:0.72rem;
+      margin-right:0;
+    }
+
+    textarea.essay-input{
+      min-height:180px;
+      font-size:16px; /* prevents iOS Safari zoom */
+    }
+
+    .nav-bar{
+      gap:8px;
+    }
+
+    .nav-bar button,
+    #start-btn{
+      flex:1;
+      min-width:0;
+      padding:12px 10px;
+      font-size:0.92rem;
+    }
+
+    .score-card{
+      padding:22px 12px;
+    }
+
+    .score-num{
+      font-size:2.5rem;
+    }
+
+    .action-buttons{
+      flex-direction:column;
+    }
+
+    .action-buttons button{
+      width:100%;
+      padding:12px 10px;
+      font-size:0.9rem;
+    }
+
+    #pdf-report{
+      width:750px;
+    }
+  }
+
 </style>
 </head>
 <body>
