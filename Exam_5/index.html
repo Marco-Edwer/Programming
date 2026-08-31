@@ -912,7 +912,7 @@ function finishExam(autoSubmit){
   document.getElementById('score-msg').innerHTML =
     `الاسم: <strong>${studentName}</strong><br>التاريخ: ${dateStr}<br>الوقت المستغرق: <strong>${examDurationText}</strong> من أصل 30:00<br>
      الدرجة (الاختيارات وصح/خطأ فقط): ${finalPct}% — ${msg}<br>
-     <span style="font-size:0.85em;">تمت إضافة إجابات الأسئلة المقالية إلى التقرير للمراجعة اليدوية.</span>${autoSubmit ? '<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>' : ''}`;
+     <span style="font-size:0.85em;"></span>${autoSubmit ? '<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>' : ''}`;
 
   document.getElementById('quiz-area').style.display = 'none';
   document.getElementById('not-answered-warning').style.display = 'none';
@@ -920,32 +920,42 @@ function finishExam(autoSubmit){
   document.getElementById('progress-label').style.display = 'none';
   document.getElementById('results').style.display = 'block';
   window.scrollTo({top:0, behavior:'auto'});
-  setTimeout(() => autoDeliverReport(), 50);
+  autoDeliverReport();
 }
 
 
 async function autoDeliverReport(){
+  const statusEl = document.getElementById('send-status');
   try{
+    if(statusEl) statusEl.textContent = '⏳ جاري تجهيز ملف PDF...';
+
     const blob = await buildPdfBlob();
-    const fileName = `تقرير_${studentName.replace(/\s+/g,'_')}.pdf`;
+    const fileName = `تقرير_${(studentName || 'الطالب').replace(/\s+/g,'_')}.pdf`;
+
+    // تنزيل PDF فورًا
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = fileName;
+    a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
 
-    const waText = buildWhatsAppSummaryText() +
-      '\n\nتم تنزيل ملف تقرير الامتحان PDF تلقائيًا على جهاز الطالب.';
+    if(statusEl) statusEl.textContent = '✅ تم تنزيل ملف PDF. جاري فتح واتساب...';
+
+    const waText = buildWhatsAppSummaryText();
     const waUrl = `https://wa.me/${TEACHER_PHONE}?text=${encodeURIComponent(waText)}`;
-    window.open(waUrl, '_blank');
-    const statusEl = document.getElementById('send-status');
-    if(statusEl) statusEl.textContent = '✅ تم تنزيل PDF وفتح واتساب برسالة التقرير.';
+    setTimeout(() => window.open(waUrl, '_blank'), 300);
+
+    setTimeout(() => {
+      if(statusEl) statusEl.textContent = '✅ تم تنزيل PDF وفتح واتساب.';
+    }, 500);
+
   }catch(err){
-    const statusEl = document.getElementById('send-status');
-    if(statusEl) statusEl.textContent = '⚠️ تم تسليم الامتحان، لكن تعذر إنشاء PDF تلقائيًا. استخدم زر واتساب لإعادة المحاولة.';
+    console.error(err);
+    if(statusEl) statusEl.textContent = '⚠️ تعذر تنزيل PDF تلقائيًا، استخدم زر تحميل PDF.';
   }
 }
 
