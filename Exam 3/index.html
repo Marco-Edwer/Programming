@@ -221,137 +221,140 @@
   }
 
   @media (max-width: 600px){
-  *{box-sizing:border-box}
-  html,body{
-    width:100%;
-    min-width:100%;
-    margin:0!important;
-    padding:0!important;
-    overflow-x:hidden!important;
-    -webkit-text-size-adjust:100%;
+    body{
+      padding:10px;
+      background:#eef2f9;
+    }
+
+    .container{
+      width:100%;
+      max-width:100%;
+    }
+
+    .header{
+      padding:16px 14px;
+      border-radius:12px;
+      flex-direction:column-reverse;
+      align-items:stretch;
+      text-align:right;
+      gap:10px;
+    }
+
+    .header h1{
+      font-size:1.05rem;
+      line-height:1.65;
+    }
+
+    .header p{
+      font-size:0.78rem;
+      line-height:1.6;
+    }
+
+    #timer{
+      align-self:center;
+      min-width:100px;
+      width:auto;
+      padding:8px 16px;
+      font-size:1.2rem;
+    }
+
+    .card{
+      padding:16px 12px;
+      border-radius:12px;
+    }
+
+    #start-screen{
+      padding:24px 14px;
+      border-radius:12px;
+    }
+
+    #start-screen input{
+      max-width:none;
+      width:100%;
+    }
+
+    .exam-info{
+      gap:8px;
+      font-size:0.8rem;
+    }
+
+    .exam-info span{
+      padding:6px 10px;
+      max-width:100%;
+    }
+
+    .q-text{
+      font-size:1rem;
+      line-height:1.85;
+      overflow-wrap:anywhere;
+    }
+
+    .option{
+      padding:12px 10px;
+      font-size:0.94rem;
+      line-height:1.65;
+      align-items:flex-start;
+      overflow-wrap:anywhere;
+    }
+
+    .option input{
+      flex:0 0 auto;
+      margin-top:4px;
+    }
+
+    .q-number{
+      margin-left:6px;
+      padding:0 9px;
+      height:30px;
+      line-height:30px;
+      font-size:0.82rem;
+    }
+
+    .q-type-badge{
+      padding:4px 8px;
+      font-size:0.72rem;
+      margin-right:0;
+    }
+
+    textarea.essay-input{
+      min-height:180px;
+      font-size:16px; /* prevents iOS Safari zoom */
+    }
+
+    .nav-bar{
+      gap:8px;
+    }
+
+    .nav-bar button,
+    #start-btn{
+      flex:1;
+      min-width:0;
+      padding:12px 10px;
+      font-size:0.92rem;
+    }
+
+    .score-card{
+      padding:22px 12px;
+    }
+
+    .score-num{
+      font-size:2.5rem;
+    }
+
+    .action-buttons{
+      flex-direction:column;
+    }
+
+    .action-buttons button{
+      width:100%;
+      padding:12px 10px;
+      font-size:0.9rem;
+    }
+
+    #pdf-report{
+      width:750px;
+    }
   }
-  body{background:#fff!important}
-  .container{
-    width:100%!important;
-    max-width:none!important;
-    margin:0!important;
-    padding:0!important;
-  }
-  .header{
-    width:100%!important;
-    margin:0!important;
-    border-radius:0!important;
-    padding:12px!important;
-  }
-  #timer{
-    min-width:90px!important;
-    font-size:1.15rem!important;
-    padding:7px 12px!important;
-  }
-  .progress-wrap{
-    width:100%!important;
-    margin:0!important;
-    border-radius:0!important;
-    height:8px!important;
-  }
-  .progress-label{
-    margin:0!important;
-    padding:7px!important;
-    font-size:.8rem!important;
-  }
-  #quiz-area{
-    width:100%!important;
-    margin:0!important;
-    padding:0!important;
-  }
-  #quiz-area .card{
-    width:100%!important;
-    max-width:none!important;
-    min-height:calc(100vh - 105px)!important;
-    margin:0!important;
-    padding:18px 13px 12px!important;
-    border-radius:0!important;
-    border-left:0!important;
-    border-right:0!important;
-    box-shadow:none!important;
-    display:flex!important;
-    flex-direction:column!important;
-  }
-  .q-text{
-    font-size:1.08rem!important;
-    line-height:1.9!important;
-    margin:15px 0 18px!important;
-  }
-  .options{
-    width:100%!important;
-    gap:9px!important;
-  }
-  .option{
-    width:100%!important;
-    min-height:52px!important;
-    padding:13px 10px!important;
-    font-size:.96rem!important;
-    line-height:1.65!important;
-    align-items:flex-start!important;
-  }
-  .option input{
-    flex:0 0 auto!important;
-    margin-top:5px!important;
-  }
-  .nav-bar{
-    width:100%!important;
-    margin-top:auto!important;
-    padding-top:16px!important;
-    gap:8px!important;
-  }
-  .nav-bar button{
-    flex:1!important;
-    width:50%!important;
-    min-height:48px!important;
-    padding:11px 7px!important;
-    font-size:.9rem!important;
-  }
-  #start-screen{
-    width:100%!important;
-    min-height:calc(100vh - 95px)!important;
-    margin:0!important;
-    border-radius:0!important;
-    padding:25px 14px!important;
-    box-shadow:none!important;
-    display:flex!important;
-    flex-direction:column!important;
-    justify-content:center!important;
-  }
-  #start-screen input{
-    width:100%!important;
-    max-width:none!important;
-    font-size:16px!important;
-  }
-  #start-btn{
-    width:100%!important;
-    min-height:50px!important;
-  }
-  #results{
-    width:100%!important;
-    margin:0!important;
-    padding:0!important;
-  }
-  .score-card{
-    width:100%!important;
-    border-radius:0!important;
-    margin:0!important;
-    padding:24px 13px!important;
-    box-shadow:none!important;
-  }
-  .action-buttons{
-    width:100%!important;
-    flex-direction:column!important;
-  }
-  .action-buttons button{
-    width:100%!important;
-    min-height:48px!important;
-  }
-}
 
 </style>
 </head>
