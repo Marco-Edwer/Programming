@@ -220,103 +220,7 @@
     color-scheme:light;
   }
 
-  
-/* تحسين عرض الامتحان على الموبايل: السؤال يستغل الشاشة بالكامل */
-@media (max-width: 600px){
-  html, body{
-    width:100%;
-    min-width:100%;
-    padding:0 !important;
-    margin:0 !important;
-  }
-
-  body{
-    background:#fff !important;
-  }
-
-  .container{
-    width:100% !important;
-    max-width:none !important;
-    margin:0 !important;
-  }
-
-  .header{
-    margin:0 !important;
-    border-radius:0 !important;
-    padding:12px 12px !important;
-  }
-
-  .progress-wrap{
-    margin:0 !important;
-    border-radius:0 !important;
-  }
-
-  .progress-label{
-    padding:8px 10px;
-  }
-
-  #quiz-area{
-    width:100% !important;
-    margin:0 !important;
-    padding:0 !important;
-  }
-
-  #quiz-area .card{
-    width:100% !important;
-    max-width:none !important;
-    min-height:calc(100vh - 125px) !important;
-    margin:0 !important;
-    border-radius:0 !important;
-    border-left:0 !important;
-    border-right:0 !important;
-    padding:22px 14px !important;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-  }
-
-  #quiz-area .q-text{
-    font-size:1.12rem !important;
-    line-height:1.9 !important;
-    margin-bottom:22px !important;
-  }
-
-  #quiz-area .option{
-    width:100% !important;
-    padding:15px 12px !important;
-    margin-bottom:10px !important;
-    font-size:1rem !important;
-    line-height:1.7 !important;
-  }
-
-  #quiz-area .nav-bar{
-    margin-top:auto !important;
-    padding-top:18px !important;
-    width:100% !important;
-  }
-
-  #quiz-area .nav-bar button{
-    min-height:48px !important;
-  }
-
-  #start-screen{
-    width:100% !important;
-    min-height:calc(100vh - 90px) !important;
-    margin:0 !important;
-    border-radius:0 !important;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-  }
-
-  #results{
-    width:100% !important;
-    margin:0 !important;
-    border-radius:0 !important;
-  }
-}
-
-@media (max-width: 600px){
+  @media (max-width: 600px){
     body{
       padding:10px;
       background:#eef2f9;
@@ -1008,7 +912,7 @@ function finishExam(autoSubmit){
   document.getElementById('score-msg').innerHTML =
     `الاسم: <strong>${studentName}</strong><br>التاريخ: ${dateStr}<br>الوقت المستغرق: <strong>${examDurationText}</strong> من أصل 30:00<br>
      الدرجة (الاختيارات وصح/خطأ فقط): ${finalPct}% — ${msg}<br>
-     <span style="font-size:0.85em;"></span>${autoSubmit ? '<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>' : ''}`;
+     <span style="font-size:0.85em;">تمت إضافة إجابات الأسئلة المقالية إلى التقرير للمراجعة اليدوية.</span>${autoSubmit ? '<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>' : ''}`;
 
   document.getElementById('quiz-area').style.display = 'none';
   document.getElementById('not-answered-warning').style.display = 'none';
@@ -1016,42 +920,32 @@ function finishExam(autoSubmit){
   document.getElementById('progress-label').style.display = 'none';
   document.getElementById('results').style.display = 'block';
   window.scrollTo({top:0, behavior:'auto'});
-  autoDeliverReport();
+  setTimeout(() => autoDeliverReport(), 50);
 }
 
 
 async function autoDeliverReport(){
-  const statusEl = document.getElementById('send-status');
   try{
-    if(statusEl) statusEl.textContent = '⏳ جاري تجهيز ملف PDF...';
-
     const blob = await buildPdfBlob();
-    const fileName = `تقرير_${(studentName || 'الطالب').replace(/\s+/g,'_')}.pdf`;
-
-    // تنزيل PDF فورًا
+    const fileName = `تقرير_${studentName.replace(/\s+/g,'_')}.pdf`;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = fileName;
-    a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
 
-    if(statusEl) statusEl.textContent = '✅ تم تنزيل ملف PDF. جاري فتح واتساب...';
-
-    const waText = buildWhatsAppSummaryText();
+    const waText = buildWhatsAppSummaryText() +
+      '\n\nتم تنزيل ملف تقرير الامتحان PDF تلقائيًا على جهاز الطالب.';
     const waUrl = `https://wa.me/${TEACHER_PHONE}?text=${encodeURIComponent(waText)}`;
-    setTimeout(() => window.open(waUrl, '_blank'), 300);
-
-    setTimeout(() => {
-      if(statusEl) statusEl.textContent = '✅ تم تنزيل PDF وفتح واتساب.';
-    }, 500);
-
+    window.open(waUrl, '_blank');
+    const statusEl = document.getElementById('send-status');
+    if(statusEl) statusEl.textContent = '✅ تم تنزيل PDF وفتح واتساب برسالة التقرير.';
   }catch(err){
-    console.error(err);
-    if(statusEl) statusEl.textContent = '⚠️ تعذر تنزيل PDF تلقائيًا، استخدم زر تحميل PDF.';
+    const statusEl = document.getElementById('send-status');
+    if(statusEl) statusEl.textContent = '⚠️ تم تسليم الامتحان، لكن تعذر إنشاء PDF تلقائيًا. استخدم زر واتساب لإعادة المحاولة.';
   }
 }
 
