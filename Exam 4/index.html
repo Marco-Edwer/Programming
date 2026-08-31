@@ -460,6 +460,34 @@
   }
 }
 
+
+/* إصلاحات إضافية للموبايل ولمربع الاسم */
+@media (max-width: 600px){
+  body{padding:0 !important; width:100vw !important; min-height:100dvh !important;}
+  .header{display:flex !important; flex-direction:column !important; align-items:stretch !important;}
+  .header > div:last-child{width:100% !important;}
+  #timer{align-self:center !important; width:100% !important; max-width:180px !important;}
+  #start-screen{min-height:calc(100dvh - 110px) !important; justify-content:flex-start !important; padding-top:32px !important;}
+  #start-screen input{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-height:52px !important;
+    padding:14px 16px !important;
+    margin:16px 0 12px !important;
+    font-size:16px !important;
+    text-align:right !important;
+    direction:rtl !important;
+    background:#fff !important;
+    color:#1f2937 !important;
+    -webkit-appearance:none !important;
+    appearance:none !important;
+  }
+  #start-btn{display:block !important; width:100% !important; min-height:52px !important; touch-action:manipulation !important;}
+  button,.option,input,textarea{touch-action:manipulation !important;}
+  .q-text,.option span{word-break:break-word !important; overflow-wrap:anywhere !important;}
+}
+
 </style>
 </head>
 <body>
@@ -1205,7 +1233,7 @@ document.getElementById('send-wa-btn').addEventListener('click', async function(
   }
 });
 
-document.getElementById('start-btn').addEventListener('click', () => {
+function startExam(){
   const nameInput = document.getElementById('student-name');
   const name = nameInput.value.trim();
   if(name === ''){
@@ -1213,6 +1241,7 @@ document.getElementById('start-btn').addEventListener('click', () => {
     nameInput.focus();
     return;
   }
+  document.getElementById('name-warning').style.display = 'none';
   studentName = name;
   initAudio();
   document.getElementById('start-screen').style.display = 'none';
@@ -1221,6 +1250,16 @@ document.getElementById('start-btn').addEventListener('click', () => {
   renderQuestion(currentQ);
   startTimer();
   window.scrollTo({top:0, behavior:'auto'});
+}
+document.getElementById('start-btn').addEventListener('click', startExam);
+document.getElementById('student-name').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    startExam();
+  }
+});
+document.getElementById('student-name').addEventListener('input', () => {
+  document.getElementById('name-warning').style.display = 'none';
 });
 </script>
 
