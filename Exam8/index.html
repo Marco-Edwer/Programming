@@ -1,0 +1,1092 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>امتحان شامل جديد: الوحدة الأولى كاملة (الدروس 1-1 إلى 1-4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --primary:#5b3ea6;
+    --primary-dark:#402b78;
+    --accent:#1098ad;
+    --bg:#f2eefb;
+    --card:#ffffff;
+    --correct:#2f9e44;
+    --wrong:#e03131;
+    --border:#e1d9f5;
+    --text:#1f2937;
+    --muted:#64748b;
+    --pdf:#e8590c;
+    --pdf-dark:#c94a08;
+    --fill:#845ef7;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:auto;overflow-x:hidden;width:100%;}
+  body{
+    margin:0;
+    overflow-x:hidden;
+    position:relative;
+    font-family:'Tajawal','Segoe UI', Tahoma, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:20px;
+  }
+  .container{max-width:800px;margin:0 auto;}
+  .header{
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;
+    padding:24px 28px;
+    border-radius:16px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    box-shadow:0 6px 18px rgba(91,62,166,0.28);
+  }
+  .header h1{margin:0;font-size:1.15rem;font-weight:700;line-height:1.5;}
+  .header p{margin:6px 0 0;font-size:0.86rem;opacity:0.95;}
+  #timer{
+    background:rgba(255,255,255,0.2);
+    padding:10px 20px;
+    border-radius:12px;
+    font-size:1.4rem;
+    font-weight:900;
+    min-width:110px;
+    text-align:center;
+    letter-spacing:1px;
+  }
+  #timer.warn{background:#e03131;}
+  .progress-wrap{background:#e3daf7;border-radius:8px;height:10px;margin-bottom:8px;overflow:hidden;}
+  #progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width 0.3s;}
+  .progress-label{text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:18px;font-weight:700;}
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:16px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+    border:1px solid var(--border);
+  }
+  .q-number{
+    display:inline-block;
+    background:var(--primary);
+    color:#fff;
+    padding:0 12px;
+    height:32px;
+    border-radius:16px;
+    text-align:center;
+    line-height:32px;
+    font-size:0.9rem;
+    font-weight:700;
+    margin-left:10px;
+  }
+  .q-type-badge{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:0.78rem;
+    font-weight:700;
+    margin-right:6px;
+  }
+  .badge-mcq{background:#e7f1ff;color:#2b6cb0;}
+  .badge-tf{background:#e6fcf5;color:#0b7285;}
+  .badge-essay{background:#fff4e6;color:#d9480f;}
+  .q-lesson{font-size:0.78rem;color:var(--muted);font-weight:700;margin-top:4px;}
+  .q-text{font-size:1.1rem;font-weight:700;margin:16px 0 20px;line-height:1.8;}
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    transition:all 0.15s;
+    font-size:1rem;
+  }
+  .option:hover{border-color:var(--primary);background:#f7f3ff;}
+  .option.selected{border-color:var(--primary);background:#f0e9ff;font-weight:700;}
+  .option input{accent-color:var(--primary);}
+  textarea.essay-input{
+    width:100%;
+    min-height:150px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    font-family:inherit;
+    font-size:1rem;
+    resize:vertical;
+    line-height:1.7;
+  }
+  textarea.essay-input:focus{outline:none;border-color:var(--primary);}
+  .essay-note{color:var(--muted);font-size:0.85rem;margin-top:8px;}
+  .nav-bar{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:6px;
+  }
+  button{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:14px 34px;
+    font-size:1.02rem;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    transition:all 0.15s;
+    font-family:inherit;
+  }
+  button:hover{background:var(--primary-dark);transform:translateY(-1px);}
+  button:disabled{background:#94a3b8;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);padding:12px 32px;}
+  .btn-secondary:hover{background:#f7f3ff;}
+  .btn-finish{background:var(--correct);}
+  .btn-finish:hover{background:#2b8a3e;}
+  #results{display:none;}
+  .score-card{
+    text-align:center;
+    background:var(--card);
+    border-radius:16px;
+    padding:32px;
+    margin-bottom:20px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+  }
+  .score-num{font-size:3.2rem;font-weight:900;color:var(--primary);}
+  .score-msg{font-size:1.05rem;color:var(--muted);margin-top:8px;font-weight:500;line-height:1.9;}
+  .review-item{border-right:5px solid var(--correct);}
+  .review-item.wrong{border-right:5px solid var(--wrong);}
+  .review-item.essay{border-right:5px solid var(--pdf);}
+  .answer-line{padding:11px 14px;border-radius:10px;margin-top:6px;font-size:0.95rem;}
+  .answer-line.correct{background:#ebfbee;color:var(--correct);font-weight:700;}
+  .answer-line.wrong{background:#fff5f5;color:var(--wrong);font-weight:700;}
+  .answer-line.essay{background:#fff8ef;color:#8a4b08;font-weight:500;white-space:pre-wrap;line-height:1.8;}
+  #not-answered-warning{color:var(--wrong);text-align:center;margin-bottom:10px;font-size:0.9rem;display:none;font-weight:700;}
+  .unanswered{border-color:#f59f00 !important;}
+  #start-screen{
+    background:var(--card);
+    border-radius:16px;
+    padding:36px 30px;
+    text-align:center;
+    box-shadow:0 3px 14px rgba(30,41,59,0.08);
+  }
+  #start-screen h2{margin-top:0;font-size:1.3rem;}
+  #start-screen p{color:var(--muted);}
+  #start-screen input{
+    width:100%;
+    max-width:320px;
+    padding:15px 16px;
+    font-size:1.05rem;
+    border:2px solid var(--border);
+    border-radius:12px;
+    margin:16px 0;
+    text-align:center;
+    font-family:inherit;
+  }
+  #start-screen input:focus{outline:none;border-color:var(--primary);}
+  #name-warning{color:var(--wrong);font-size:0.9rem;display:none;margin-bottom:10px;font-weight:700;}
+  .exam-info{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin:18px 0;
+    font-size:0.88rem;
+    color:var(--muted);
+  }
+  .exam-info span{background:#f1eefc;padding:6px 14px;border-radius:20px;font-weight:700;}
+  .action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .pdf-btn{background:var(--pdf);}
+  .pdf-btn:hover{background:var(--pdf-dark);}
+  .wa-btn{background:#25D366;}
+  .wa-btn:hover{background:#1ea952;}
+  #send-status{margin-top:14px;font-size:0.9rem;color:var(--muted);font-weight:700;min-height:20px;}
+  #pdf-report{position:fixed;left:0;top:0;width:750px;background:#fff;padding:30px;transform:translateX(-100%) translateX(-50px);pointer-events:none;z-index:-1;}
+
+  html, body{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+    color-scheme:light;
+  }
+
+  @media (max-width: 600px){
+    body{padding:10px;background:#f2eefb;}
+    .container{width:100%;max-width:100%;}
+    .header{padding:16px 14px;border-radius:12px;flex-direction:column-reverse;align-items:stretch;text-align:right;gap:10px;}
+    .header h1{font-size:1rem;line-height:1.65;}
+    .header p{font-size:0.76rem;line-height:1.6;}
+    #timer{align-self:center;min-width:100px;width:auto;padding:8px 16px;font-size:1.2rem;}
+    .card{padding:16px 12px;border-radius:12px;}
+    #start-screen{padding:24px 14px;border-radius:12px;}
+    #start-screen input{max-width:none;width:100%;}
+    .exam-info{gap:8px;font-size:0.78rem;}
+    .exam-info span{padding:6px 10px;max-width:100%;}
+    .q-text{font-size:1rem;line-height:1.85;overflow-wrap:anywhere;}
+    .option{padding:12px 10px;font-size:0.94rem;line-height:1.65;align-items:flex-start;overflow-wrap:anywhere;}
+    .option input{flex:0 0 auto;margin-top:4px;}
+    .q-number{margin-left:6px;padding:0 9px;height:30px;line-height:30px;font-size:0.82rem;}
+    .q-type-badge{padding:4px 8px;font-size:0.7rem;margin-right:0;}
+    textarea.essay-input{min-height:180px;font-size:16px;}
+    .nav-bar{gap:8px;}
+    .nav-bar button, #start-btn{flex:1;min-width:0;padding:12px 10px;font-size:0.92rem;}
+    .score-card{padding:22px 12px;}
+    .score-num{font-size:2.5rem;}
+    .action-buttons{flex-direction:column;}
+    .action-buttons button{width:100%;padding:12px 10px;font-size:0.9rem;}
+    #pdf-report{width:750px;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div id="timer">90:00</div>
+    <div>
+      <p style="margin:0 0 4px;font-size:0.85rem;font-weight:700;opacity:0.9;direction:ltr;text-align:right;">Prepared by Eng.Marco Edwer</p>
+      <h1>امتحان شامل جديد: الوحدة الأولى كاملة — الدروس 1-1 (تطور تكنولوجيا المعلومات) و1-2 (كيف يعمل الذكاء الاصطناعي) و1-3 (الذكاء الاصطناعي في الحياة اليومية والصناعة) و1-4 (القضايا الأخلاقية المتعلقة بالذكاء الاصطناعي)</h1>
+      <p>اختبار شامل نهائي جديد كليًا على محتوى الوحدة الأولى بأكملها</p>
+    </div>
+  </div>
+
+  <div id="start-screen">
+    <h2>بيانات الطالب</h2>
+    <p>يرجى كتابة الاسم قبل بدء الامتحان</p>
+    <div id="name-warning">يرجى كتابة الاسم أولاً</div>
+    <input type="text" id="student-name" placeholder="الاسم">
+    <div class="exam-info">
+      <span>⏱ المدة: 90 دقيقة (ساعة ونصف)</span>
+      <span>📝 عدد الأسئلة: 60</span>
+      <span>🔀 40 سؤالاً (اختيارات + صح وخطأ) + 20 سؤالاً مقاليًا في النهاية</span>
+    </div>
+    <button id="start-btn">ابدأ الامتحان</button>
+  </div>
+
+  <div class="progress-wrap" style="display:none;"><div id="progress-bar"></div></div>
+  <div class="progress-label" id="progress-label" style="display:none;"></div>
+
+  <div id="quiz-area"></div>
+
+  <div id="not-answered-warning">يرجى الإجابة عن هذا السؤال قبل المتابعة</div>
+
+  <div class="results" id="results">
+    <div id="report-content">
+      <div class="score-card" style="padding:24px;">
+        <div id="score-emoji" style="font-size:3rem;line-height:1;margin-bottom:6px;"></div>
+        <div class="score-num" id="score-num">0 / 40</div>
+        <div class="score-msg" id="score-msg"></div>
+        <div class="action-buttons">
+          <button class="wa-btn" id="send-wa-btn">📱 إرسال التقرير PDF على واتساب</button>
+        </div>
+        <div id="send-status"></div>
+      </div>
+      <div id="review-area"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="pdf-report"></div>
+
+<script>
+window.scrollTo(0,0);
+document.documentElement.scrollLeft = 0;
+document.body.scrollLeft = 0;
+window.addEventListener('load', () => {
+  window.scrollTo(0,0);
+  document.documentElement.scrollLeft = 0;
+  document.body.scrollLeft = 0;
+});
+
+const TEACHER_PHONE = "201006723835"; // رقم واتساب المستر
+
+// أنواع الأسئلة: mcq (اختيار من متعدد) - tf (صح/خطأ) - essay (مقالي، لا يُحسب في الدرجة)
+// جميع الأسئلة الموضوعية جديدة كليًا ومختلفة عن أي امتحان سابق، ومُختلطة عمدًا بين الدروس الأربعة وبين النوعين (اختيارات/صح وخطأ)،
+// مع الحرص على عدم تكرار نفس الفكرة بين سؤال اختيارات وسؤال صح وخطأ. الأسئلة المقالية (20 سؤالاً متنوعًا) في النهاية فقط.
+const questions = [
+
+  /* ================= دورة 1 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"الفترة الزمنية التي شهدت بداية انتشار الحواسيب الشخصية (PCs) واستخدام الأفراد للحاسب للمرة الأولى هي:",
+    options:["السبعينيات والثمانينيات","الأربعينيات والستينيات","التسعينيات","العقد الأول من الألفية"],
+    correct:0
+  },
+  {
+    type:"mcq", lesson:"1-2",
+    q:"العلاقة الصحيحة بين المفاهيم التالية، من الفكرة الأوسع إلى الأكثر تخصصًا، هي:",
+    options:[
+      "التعلم العميق ← الذكاء الاصطناعي ← التعلم الآلي ← الذكاء الاصطناعي التوليدي",
+      "الذكاء الاصطناعي ← التعلم الآلي ← التعلم العميق ← الذكاء الاصطناعي التوليدي",
+      "لا توجد أي علاقة منطقية بين هذه المفاهيم",
+      "التعلم الآلي ← الذكاء الاصطناعي التوليدي ← الذكاء الاصطناعي ← التعلم العميق"
+    ],
+    correct:1
+  },
+  {
+    type:"mcq", lesson:"1-3",
+    q:"تعتمد المساعدات الصوتية مثل سيري (Siri) ومساعد جوجل بشكل أساسي على:",
+    options:["الترجمة الآلية فقط","تحليل الصور الطبية فقط","تحسين مسارات التوصيل","التعرف على الصوت وفهم الأوامر وتنفيذها"],
+    correct:3
+  },
+  {
+    type:"mcq", lesson:"1-4",
+    q:"التحيز الخوارزمي (Algorithmic Bias) يُعرَّف بأنه:",
+    options:["عطل في الشاشة يمنع ظهور النتائج","زيادة سرعة استجابة النظام","انخفاض تكلفة تشغيل النظام","نمط في مخرجات الذكاء الاصطناعي قد يؤدي إلى نتائج غير عادلة أو ضارة"],
+    correct:3
+  },
+
+  /* ================= دورة 2 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"وصف قانون مور بأنه معدل تقريبي لتضاعف عدد الترانزستورات في الدائرة المتكاملة كل:",
+    options:["ستة أشهر","عام واحد","عشر سنوات","عامين تقريبًا"],
+    correct:3
+  },
+  {
+    type:"mcq", lesson:"1-2",
+    q:"من أمثلة التعلم الآلي (Machine Learning) الواردة في الدرس:",
+    options:["تصميم الشرائح الإلكترونية","تصنيع الحواسيب","تصنيف الرسائل المزعجة وتوصية المنتجات","صيانة الشبكات الكهربائية"],
+    correct:2
+  },
+  {
+    type:"mcq", lesson:"1-3",
+    q:"من أمثلة استخدام الذكاء الاصطناعي في قطاع الزراعة وفق الدرس:",
+    options:["التنبؤ بموعد الحصاد والكشف عن الآفات والأمراض","أتمتة فحص جودة المنتج","تحسين مسارات التوصيل","دعم اكتشاف الأدوية"],
+    correct:0
+  },
+  {
+    type:"mcq", lesson:"1-4",
+    q:"من الأسباب الرئيسية للتحيز الخوارزمي وفق الدرس:",
+    options:["بيانات تدريب غير ممثلة أو تعكس نزعات تمييزية سابقة","ارتفاع سرعة معالج الحاسوب","انخفاض عدد المستخدمين","تحسّن جودة شاشة الجهاز"],
+    correct:0
+  },
+
+  /* ================= دورة 3 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"التعلم عبر الإنترنت (Online Learning) يقصد به:",
+    options:["العمل من المنزل عبر الإنترنت","الدفع بالبطاقات المصرفية دون نقد","نمط تعليمي تُقدَّم فيه الدروس والمواد التعليمية عبر الإنترنت","التسوق من متجر إلكتروني"],
+    correct:2
+  },
+  {
+    type:"mcq", lesson:"1-2",
+    q:"الشبكة العصبية الاصطناعية (ANN) نموذج حاسوبي مستوحى بصورة مبسطة من:",
+    options:["فكرة ترابط العصبونات","قوانين الديناميكا الحرارية","نظرية الأعداد","هندسة الجسور"],
+    correct:0
+  },
+  {
+    type:"mcq", lesson:"1-3",
+    q:"«الصيانة التنبؤية» في قطاع التصنيع تعني:",
+    options:["إصلاح الآلة بعد تعطلها فقط","التنبؤ بأعطال الآلات أو المعدات قبل وقوعها باستخدام البيانات","استبدال كل المعدات سنويًا دون تقييم","تعطيل الآلات يدويًا بشكل دوري بلا سبب"],
+    correct:1
+  },
+  {
+    type:"mcq", lesson:"1-4",
+    q:"الذكاء الاصطناعي القابل للتفسير (XAI) هو:",
+    options:["تقنية تمنع الذكاء الاصطناعي من العمل","برنامج لتسريع الحاسوب","أساليب تساعد البشر على فهم العوامل التي أسهمت في وصول النظام إلى مخرج أو قرار معين","نظام لحذف البيانات تلقائيًا"],
+    correct:2
+  },
+
+  /* ================= دورة 4 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"مثال واضح على التجارة الإلكترونية (E-commerce) هو:",
+    options:["حضور محاضرة داخل القاعة الدراسية","الشراء من متجر إلكتروني مثل أمازون أو إيباي","الدفع نقدًا في متجر تقليدي","الاتصال الهاتفي التقليدي"],
+    correct:1
+  },
+  {
+    type:"mcq", lesson:"1-2",
+    q:"من أمثلة الذكاء الاصطناعي التوليدي (GenAI) الواردة في الدرس:",
+    options:["مرشح الرسائل المزعجة","نظام التوصية بالمنتجات","الحوسبة الطرفية","ChatGPT وأدوات توليد الصور"],
+    correct:3
+  },
+  {
+    type:"mcq", lesson:"1-3",
+    q:"من بين ما يبرع فيه الذكاء الاصطناعي وفق الدرس:",
+    options:["اتخاذ القرار الذي يتحمل مسؤولية النتائج بمفرده","تحديد المسؤولية القانونية عن الأخطاء","إيجاد وتصنيف الأنماط في البيانات المعقدة مثل الصور والنصوص","الأحكام ذات البعد الأخلاقي فقط"],
+    correct:2
+  },
+  {
+    type:"mcq", lesson:"1-4",
+    q:"الفرق الجوهري بين «المساءلة» و«الذكاء الاصطناعي القابل للتفسير (XAI)» وفق الدرس هو أن:",
+    options:["المساءلة تعني تحديد من يُحاسَب على النتيجة، بينما XAI يساعد على شرح كيفية الوصول إلى القرار","لا فرق بينهما إطلاقًا","XAI يحدد المسؤول القانوني فقط","المساءلة تقنية برمجية بحتة"],
+    correct:0
+  },
+
+  /* ================= دورة 5 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"لماذا تُعالَج بعض بيانات السيارة ذاتية القيادة بالحوسبة الطرفية بدلًا من إرسالها إلى السحابة؟",
+    options:["لتقليل زمن الاستجابة لأن تأخير القرار قد يؤثر في السلامة","لتقليل تكلفة الإنترنت فقط","لأن السحابة غير موجودة أصلًا","لأن الحوسبة الطرفية أرخص من كل الحلول الأخرى دائمًا"],
+    correct:0
+  },
+  {
+    type:"mcq", lesson:"1-2",
+    q:"يقصد بـ«الهلوسة» (Hallucination) في الذكاء الاصطناعي التوليدي:",
+    options:["توقف النظام عن العمل نهائيًا","إنتاج محتوى يبدو معقولًا لكنه غير صحيح واقعيًا","تسريع سرعة المعالجة","رفض تنفيذ أي طلب"],
+    correct:1
+  },
+  {
+    type:"mcq", lesson:"1-3",
+    q:"من بين ما يتطلب الحذر عند استخدام الذكاء الاصطناعي وفق الدرس:",
+    options:["القرارات عالية الأثر وتحديد المسؤولية عن نتائجها","التعرف على الأصوات","الاستدلال الاحتمالي والتنبؤ من البيانات","تصنيف الأنماط في النصوص"],
+    correct:0
+  },
+  {
+    type:"mcq", lesson:"1-4",
+    q:"مبدأ «الشفافية» في أخلاقيات الذكاء الاصطناعي يقصد به:",
+    options:["إخفاء طريقة عمل النظام عن المستخدمين","إتاحة معلومات واضحة ومناسبة عن النظام واستخدامه وعملية اتخاذ القرار وحدوده","حذف بيانات المستخدمين فور جمعها","رفع سرعة معالجة البيانات فقط"],
+    correct:1
+  },
+
+  /* ================= دورة 6 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"الفرق الجوهري بين الواقع المعزز (AR) والواقع الافتراضي (VR) هو:",
+    options:["لا فرق بينهما إطلاقًا","الواقع الافتراضي أقدم تقنيًا من الواقع المعزز","الواقع المعزز يضيف عناصر رقمية إلى العالم الحقيقي بينما الواقع الافتراضي يضع المستخدم داخل بيئة افتراضية كاملة","الواقع المعزز يُستخدم فقط في الألعاب"],
+    correct:2
+  },
+  {
+    type:"mcq", lesson:"1-2",
+    q:"أسلوب من أساليب التعلم الآلي يعتمد على شبكات عصبية متعددة الطبقات ويمكنه تعلم تمثيلات وأنماط معقدة من البيانات هو:",
+    options:["الحوسبة السحابية","قانون مور","التعلم العميق","التجارة الإلكترونية"],
+    correct:2
+  },
+  {
+    type:"tf", lesson:"1-3",
+    q:"تعتمد أنظمة التوصية (Recommendation Systems) بشكل أساسي على تحليل الصور الطبية بدلًا من بيانات السلوك السابق للمستخدم.",
+    correct:false
+  },
+  {
+    type:"tf", lesson:"1-4",
+    q:"يمكن أن يدخل التحيز إلى نظام الذكاء الاصطناعي من خلال طريقة بناء النظام نفسه، مثل اختيار غير مناسب للمتغيرات، وليس فقط من البيانات.",
+    correct:true
+  },
+
+  /* ================= دورة 7 ================= */
+  {
+    type:"tf", lesson:"1-1",
+    q:"استُخدمت الحواسيب الإلكترونية الأولى مثل ENIAC في فترة الأربعينيات والستينيات أساسًا للأغراض العسكرية والحسابات العلمية.",
+    correct:true
+  },
+  {
+    type:"tf", lesson:"1-2",
+    q:"التعلم الآلي فرع من الذكاء الاصطناعي تتعلم فيه النماذج أنماطًا من البيانات بدلًا من برمجة كل قاعدة صراحةً.",
+    correct:true
+  },
+  {
+    type:"tf", lesson:"1-3",
+    q:"الترجمة الآلية هي نظام يترجم فيه البشر النصوص إلى لغات أجنبية يدويًا دون أي دور للحاسوب فيه.",
+    correct:false
+  },
+  {
+    type:"tf", lesson:"1-4",
+    q:"لا يوجد توزيع واحد لمسؤولية الأطراف المرتبطة بالذكاء الاصطناعي يصلح لكل السياقات؛ إذ يختلف باختلاف النظام والاستخدام والقواعد المعمول بها.",
+    correct:true
+  },
+
+  /* ================= دورة 8 ================= */
+  {
+    type:"tf", lesson:"1-1",
+    q:"أتاحت الثمانينيات استخدام الإنترنت للأغراض التجارية وشهدت ظهور الويب لأول مرة.",
+    correct:false
+  },
+  {
+    type:"tf", lesson:"1-2",
+    q:"تظل أوزان الوحدات المترابطة في الشبكة العصبية الاصطناعية ثابتة تمامًا طوال مرحلة التدريب ولا تتغير أبدًا.",
+    correct:false
+  },
+  {
+    type:"tf", lesson:"1-3",
+    q:"تنشأ مشكلة «الصندوق الأسود» عندما يكون من غير الواضح كيف توصّل نظام الذكاء الاصطناعي إلى حكمه أو قراره.",
+    correct:true
+  },
+  {
+    type:"tf", lesson:"1-4",
+    q:"مبدأ العدالة في أخلاقيات الذكاء الاصطناعي يقصد به التمييز عمدًا لصالح فئة معينة على حساب باقي الفئات.",
+    correct:false
+  },
+
+  /* ================= دورة 9 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"الحوسبة الكمومية بحسب ما ورد في الدرس تُعد:",
+    options:["بديلًا عامًا يحل محل كل الحواسيب التقليدية","تقنية توقفت تمامًا عن التطور","نفس مبدأ الحوسبة السحابية تمامًا","نهجًا يستخدم خصائص ميكانيكا الكم وقد يفيد في فئات محددة من المسائل فقط"],
+    correct:3
+  },
+  {
+    type:"tf", lesson:"1-2",
+    q:"العلاقة بين الذكاء الاصطناعي والتعلم الآلي والتعلم العميق والذكاء الاصطناعي التوليدي علاقة تعليمية مبسطة، وليست تسلسل احتواء صارمًا في كل حالة.",
+    correct:true
+  },
+  {
+    type:"tf", lesson:"1-3",
+    q:"يقل الاهتمام بالتحقق البشري من مخرجات الذكاء الاصطناعي كلما ارتفع أثر القرار المتخذ بناءً عليها.",
+    correct:false
+  },
+  {
+    type:"tf", lesson:"1-4",
+    q:"حماية الخصوصية، بوصفها أحد مبادئ أخلاقيات الذكاء الاصطناعي، تعني التعامل مع المعلومات الشخصية بشكل مناسب.",
+    correct:true
+  },
+
+  /* ================= دورة 10 ================= */
+  {
+    type:"mcq", lesson:"1-1",
+    q:"من التحديات الفيزيائية والهندسية الحقيقية التي تواجه استمرار تصغير مكونات الدوائر المتكاملة وفق قانون مور:",
+    options:["انخفاض تكلفة الإنتاج","زيادة عدد المستخدمين حول العالم","ازدياد تيارات التسرب وتأثيرات كمومية مثل النفق الكمومي","توفر الإنترنت في كل مكان"],
+    correct:2
+  },
+  {
+    type:"mcq", lesson:"1-3",
+    q:"لماذا ينبغي أن يؤكد طبيب بشري التشخيص النهائي حتى مع استخدام الذكاء الاصطناعي للتشخيص بالصور؟",
+    options:["لأن الذكاء الاصطناعي لا يستخدم الصور إطلاقًا","لأن دقة النتائج قد تقل مع بيانات تدريب غير كافية أو غير ممثلة، ولأن القرارات عالية الأثر تتطلب مسؤولية بشرية","لأن الأشعة السينية ليست بيانات رقمية","لأن الحوسبة السحابية غير متاحة في المستشفيات"],
+    correct:1
+  },
+  {
+    type:"mcq", lesson:"1-4",
+    q:"أي مما يلي مثال على قضية خصوصية مرتبطة بالذكاء الاصطناعي وفق الدرس؟",
+    options:["تحسين مسارات التوصيل","الصيانة التنبؤية للآلات","الترجمة الآلية للنصوص","المراقبة عبر تقنية التعرف على الوجه في الأماكن العامة"],
+    correct:3
+  },
+  {
+    type:"tf", lesson:"1-1",
+    q:"من العقد الثاني من الألفية فصاعدًا، ارتبط انتشار الحوسبة السحابية بتراجع تحليل البيانات الضخمة وتراجع استخدام الذكاء الاصطناعي.",
+    correct:false
+  }
+];
+
+/* ملاحظة: الأسئلة أعلاه هي الأربعون سؤالًا الموضوعية (اختيارات + صح وخطأ)، وتليها الأسئلة المقالية العشرون في نهاية المصفوفة. */
+
+questions.push(
+  {
+    type:"essay", lesson:"1-1",
+    q:"[تعريف] عرّف الحوسبة الطرفية (Edge Computing)، واذكر مثالًا واحدًا على استخدامها من الدرس."
+  },
+  {
+    type:"essay", lesson:"1-1",
+    q:"[علّل] علّل: لا تُعد الحوسبة الكمومية بديلًا عامًا لجميع أنواع الحواسيب التقليدية."
+  },
+  {
+    type:"essay", lesson:"1-1",
+    q:"[علّل] علّل: تُعالَج بعض بيانات السيارة ذاتية القيادة محليًا داخل المركبة نفسها بالحوسبة الطرفية بدلًا من إرسالها إلى السحابة قبل اتخاذ قرار القيادة."
+  },
+  {
+    type:"essay", lesson:"1-1",
+    q:"[أكمل] أكمل الجدول الزمني التالي بذكر التقنية أو الحدث الرئيسي المناسب لكل فترة: الأربعينيات-الستينيات (ـــــ)، السبعينيات والثمانينيات (ـــــ)، التسعينيات (ـــــ)، العقد الأول من الألفية (ـــــ)."
+  },
+  {
+    type:"essay", lesson:"1-1",
+    q:"[سؤال على نمط الامتحان] حلّل كيف غيّر انتشار الحوسبة السحابية (من العقد الثاني من الألفية فصاعدًا) طريقة استخدام تكنولوجيا المعلومات. [6 درجات]\nفي إجابتك أشر إلى: تحليل البيانات الضخمة، والذكاء الاصطناعي، و«تكنولوجيا المعلومات كخدمة»."
+  },
+  {
+    type:"essay", lesson:"1-2",
+    q:"[تعريف] عرّف الذكاء الاصطناعي التوليدي (GenAI)، مع ذكر مثالين عليه من الدرس."
+  },
+  {
+    type:"essay", lesson:"1-2",
+    q:"[مقارنة] قارن بين التعلم الآلي والتعلم العميق من حيث الأسلوب المستخدم وحجم البيانات الذي يحتاجه كل منهما عادةً ليتعلم أنماطًا موثوقة."
+  },
+  {
+    type:"essay", lesson:"1-2",
+    q:"[علّل] علّل: لا ينبغي اعتماد نص أنتجه ذكاء اصطناعي توليدي كإجابة نهائية في تقرير مدرسي دون التحقق من مصادره."
+  },
+  {
+    type:"essay", lesson:"1-2",
+    q:"[أكمل] أكمل: يُعد التعلم الآلي فرعًا من ـــــ، ويُعد التعلم العميق أسلوبًا من أساليب ـــــ، وتعتمد غالبية أنظمة ـــــ الحديثة على نماذج التعلم العميق."
+  },
+  {
+    type:"essay", lesson:"1-2",
+    q:"[طبّق ما تعلمته] يريد مزارع استخدام نظام ذكاء اصطناعي للتمييز بين صور المحاصيل السليمة والمصابة بالأمراض. اشرح نوع البيانات التي يحتاجها النظام للتدريب، وحدد عاملًا واحدًا قد يجعل تنبؤه خاطئًا."
+  },
+  {
+    type:"essay", lesson:"1-3",
+    q:"[تعريف] عرّف «مشكلة الصندوق الأسود»، واذكر متى تصبح مشكلة ذات أثر خاص عند استخدام الذكاء الاصطناعي."
+  },
+  {
+    type:"essay", lesson:"1-3",
+    q:"[مقارنة] قارن بين دور الذكاء الاصطناعي في الرعاية الصحية ودوره في الخدمات اللوجستية، مع ذكر مثال واحد لكل منهما."
+  },
+  {
+    type:"essay", lesson:"1-3",
+    q:"[علّل] علّل: ينبغي أن يؤكد طبيب بشري التشخيص النهائي بدلًا من تركه للذكاء الاصطناعي وحده عند استخدامه للتشخيص بالصور."
+  },
+  {
+    type:"essay", lesson:"1-3",
+    q:"[علّل] علّل: يجب التحقق من مخرجات أنظمة الذكاء الاصطناعي خصوصًا في الاستخدامات التي تؤثر في حياة الأشخاص وحقوقهم."
+  },
+  {
+    type:"essay", lesson:"1-3",
+    q:"[سؤال على نمط الامتحان] حلّل لماذا يناسب الذكاء الاصطناعي بعض المهام بينما يتطلب الحذر في مهام أخرى. [6 درجات]\nفي إجابتك أشر إلى ما يبرع فيه الذكاء الاصطناعي (إيجاد الأنماط، التعرف، التنبؤ) وإلى ما يتطلب الحذر (الأحكام الأخلاقية، الخصوصية، اتخاذ القرار النهائي)."
+  },
+  {
+    type:"essay", lesson:"1-4",
+    q:"[تعريف] عرّف «التحيز الخوارزمي»، واذكر سببًا رئيسيًا واحدًا من أسبابه."
+  },
+  {
+    type:"essay", lesson:"1-4",
+    q:"[مقارنة] قارن بين مبدأي «الشفافية» و«المساءلة» في أخلاقيات الذكاء الاصطناعي، موضحًا الفرق الجوهري بينهما."
+  },
+  {
+    type:"essay", lesson:"1-4",
+    q:"[أكمل] أكمل الجدول: المبدأ (العدالة) ← الوصف (ـــــ) | المبدأ (ـــــ) ← الوصف (التعامل مع المعلومات الشخصية بشكل مناسب وحماية الخصوصية)."
+  },
+  {
+    type:"essay", lesson:"1-4",
+    q:"[علّل] علّل: لا تكفي القدرة على شرح قرار الذكاء الاصطناعي (XAI) وحدها لتحديد من يتحمل المسؤولية عن نتيجة خاطئة."
+  },
+  {
+    type:"essay", lesson:"1-4",
+    q:"[فكّر كمهندس] بناءً على حالة نظام توظيف بالذكاء الاصطناعي اُتُّهم بالتحيز ضد فئة معينة، استقصِ مثالًا حقيقيًا موثقًا لهذه القضية، ثم اقترح قاعدة واحدة تجعل النظام أكثر عدالة، وبرر اقتراحك بالاستناد إلى أحد مبادئ أخلاقيات الذكاء الاصطناعي."
+  }
+);
+
+const TOTAL_TIME = 90 * 60; // 90 دقيقة (ساعة ونصف)
+let timeLeft = TOTAL_TIME;
+let timerInterval;
+let examStartTimestamp = null;
+let userAnswers = new Array(questions.length).fill(null); // mcq/tf: index أو boolean | essay: نص
+let currentQ = 0;
+let submitted = false;
+let studentName = "";
+
+function typeBadge(type){
+  if(type === "mcq") return '<span class="q-type-badge badge-mcq">اختر الإجابة الصحيحة</span>';
+  if(type === "tf") return '<span class="q-type-badge badge-tf">صح أم خطأ</span>';
+  return '<span class="q-type-badge badge-essay">سؤال مقالي (لا يُحسب تلقائيًا في الدرجة)</span>';
+}
+
+function lessonLabel(lesson){
+  const map = {
+    "1-1":"الدرس 1-1: تطور تكنولوجيا المعلومات والتحول الاجتماعي",
+    "1-2":"الدرس 1-2: كيف يعمل الذكاء الاصطناعي",
+    "1-3":"الدرس 1-3: الذكاء الاصطناعي في الحياة اليومية والصناعة",
+    "1-4":"الدرس 1-4: القضايا الأخلاقية المتعلقة بالذكاء الاصطناعي"
+  };
+  return map[lesson] || '';
+}
+
+function renderQuestion(idx){
+  const area = document.getElementById('quiz-area');
+  const item = questions[idx];
+  area.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'card-' + idx;
+
+  let bodyHtml = '';
+
+  if(item.type === 'mcq'){
+    let optionsHtml = '';
+    item.options.forEach((opt, oIdx) => {
+      const sel = userAnswers[idx] === oIdx ? ' selected' : '';
+      optionsHtml += `
+        <label class="option${sel}" data-o="${oIdx}">
+          <input type="radio" name="q${idx}" value="${oIdx}" ${userAnswers[idx] === oIdx ? 'checked' : ''}>
+          <span>${opt}</span>
+        </label>`;
+    });
+    bodyHtml = `<div class="options">${optionsHtml}</div>`;
+  } else if(item.type === 'tf'){
+    const trueSel = userAnswers[idx] === true ? ' selected' : '';
+    const falseSel = userAnswers[idx] === false ? ' selected' : '';
+    bodyHtml = `
+      <div class="options">
+        <label class="option${trueSel}" data-o="true">
+          <input type="radio" name="q${idx}" ${userAnswers[idx] === true ? 'checked' : ''}>
+          <span>✔️ صح</span>
+        </label>
+        <label class="option${falseSel}" data-o="false">
+          <input type="radio" name="q${idx}" ${userAnswers[idx] === false ? 'checked' : ''}>
+          <span>❌ خطأ</span>
+        </label>
+      </div>`;
+  } else {
+    const val = userAnswers[idx] || '';
+    bodyHtml = `
+      <textarea class="essay-input" id="essay-${idx}" placeholder="اكتب إجابتك هنا...">${val}</textarea>
+      <div class="essay-note">ملاحظة: هذا السؤال مقالي ولا تُحسب له درجة تلقائيًا، وسيراجعه المستر بنفسه.</div>`;
+  }
+
+  card.innerHTML = `
+    <div>${typeBadge(item.type)}<span class="q-number">سؤال ${idx+1} / ${questions.length}</span></div>
+    <div class="q-lesson">${lessonLabel(item.lesson)}</div>
+    <div class="q-text">${item.q}</div>
+    ${bodyHtml}
+  `;
+  area.appendChild(card);
+
+  if(item.type === 'mcq' || item.type === 'tf'){
+    card.querySelectorAll('.option').forEach(opt => {
+      opt.addEventListener('click', function(){
+        const oVal = this.dataset.o;
+        userAnswers[idx] = item.type === 'tf' ? (oVal === 'true') : parseInt(oVal);
+        card.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        this.querySelector('input').checked = true;
+        card.classList.remove('unanswered');
+        document.getElementById('not-answered-warning').style.display = 'none';
+      });
+    });
+  } else {
+    document.getElementById('essay-' + idx).addEventListener('input', function(){
+      userAnswers[idx] = this.value;
+    });
+  }
+
+  renderNavBar(idx);
+  updateProgress(idx);
+  document.getElementById('not-answered-warning').style.display = 'none';
+}
+
+function renderNavBar(idx){
+  const area = document.getElementById('quiz-area');
+  const navBar = document.createElement('div');
+  navBar.className = 'nav-bar';
+
+  const backBtn = document.createElement('button');
+  backBtn.className = 'btn-secondary';
+  backBtn.textContent = '⟵ السابق';
+  backBtn.disabled = idx === 0;
+  backBtn.addEventListener('click', () => {
+    if(currentQ > 0){ currentQ--; renderQuestion(currentQ); window.scrollTo({top:0, behavior:'smooth'}); }
+  });
+
+  const nextBtn = document.createElement('button');
+  const isLast = idx === questions.length - 1;
+  nextBtn.className = isLast ? 'btn-finish' : '';
+  nextBtn.textContent = isLast ? 'إنهاء وتسليم الامتحان ✔' : 'التالي ⟶';
+  nextBtn.addEventListener('click', () => {
+    const item = questions[idx];
+    const answered = item.type === 'essay'
+      ? (userAnswers[idx] && userAnswers[idx].trim() !== '')
+      : (userAnswers[idx] !== null && userAnswers[idx] !== undefined);
+
+    if(!answered){
+      document.getElementById('not-answered-warning').style.display = 'block';
+      document.getElementById('card-' + idx).classList.add('unanswered');
+      return;
+    }
+
+    if(isLast){
+      finishExam(false);
+    } else {
+      currentQ++;
+      renderQuestion(currentQ);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  });
+
+  navBar.appendChild(backBtn);
+  navBar.appendChild(nextBtn);
+  area.appendChild(navBar);
+}
+
+function updateProgress(idx){
+  const pct = ((idx+1) / questions.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `السؤال ${idx+1} من ${questions.length}`;
+}
+
+let audioCtx = null;
+function initAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+}
+function playTick(freq, duration){
+  if(!audioCtx) return;
+  try{
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }catch(e){}
+}
+
+function formatTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return m + ':' + s;
+}
+
+function startTimer(){
+  const timerEl = document.getElementById('timer');
+  examStartTimestamp = Date.now();
+
+  function tick(){
+    if(submitted) return;
+    const elapsed = Math.floor((Date.now() - examStartTimestamp) / 1000);
+    timeLeft = TOTAL_TIME - elapsed;
+    if(timeLeft < 0) timeLeft = 0;
+
+    timerEl.textContent = formatTime(timeLeft);
+    if(timeLeft <= 60 && timeLeft > 0){
+      timerEl.classList.add('warn');
+      const freq = 500 + (60 - timeLeft) * 10;
+      playTick(freq, timeLeft <= 10 ? 0.18 : 0.1);
+    }
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      finishExam(true);
+    }
+  }
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && !submitted && examStartTimestamp !== null){
+      tick();
+    }
+  });
+}
+
+let finalScore = 0;
+let finalTotalGraded = 0;
+let finalPct = 0;
+let wrongQuestionNumbers = [];
+let examDurationText = '';
+let essayAnswersList = [];
+
+function finishExam(autoSubmit){
+  if(submitted) return;
+  submitted = true;
+  clearInterval(timerInterval);
+  document.getElementById('not-answered-warning').style.display = 'none';
+
+  let score = 0;
+  let totalGraded = 0;
+  wrongQuestionNumbers = [];
+  essayAnswersList = [];
+  const reviewArea = document.getElementById('review-area');
+  reviewArea.innerHTML = '';
+
+  const elapsedSec = examStartTimestamp !== null ? Math.floor((Date.now() - examStartTimestamp) / 1000) : (TOTAL_TIME - timeLeft);
+  const cappedElapsed = Math.min(elapsedSec, TOTAL_TIME);
+  examDurationText = formatTime(cappedElapsed);
+
+  questions.forEach((item, idx) => {
+    const userA = userAnswers[idx];
+    const div = document.createElement('div');
+
+    if(item.type === 'essay'){
+      div.className = 'card review-item essay';
+      const answerText = (userA && userA.trim() !== '') ? userA : 'لم تتم الإجابة';
+      essayAnswersList.push({num: idx+1, q: item.q, a: answerText});
+      div.innerHTML = `
+        <div>${typeBadge(item.type)}<span class="q-number">سؤال ${idx+1}</span></div>
+        <div class="q-lesson">${lessonLabel(item.lesson)}</div>
+        <div class="q-text">${item.q}</div>
+        <div class="answer-line essay">إجابة الطالب: ${answerText}</div>
+      `;
+    } else {
+      totalGraded++;
+      const isCorrect = userA === item.correct;
+      if(isCorrect){ score++; } else { wrongQuestionNumbers.push(idx+1); }
+
+      let userAnswerText;
+      if(item.type === 'mcq'){
+        userAnswerText = (userA === null || userA === undefined) ? 'لم تتم الإجابة' : item.options[userA];
+      } else {
+        userAnswerText = (userA === null || userA === undefined) ? 'لم تتم الإجابة' : (userA ? 'صح' : 'خطأ');
+      }
+      const correctText = item.type === 'mcq' ? item.options[item.correct] : (item.correct ? 'صح' : 'خطأ');
+
+      div.className = 'card review-item' + (isCorrect ? '' : ' wrong');
+      let answerHtml = '';
+      if(isCorrect){
+        answerHtml = `<div class="answer-line correct">الإجابة: ${userAnswerText} ✓ إجابة صحيحة</div>`;
+      } else {
+        answerHtml = `
+          <div class="answer-line wrong">إجابة الطالب: ${userAnswerText} ✗</div>
+          <div class="answer-line correct">الإجابة الصحيحة: ${correctText}</div>`;
+      }
+      div.innerHTML = `
+        <div>${typeBadge(item.type)}<span class="q-number">سؤال ${idx+1}</span></div>
+        <div class="q-lesson">${lessonLabel(item.lesson)}</div>
+        <div class="q-text">${item.q}</div>
+        ${answerHtml}
+      `;
+    }
+    reviewArea.appendChild(div);
+  });
+
+  finalScore = score;
+  finalTotalGraded = totalGraded;
+  finalPct = Math.round((score/totalGraded)*100);
+
+  document.getElementById('score-num').textContent = finalScore + ' / ' + finalTotalGraded;
+  let msg = '';
+  let bigEmoji = '';
+  if(finalPct >= 90){ msg = 'ممتاز! أداء رائع'; bigEmoji = '🏆'; }
+  else if(finalPct >= 75){ msg = 'جيد جدًا، استمر في المذاكرة'; bigEmoji = '😄'; }
+  else if(finalPct >= 50){ msg = 'جيد، يحتاج إلى مزيد من المراجعة'; bigEmoji = '🙂'; }
+  else { msg = 'يُنصح بمراجعة الدروس من البداية'; bigEmoji = '😕'; }
+
+  document.getElementById('score-emoji').textContent = bigEmoji;
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ar-EG');
+  document.getElementById('score-msg').innerHTML =
+    `الاسم: <strong>${studentName}</strong><br>التاريخ: ${dateStr}<br>الوقت المستغرق: <strong>${examDurationText}</strong> من أصل 90:00<br>
+     الدرجة (الاختيارات وصح/خطأ فقط): ${finalPct}% — ${msg}<br>
+     <span style="font-size:0.85em;">تمت إضافة إجابات الأسئلة المقالية العشرين إلى التقرير للمراجعة اليدوية.</span>${autoSubmit ? '<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>' : ''}`;
+
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('not-answered-warning').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  document.getElementById('progress-label').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  window.scrollTo({top:0, behavior:'auto'});
+}
+
+function buildWhatsAppSummaryText(){
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ar-EG');
+  const divider = '----------------------';
+  let lines = [];
+  lines.push('*تقرير امتحان شامل جديد: الوحدة الأولى كاملة (الدروس 1-1 إلى 1-4)*');
+  lines.push('*Prepared by Eng.Marco Edwer*');
+  lines.push(divider);
+  lines.push(`*الاسم:* ${studentName}`);
+  lines.push(`*التاريخ:* ${dateStr}`);
+  lines.push(`*الوقت المستغرق:* ${examDurationText} من أصل 90:00`);
+  lines.push(`*الدرجة:* ${finalScore} / ${finalTotalGraded}  (${finalPct}%)`);
+  if(wrongQuestionNumbers.length){
+    lines.push(`*الأسئلة الخاطئة:* ${wrongQuestionNumbers.join('، ')}`);
+  } else {
+    lines.push('*لا توجد أخطاء في الأسئلة المحسوبة*');
+  }
+  lines.push(divider);
+  lines.push('*إجابات الأسئلة المقالية:*');
+  essayAnswersList.forEach(e => {
+    lines.push(`س${e.num}: ${e.q}`);
+    lines.push(`الإجابة: ${e.a}`);
+    lines.push('. . .');
+  });
+  lines.push(divider);
+  lines.push('تفاصيل كل إجابات الاختيارات وصح وخطأ مرفقة كاملة في ملف PDF.');
+  return lines.join('\n');
+}
+
+async function buildPdfBlob(){
+  const source = document.getElementById('report-content');
+  const clone = source.cloneNode(true);
+  const wrapper = document.getElementById('pdf-report');
+  wrapper.innerHTML = '';
+  wrapper.appendChild(clone);
+
+  const canvas = await html2canvas(wrapper, {scale:2, backgroundColor:'#ffffff', useCORS:true});
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while(heightLeft > 0){
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  wrapper.innerHTML = '';
+  return pdf.output('blob');
+}
+
+document.getElementById('send-wa-btn').addEventListener('click', async function(){
+  const statusEl = document.getElementById('send-status');
+  const btn = this;
+  btn.disabled = true;
+  statusEl.textContent = '⏳ جاري تجهيز تقرير PDF...';
+
+  try{
+    const blob = await buildPdfBlob();
+    const fileName = `تقرير_${studentName.replace(/\s+/g,'_')}.pdf`;
+    const file = new File([blob], fileName, {type:'application/pdf'});
+    const summaryText = buildWhatsAppSummaryText();
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      statusEl.textContent = '📤 اختر واتساب من قائمة المشاركة لإرسال التقرير...';
+      await navigator.share({
+        files:[file],
+        title:'تقرير الامتحان',
+        text: summaryText
+      });
+      statusEl.textContent = '✅ تم فتح قائمة المشاركة';
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      const waText = summaryText + '\n\nتم تحميل ملف تقرير الامتحان (PDF) على جهازك، برجاء إرفاقه في هذه المحادثة.';
+      const waUrl = `https://wa.me/${TEACHER_PHONE}?text=${encodeURIComponent(waText)}`;
+      window.open(waUrl, '_blank');
+      statusEl.textContent = 'تم تحميل ملف PDF وفتح واتساب — برجاء إرفاق الملف يدويًا في المحادثة.';
+    }
+  }catch(err){
+    if(err && err.name === 'AbortError'){
+      statusEl.textContent = 'تم إلغاء المشاركة.';
+    } else {
+      statusEl.textContent = 'حدث خطأ أثناء تجهيز التقرير، برجاء المحاولة مرة أخرى.';
+    }
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  const nameInput = document.getElementById('student-name');
+  const name = nameInput.value.trim();
+  if(name === ''){
+    document.getElementById('name-warning').style.display = 'block';
+    nameInput.focus();
+    return;
+  }
+  studentName = name;
+  initAudio();
+  document.getElementById('start-screen').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'block';
+  document.getElementById('progress-label').style.display = 'block';
+  renderQuestion(currentQ);
+  startTimer();
+  window.scrollTo({top:0, behavior:'auto'});
+});
+</script>
+
+</body>
+</html>
