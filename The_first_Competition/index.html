@@ -1,0 +1,1049 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسابقة الوحدة الأولى: تكنولوجيا المعلومات والذكاء الاصطناعي</title>
+<style>
+  :root{
+    --bg:#0A0E1A;
+    --bg-2:#0D1424;
+    --panel:#121A2E;
+    --panel-2:#182238;
+    --line:#26314D;
+    --text:#EAF0FF;
+    --muted:#8B96B3;
+    --easy:#34D399;
+    --easy-dim:#1B4A3B;
+    --medium:#22D3EE;
+    --medium-dim:#123A47;
+    --hard:#FB923C;
+    --hard-dim:#4A2E13;
+    --advanced:#F5C043;
+    --advanced-dim:#4A3B12;
+    --danger:#FB6F92;
+    --success:#4ADE80;
+    --gold:#F5C043;
+    --violet:#7B5CFA;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, #16213B 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 10%, #14243A 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:Tahoma, 'Segoe UI', Arial, sans-serif;
+    min-height:100vh;
+    direction:rtl;
+  }
+  #app{max-width:900px;margin:0 auto;padding:28px 18px 60px;}
+
+  /* ---------- shared ---------- */
+  .eyebrow{color:var(--muted);font-size:13px;margin:0 0 6px;}
+  h1,h2,h3{margin:0;line-height:1.35;}
+  .btn{
+    border:none;border-radius:14px;padding:14px 22px;font-size:16px;font-weight:700;
+    cursor:pointer;font-family:inherit;color:#08111F;background:var(--gold);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(245,192,67,.25);}
+  .btn:active{transform:translateY(0);}
+  .btn.secondary{background:transparent;color:var(--text);border:1.5px solid var(--line);}
+  .btn.secondary:hover{box-shadow:none;border-color:var(--muted);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+  input[type=text]{
+    background:var(--panel-2);border:1.5px solid var(--line);border-radius:12px;
+    color:var(--text);padding:13px 16px;font-size:16px;font-family:inherit;width:100%;
+  }
+  input[type=text]:focus{outline:2px solid var(--gold);border-color:transparent;}
+  input[type=text].error{border-color:var(--danger);}
+  .field-error{color:var(--danger);font-size:13px;margin-top:8px;display:none;}
+  .field-error.show{display:block;}
+
+  /* ---------- start screen ---------- */
+  .hero{padding:40px 0 20px;}
+  .hero-badge{
+    display:inline-block;background:linear-gradient(135deg,var(--violet),#4C3BAF);
+    color:#fff;font-size:13px;font-weight:700;padding:6px 14px;border-radius:999px;margin-bottom:18px;
+  }
+  .hero h1{font-size:34px;font-weight:800;}
+  .hero p.lead{color:var(--muted);font-size:16px;max-width:60ch;margin-top:12px;}
+
+  .rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:26px 0;}
+  @media (max-width:640px){.rules-grid{grid-template-columns:1fr;}}
+  .rule-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;}
+  .rule-card .n{color:var(--gold);font-weight:800;font-size:13px;margin-bottom:6px;}
+  .rule-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.6;}
+
+  .name-box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;margin:22px 0;}
+  .name-box label{display:block;font-size:14px;color:var(--muted);margin-bottom:10px;}
+  .name-box .row{display:flex;gap:12px;margin-top:16px;}
+  @media (max-width:520px){.name-box .row{flex-direction:column;}}
+
+  /* ---------- roadmap ---------- */
+  .roadmap{position:relative;margin:30px 0 10px;}
+  .roadmap-track{display:flex;justify-content:space-between;position:relative;gap:6px;}
+  .roadmap-track::before{
+    content:"";position:absolute;top:34px;right:8%;left:8%;height:3px;
+    background:linear-gradient(90deg,var(--easy),var(--medium),var(--hard),var(--advanced));
+    opacity:.35;z-index:0;
+  }
+  .stage{position:relative;z-index:1;flex:1;text-align:center;}
+  .stage .dot{
+    width:68px;height:68px;border-radius:50%;margin:0 auto 10px;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;
+    border:3px solid var(--line);background:var(--panel);color:var(--muted);
+  }
+  .stage.easy .dot{border-color:var(--easy);color:var(--easy);}
+  .stage.medium .dot{border-color:var(--medium);color:var(--medium);}
+  .stage.hard .dot{border-color:var(--hard);color:var(--hard);}
+  .stage.advanced .dot{border-color:var(--advanced);color:var(--advanced);}
+  .stage .label{font-size:13px;font-weight:700;}
+  .stage .sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .stage.done .dot{background:currentColor;}
+  .stage.done.easy .dot{color:#08150F;background:var(--easy);}
+  .stage.done.medium .dot{color:#03151A;background:var(--medium);}
+  .stage.done.hard .dot{color:#1C0F00;background:var(--hard);}
+  .stage.done.advanced .dot{color:#1C1400;background:var(--advanced);}
+  .stage.active .dot{box-shadow:0 0 0 6px rgba(245,192,67,.14);}
+
+  /* ---------- question screen ---------- */
+  .q-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap;}
+  .level-chip{
+    display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;
+    font-size:13px;font-weight:800;
+  }
+  .level-chip.easy{background:var(--easy-dim);color:var(--easy);}
+  .level-chip.medium{background:var(--medium-dim);color:var(--medium);}
+  .level-chip.hard{background:var(--hard-dim);color:var(--hard);}
+  .level-chip.advanced{background:var(--advanced-dim);color:var(--advanced);}
+
+  .progress-text{color:var(--muted);font-size:13px;}
+  .score-text{font-weight:800;color:var(--gold);font-size:15px;}
+
+  .timer-wrap{margin:6px 0 22px;}
+  .timer-track{height:10px;border-radius:999px;background:var(--panel-2);overflow:hidden;border:1px solid var(--line);}
+  .timer-fill{height:100%;border-radius:999px;transition:width 1s linear, background-color .3s;}
+  .timer-num{text-align:left;font-size:13px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums;}
+  .timer-num.warn{color:var(--danger);font-weight:800;}
+
+  .q-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;}
+  .q-text{font-size:21px;font-weight:700;line-height:1.55;margin-bottom:22px;}
+
+  .options{display:grid;gap:12px;}
+  .opt{
+    display:flex;align-items:center;gap:12px;text-align:right;
+    background:var(--panel-2);border:1.5px solid var(--line);border-radius:14px;
+    padding:15px 16px;color:var(--text);font-size:15.5px;font-family:inherit;cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--gold);}
+  .opt .mark{
+    flex:0 0 26px;height:26px;border-radius:8px;background:var(--bg-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);font-weight:800;
+  }
+  .opt:disabled{cursor:default;}
+  .opt.correct{border-color:var(--success);background:rgba(74,222,128,.1);}
+  .opt.correct .mark{background:var(--success);color:#052E12;border-color:var(--success);}
+  .opt.wrong{border-color:var(--danger);background:rgba(251,111,146,.1);}
+  .opt.wrong .mark{background:var(--danger);color:#3A0212;border-color:var(--danger);}
+  .opt.hidden-opt{display:none;}
+
+  .feedback{margin-top:16px;padding:14px 16px;border-radius:12px;font-size:14.5px;line-height:1.6;display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:rgba(74,222,128,.1);border:1px solid var(--success);color:#BFF5D3;}
+  .feedback.bad{background:rgba(251,111,146,.1);border:1px solid var(--danger);color:#FBD3DD;}
+
+  .hint-box{
+    margin-top:16px;background:var(--bg-2);border:1px dashed var(--advanced);border-radius:12px;
+    padding:13px 15px;font-size:13.5px;color:#F2E3B3;display:none;line-height:1.6;
+  }
+  .hint-box.show{display:block;}
+
+  .lifelines{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .life-btn{
+    flex:1;min-width:150px;display:flex;align-items:center;gap:10px;
+    background:var(--panel-2);border:1.5px solid var(--line);border-radius:14px;
+    padding:11px 14px;cursor:pointer;color:var(--text);font-family:inherit;text-align:right;
+  }
+  .life-btn:hover:not(:disabled){border-color:var(--violet);}
+  .life-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .life-btn .ic{flex:0 0 30px;height:30px;display:flex;align-items:center;justify-content:center;
+    background:rgba(123,92,250,.15);border-radius:9px;}
+  .life-btn .tt{font-size:13px;font-weight:700;}
+  .life-btn .st{font-size:11px;color:var(--muted);}
+  .life-btn.used .tt{color:var(--muted);}
+
+  .next-row{margin-top:20px;display:flex;justify-content:flex-end;}
+
+  /* ---------- level result ---------- */
+  .result-hero{text-align:center;padding:40px 10px 10px;}
+  .stars{font-size:44px;letter-spacing:6px;margin:14px 0;color:var(--line);}
+  .stars .lit{color:var(--gold);}
+  .result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:26px 0;}
+  .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 10px;text-align:center;}
+  .stat-card .val{font-size:26px;font-weight:800;color:var(--gold);}
+  .stat-card .lab{font-size:12.5px;color:var(--muted);margin-top:4px;}
+
+  /* ---------- final report ---------- */
+  .report-container{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;}
+  .report-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;
+    border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:20px;}
+  .report-head h2{font-size:22px;}
+  .report-head .meta{color:var(--muted);font-size:13px;margin-top:6px;line-height:1.8;}
+  .trophy{font-size:40px;}
+
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;}
+  @media (max-width:640px){.summary-grid{grid-template-columns:1fr 1fr;}}
+  .summary-grid .stat-card .val{font-size:22px;}
+
+  .level-breakdown{display:grid;gap:10px;margin-bottom:26px;}
+  .lb-row{display:flex;align-items:center;gap:14px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:12px 16px;}
+  .lb-row .lb-name{flex:0 0 110px;font-weight:800;font-size:14px;}
+  .lb-row .lb-bar{flex:1;height:8px;background:var(--bg-2);border-radius:999px;overflow:hidden;}
+  .lb-row .lb-bar > span{display:block;height:100%;border-radius:999px;}
+  .lb-row .lb-score{flex:0 0 auto;font-size:13px;color:var(--muted);font-weight:700;}
+
+  .life-summary{margin-bottom:26px;}
+  .life-summary h3{font-size:15px;margin-bottom:10px;}
+  .life-summary ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;}
+  .life-summary li{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+    padding:10px 14px;font-size:13.5px;color:var(--muted);display:flex;justify-content:space-between;}
+  .life-summary li b{color:var(--text);}
+
+  table.report-table{width:100%;border-collapse:collapse;font-size:13px;}
+  table.report-table th{
+    text-align:right;color:var(--muted);font-weight:700;font-size:12px;
+    padding:8px 8px;border-bottom:2px solid var(--line);
+  }
+  table.report-table td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.report-table tr:last-child td{border-bottom:none;}
+  .rt-ok{color:var(--success);font-weight:800;}
+  .rt-bad{color:var(--danger);font-weight:800;}
+  .rt-q{max-width:260px;}
+  .lvl-tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;display:inline-block;}
+  .lvl-tag.easy{background:var(--easy-dim);color:var(--easy);}
+  .lvl-tag.medium{background:var(--medium-dim);color:var(--medium);}
+  .lvl-tag.hard{background:var(--hard-dim);color:var(--hard);}
+  .lvl-tag.advanced{background:var(--advanced-dim);color:var(--advanced);}
+
+  .report-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;}
+  .print-hint{color:var(--muted);font-size:12.5px;margin-top:10px;}
+
+  footer.credit{text-align:center;color:var(--muted);font-size:12px;margin-top:34px;}
+
+  /* ---------- print ---------- */
+  @media print{
+    body{background:#fff !important;}
+    #app{max-width:100%;padding:0;}
+    .no-print{display:none !important;}
+    .report-container{background:#fff !important;border:none !important;padding:0 !important;}
+    .report-head{border-bottom:2px solid #333 !important;}
+    .stat-card, .lb-row, .life-summary li{background:#F4F5F8 !important;border-color:#ccc !important;}
+    .stat-card .val, .report-head h2, .lb-row .lb-name, .life-summary li b, h1, h2, h3{color:#111 !important;}
+    .stat-card .lab, .report-head .meta, .meta, .lb-row .lb-score, .life-summary li, .life-summary ul, .print-hint{color:#444 !important;}
+    table.report-table th{color:#333 !important;border-color:#999 !important;}
+    table.report-table td{color:#111 !important;border-color:#ddd !important;}
+    .rt-ok{color:#0A7A34 !important;}
+    .rt-bad{color:#B3123C !important;}
+    .lvl-tag{background:#eee !important;color:#111 !important;border:1px solid #ccc;}
+    a, .btn{display:none !important;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   DATA
+   ===================================================================== */
+const LEVEL_META = {
+  easy:      { key:'easy',      label:'سهل',       time:20, base:10, cls:'easy'     },
+  medium:    { key:'medium',    label:'متوسط',      time:20, base:15, cls:'medium'   },
+  hard:      { key:'hard',      label:'صعب',        time:20, base:20, cls:'hard'     },
+  advanced:  { key:'advanced',  label:'متفوقين',    time:20, base:25, cls:'advanced' }
+};
+const LEVEL_ORDER = ['easy','medium','hard','advanced'];
+
+const QUESTIONS_SOURCE = {
+  easy: [
+    { q:"ما اسم الملاحظة العلمية التي تقول إن عدد الترانزستورات في الدائرة المتكاملة يتضاعف تقريبًا كل عامين؟",
+      options:["قانون مور","قانون نيوتن","نظرية النسبية","قانون الجاذبية"], correct:0,
+      hint:"سُمّي هذا القانون باسم عالم لاحظ هذا الاتجاه في تطور الدوائر المتكاملة، وهو ليس قانونًا فيزيائيًا ثابتًا." },
+    { q:"في أي فترة زمنية ظهرت الحواسيب الإلكترونية الأولى مثل ENIAC؟",
+      options:["الأربعينيات–الستينيات","التسعينيات","العقد الأول من الألفية","من العقد الثاني من الألفية فصاعدًا"], correct:0,
+      hint:"استُخدمت هذه الحواسيب الأولى أساسًا لأغراض عسكرية وحسابات علمية." },
+    { q:"ما المصطلح الذي يشير إلى بيع وشراء السلع والخدمات عبر الإنترنت؟",
+      options:["التجارة الإلكترونية","العمل عن بُعد","التعلم عبر الإنترنت","الدفع غير النقدي"], correct:0,
+      hint:"من أمثلتها متاجر إلكترونية مثل أمازون وإيباي." },
+    { q:"ما المصطلح العام الذي يصف الأنظمة الحاسوبية القادرة على التعلم والتعرف والتنبؤ وتوليد المحتوى؟",
+      options:["الذكاء الاصطناعي (AI)","الحوسبة السحابية","الإنترنت","قانون مور"], correct:0,
+      hint:"هذا المجال يضم أساليب مثل التعلم الآلي والتعلم العميق." },
+    { q:"أي فرع من الذكاء الاصطناعي تتعلم فيه النماذج أنماطًا من البيانات بدلًا من برمجة كل قاعدة صراحة؟",
+      options:["التعلم الآلي (ML)","الحوسبة الطرفية","الواقع الافتراضي","الحوسبة الكمومية"], correct:0,
+      hint:"من أمثلته تصنيف الرسائل المزعجة وتوصية المنتجات." },
+    { q:"ما اسم النظام الذي يتنبأ بتفضيلاتك بناءً على سلوكك السابق ويعرض توصيات، مثل يوتيوب ونتفليكس؟",
+      options:["نظام التوصية","المساعد الصوتي","الترجمة الآلية","التعرف على الوجه"], correct:0,
+      hint:"يعتمد هذا النظام على بيانات سلوكك السابق، مثل ما شاهدته أو اشتريته من قبل." },
+    { q:"ما المصطلح الذي يصف نمطًا في مخرجات الذكاء الاصطناعي قد يؤدي إلى نتائج غير عادلة أو ضارة؟",
+      options:["التحيز الخوارزمي","الشفافية","الحوسبة السحابية","الترجمة الآلية"], correct:0,
+      hint:"قد ينشأ هذا النمط من البيانات أو تصميم النظام أو طريقة استخدامه." },
+    { q:"كم عدد المبادئ الأساسية لأخلاقيات الذكاء الاصطناعي التي ركّز عليها الدرس؟",
+      options:["أربعة","اثنان","ستة","ثلاثة"], correct:0,
+      hint:"هي: العدالة، والشفافية، وحماية الخصوصية، والمساءلة." }
+  ],
+  medium: [
+    { q:"ما اسم التقنية التي تستخدم كاميرات ومستشعرات لإدراك محيط المركبة ثم تعالج البيانات لاتخاذ قرارات القيادة؟",
+      options:["القيادة الذاتية","الواقع المعزز","الحوسبة الكمومية","الترجمة الآلية"], correct:0,
+      hint:"تُعالَج بعض بياناتها محليًا بالحوسبة الطرفية لتقليل زمن الاستجابة." },
+    { q:"ما التقنية التي تضيف عناصر أو معلومات رقمية إلى مشهد من العالم الحقيقي، كفلاتر الكاميرا؟",
+      options:["الواقع المعزز (AR)","الواقع الافتراضي (VR)","الحوسبة الطرفية","الحوسبة الكمومية"], correct:0,
+      hint:"يختلف عن الواقع الافتراضي الذي يضع المستخدم داخل بيئة مولّدة حاسوبيًا بالكامل." },
+    { q:"ما أسلوب التعلم الآلي الذي يعتمد على شبكات عصبية متعددة الطبقات؟",
+      options:["التعلم العميق (DL)","التعلم الآلي العام فقط","الذكاء الاصطناعي التوليدي فقط","الحوسبة السحابية"], correct:0,
+      hint:"من أمثلته تحليل الصور والتعرف على الكلام." },
+    { q:"ما اسم الظاهرة التي ينتج فيها الذكاء الاصطناعي التوليدي معلومات تبدو مقنعة لكنها غير صحيحة واقعيًا؟",
+      options:["الهلوسة","التحيز الخوارزمي","الشفافية","المساءلة"], correct:0,
+      hint:"لهذا يجب التحقق من مخرجات الذكاء الاصطناعي التوليدي ومصادرها قبل استخدامها." },
+    { q:"في أي صناعة يُستخدم الذكاء الاصطناعي للتشخيص بالصور والكشف عن الأمراض من صور الأشعة السينية؟",
+      options:["الرعاية الصحية","الزراعة","الخدمات اللوجستية","التصنيع"], correct:0,
+      hint:"يُستخدم فيها الذكاء الاصطناعي أيضًا لدعم اكتشاف الأدوية." },
+    { q:"ما المصطلح الذي يصف استخدام البيانات للتنبؤ بأعطال الآلات أو المعدات قبل وقوعها في التصنيع؟",
+      options:["الصيانة التنبؤية","أتمتة فحص الجودة فقط","الصيانة الدورية التقليدية","التحكم عن بعد"], correct:0,
+      hint:"الهدف منها منع تعطل الآلات قبل حدوثه، وليس بعده." },
+    { q:"أي مما يلي ليس سببًا مناسبًا للتحيز الخوارزمي؟",
+      options:["بطء سرعة معالجة الحاسوب","بيانات تدريب متحيزة","بيانات غير كافية عن سمات معينة","انعكاس نزعات تمييزية سابقة في البيانات"], correct:0,
+      hint:"التحيز يتعلق بجودة البيانات وتصميم النظام، وليس بسرعة معالجة الحاسوب." },
+    { q:"ما المبدأ من مبادئ أخلاقيات الذكاء الاصطناعي الذي يقتضي عدم التمييز ظلمًا ضد أي شخص أو مجموعة؟",
+      options:["العدالة","الشفافية","حماية الخصوصية","المساءلة"], correct:0,
+      hint:"هذا المبدأ يهتم بألا يفضّل النظام فئة على أخرى بصورة غير عادلة." }
+  ],
+  hard: [
+    { q:"ما الترتيب الزمني الصحيح لمراحل تطور تكنولوجيا المعلومات؟",
+      options:[
+        "بداية ظهور الحاسب ← تسويق الإنترنت تجاريًا ← ظهور الهواتف الذكية ← انتشار الحوسبة السحابية",
+        "بداية ظهور الحاسب ← ظهور الهواتف الذكية ← تسويق الإنترنت تجاريًا ← انتشار الحوسبة السحابية",
+        "تسويق الإنترنت تجاريًا ← ظهور الحاسب ← انتشار الحوسبة السحابية ← ظهور الهواتف الذكية",
+        "ظهور الهواتف الذكية ← تسويق الإنترنت تجاريًا ← ظهور الحاسب ← انتشار الحوسبة السحابية"
+      ], correct:0,
+      hint:"الحاسوب ظهر في الأربعينيات، والإنترنت التجاري في التسعينيات، والهواتف الذكية في العقد الأول من الألفية." },
+    { q:"ما العلاقة الصحيحة بين المفاهيم كما وصفها الدرس، من الأوسع إلى الأكثر تخصصًا؟",
+      options:[
+        "الذكاء الاصطناعي > التعلم الآلي > التعلم العميق > الذكاء الاصطناعي التوليدي",
+        "التعلم العميق > الذكاء الاصطناعي > التعلم الآلي > الذكاء الاصطناعي التوليدي",
+        "الذكاء الاصطناعي التوليدي > الذكاء الاصطناعي > التعلم العميق > التعلم الآلي",
+        "التعلم الآلي > الذكاء الاصطناعي > الذكاء الاصطناعي التوليدي > التعلم العميق"
+      ], correct:0,
+      hint:"هذه علاقة تعليمية مبسطة تبدأ من الفكرة الأوسع (الذكاء الاصطناعي) وتنتهي بالأكثر تخصصًا (التوليدي)." },
+    { q:"لماذا تُعالج بعض بيانات القيادة الذاتية محليًا على المركبة بالحوسبة الطرفية بدلًا من إرسالها للسحابة؟",
+      options:[
+        "لتقليل زمن الاستجابة لأن التأخير قد يؤثر في السلامة",
+        "لأن السحابة لا تدعم بيانات القيادة إطلاقًا",
+        "لتقليل تكلفة الإنترنت فقط لا غير",
+        "لأن الحوسبة الطرفية أرخص فقط دون علاقة بالسلامة"
+      ], correct:0,
+      hint:"السرعة في اتخاذ القرار مسألة سلامة عند القيادة الذاتية، وليست مجرد راحة." },
+    { q:"ما الفرق الجوهري بين المساءلة (Accountability) والذكاء الاصطناعي القابل للتفسير (XAI) بحسب الدرس؟",
+      options:[
+        "المساءلة تحدد من يُحاسب على النتيجة، بينما XAI يفسر العوامل التي أسهمت في القرار",
+        "المساءلة و XAI لهما المعنى نفسه تمامًا",
+        "XAI هو من يحدد الجهة القانونية المسؤولة عن الخطأ",
+        "المساءلة تقنية برمجية تُستخدم لتحسين دقة النموذج"
+      ], correct:0,
+      hint:"المساءلة ليست القدرة على شرح القرار — تلك وظيفة الذكاء الاصطناعي القابل للتفسير (XAI)." },
+    { q:"أي وصف تالٍ غير صحيح عن الواقع الافتراضي (VR)؟",
+      options:[
+        "الواقع الافتراضي يُحسّن بشكل كبير سرعة معالجة الحاسوب",
+        "الواقع الافتراضي يضع المستخدم داخل بيئة افتراضية مولّدة حاسوبيًا",
+        "الواقع الافتراضي يختلف عن الواقع المعزز في كونه بيئة كاملة لا مجرد إضافة عناصر",
+        "الواقع الافتراضي أحد التقنيات الناشئة البارزة التي تناولها الدرس"
+      ], correct:0,
+      hint:"وظيفة الواقع الافتراضي هي الانغماس في بيئة رقمية كاملة، وليست تسريع معالجة الحاسوب." },
+    { q:"أي مما يلي يتطلب حذرًا خاصًا عند استخدام الذكاء الاصطناعي بحسب الدرس؟",
+      options:[
+        "القرارات ذات البعد الأخلاقي التي قد تؤدي إلى تمييز أو تحيز",
+        "إيجاد وتصنيف الأنماط في الصور والنصوص",
+        "التعرف على الصور والأصوات",
+        "الاستدلال الاحتمالي والتنبؤ استنادًا إلى البيانات"
+      ], correct:0,
+      hint:"هذه من المهام التي يبرع فيها الذكاء الاصطناعي عادة، ما عدا واحدة تتطلب حكمًا بشريًا." },
+    { q:"استخدام الرمز البريدي كمؤشر غير مباشر على الدخل بدلًا من استخدام العرق مباشرة، هذا مثال على تحيز ينشأ من:",
+      options:[
+        "طريقة بناء النظام واختيار المتغيرات",
+        "بطء سرعة الحاسوب",
+        "نقص عدد المستخدمين",
+        "زيادة تكلفة التدريب"
+      ], correct:0,
+      hint:"يسمى هذا النوع من المتغيرات 'متغيرًا بديلًا' يمثل سمة محمية بشكل غير مباشر." },
+    { q:"لماذا لا تُعد الحوسبة الكمومية بديلًا عامًا لكل الحواسيب التقليدية؟",
+      options:[
+        "لأنها تفيد في فئات محددة من المسائل فقط، ولا تسرّع كل أنواع الحسابات",
+        "لأنها أبطأ من الحواسيب التقليدية في كل شيء دون استثناء",
+        "لأنها لا تستخدم أي مبدأ فيزيائي حديث",
+        "لأنه لا يمكن بناؤها فعليًا حتى الآن"
+      ], correct:0,
+      hint:"الحوسبة الكمومية نهج مختلف يعتمد على خصائص ميكانيكا الكم، ومفيد في مسائل معينة فقط." }
+  ],
+  advanced: [
+    { q:"أي مما يلي يمثل قضية خصوصية مرتبطة بالذكاء الاصطناعي بحسب الدرس؟",
+      options:[
+        "التعرف على الأفراد وتتبعهم عبر تقنية التعرف على الوجه في الأماكن العامة",
+        "الذكاء الاصطناعي ينشئ أعمالًا إبداعية",
+        "تحسّن سرعة حوسبة الذكاء الاصطناعي",
+        "استخدام الحوسبة الطرفية لتقليل زمن الاستجابة"
+      ], correct:0,
+      hint:"فكّر في المراقبة عبر الكاميرات، وجمع بيانات السلوك عبر الإنترنت وتحليلها." },
+    { q:"عبارة: «يوجد توزيع واحد للمسؤولية يصلح لكل السياقات في الذكاء الاصطناعي» — هل هذه العبارة صحيحة أم خاطئة؟",
+      options:["خاطئة","صحيحة"], correct:0,
+      hint:"تختلف المسؤولية باختلاف النظام والاستخدام والقواعد المعمول بها — لا يوجد توزيع واحد يصلح للجميع." },
+    { q:"متى تصبح أحكام الذكاء الاصطناعي غير دقيقة بحسب الدرس؟",
+      options:[
+        "عندما تكون بيانات التدريب غير كافية أو غير ممثلة أو متحيزة",
+        "عندما يكون النظام سريعًا جدًا في المعالجة",
+        "عندما يُستخدم النظام في الرعاية الصحية فقط",
+        "عندما تكون الشفافية عالية جدًا"
+      ], correct:0,
+      hint:"جودة بيانات التدريب هي المفتاح الأساسي لدقة أحكام النظام." },
+    { q:"شركة تُطبّق نظام «العمل من المنزل» لموظفيها — إلى أي نوع من التغيرات الاجتماعية التي أحدثتها تكنولوجيا المعلومات ينتمي هذا مباشرة؟",
+      options:["العمل عن بُعد","التعلم عبر الإنترنت","التجارة الإلكترونية","الدفع غير النقدي"], correct:0,
+      hint:"هو نمط عمل يؤدي فيه الشخص مهامه من المنزل أو موقع بعيد باستخدام الإنترنت." },
+    { q:"تعتمد غالبية أنظمة الذكاء الاصطناعي التوليدي الحديثة (مثل ChatGPT وأدوات توليد الصور) على:",
+      options:["التعلم العميق (Deep Learning)","الحوسبة الكمومية","الحوسبة الطرفية فقط","قانون مور فقط"], correct:0,
+      hint:"هذا الأسلوب يعتمد على شبكات عصبية متعددة الطبقات." },
+    { q:"ما العبارة الصحيحة حول مشكلة «الصندوق الأسود» في تفسير مخرجات الذكاء الاصطناعي؟",
+      options:[
+        "عندما تكون آلية الوصول إلى النتيجة غير واضحة، يصعب تقييمها واكتشاف الأخطاء أو التحيز فيها",
+        "الصندوق الأسود يعني أن النظام دائمًا مخطئ",
+        "لا توجد علاقة بين الصندوق الأسود والتحيز",
+        "الصندوق الأسود مشكلة تتعلق فقط بسرعة المعالجة"
+      ], correct:0,
+      hint:"لهذا السبب ظهرت تقنيات الذكاء الاصطناعي القابل للتفسير (XAI)." }
+  ]
+};
+
+// Working copy used by the game — options get reshuffled at the start of every
+// playthrough so the correct answer isn't always in the same position.
+let QUESTIONS = QUESTIONS_SOURCE;
+
+function buildShuffledQuestions(){
+  const result = {};
+  LEVEL_ORDER.forEach(lvKey=>{
+    result[lvKey] = QUESTIONS_SOURCE[lvKey].map(q=>{
+      const correctText = q.options[q.correct];
+      const order = shuffle(q.options.map((_,i)=>i));
+      const newOptions = order.map(i=>q.options[i]);
+      const newCorrect = newOptions.indexOf(correctText);
+      return { q:q.q, options:newOptions, correct:newCorrect, hint:q.hint };
+    });
+  });
+  return result;
+}
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let state = {
+  screen:'start',
+  studentName:'',
+  levelIdx:0,
+  qIdx:0,
+  answers:[],
+  totalScore:0,
+  lifelines:{
+    fifty:{used:false, qKey:null, label:'٥٠/٥٠'},
+    hint:{used:false, qKey:null, label:'تلميح'},
+    time:{used:false, qKey:null, label:'وقت إضافي'}
+  },
+  hiddenIdx:[],
+  hintShown:false,
+  timer:{remaining:0,total:0,intervalId:null},
+  answered:false,
+  gameStart:null,
+  gameEnd:null,
+  qStartTs:null
+};
+
+/* =====================================================================
+   AUDIO
+   ===================================================================== */
+let audioCtx = null;
+function ctx(){
+  if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+  return audioCtx;
+}
+function tone(freq,start,dur,type,vol){
+  const c = ctx();
+  const o = c.createOscillator();
+  const g = c.createGain();
+  o.type = type||'sine';
+  o.frequency.value = freq;
+  g.gain.value = vol||0.15;
+  o.connect(g); g.connect(c.destination);
+  const t0 = c.currentTime+start;
+  o.start(t0);
+  g.gain.setValueAtTime(g.gain.value, t0);
+  g.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+  o.stop(t0+dur+0.02);
+}
+function playCorrect(){ tone(660,0,.12,'sine',.18); tone(880,.1,.18,'sine',.18); }
+function playWrong(){ tone(180,0,.28,'sawtooth',.14); }
+function playTick(){ tone(1000,0,.05,'square',.06); }
+function playSelect(){ tone(500,0,.05,'sine',.08); }
+function playLevelUp(){ tone(523,0,.1,'sine',.15); tone(659,.1,.1,'sine',.15); tone(784,.2,.18,'sine',.15); }
+function playFinal(){ tone(523,0,.12,'sine',.16); tone(659,.12,.12,'sine',.16); tone(784,.24,.12,'sine',.16); tone(1046,.36,.3,'sine',.18); }
+
+/* --- tension pulse: a soft rhythmic heartbeat-like pulse under every question,
+   speeds up as time runs low. Built from short soft tones (not a continuous
+   drone) so it stays pleasant rather than buzzy. --- */
+let tensionIntervalId = null;
+function tensionBeat(){
+  tone(96, 0, 0.13, 'sine', 0.10);
+  tone(226, 0.02, 0.11, 'sine', 0.045);
+  tone(339, 0.02, 0.09, 'sine', 0.022);
+}
+function startTension(){
+  stopTension();
+  tensionBeat();
+  tensionIntervalId = setInterval(tensionBeat, 650);
+}
+function intensifyTension(){
+  if(!tensionIntervalId) return;
+  clearInterval(tensionIntervalId);
+  tensionIntervalId = setInterval(tensionBeat, 310);
+}
+function stopTension(){
+  if(tensionIntervalId){ clearInterval(tensionIntervalId); tensionIntervalId=null; }
+}
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+function currentLevelKey(){ return LEVEL_ORDER[state.levelIdx]; }
+function currentQuestions(){ return QUESTIONS[currentLevelKey()]; }
+function currentQuestion(){ return currentQuestions()[state.qIdx]; }
+function qKeyFor(levelKey, idx){ return levelKey+'-'+idx; }
+function fmtTime(sec){
+  const m = Math.floor(sec/60), s = sec%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* =====================================================================
+   RENDER: router
+   ===================================================================== */
+function render(){
+  const app = document.getElementById('app');
+  if(state.screen==='start') app.innerHTML = renderStart();
+  else if(state.screen==='question') app.innerHTML = renderQuestion();
+  else if(state.screen==='levelResult') app.innerHTML = renderLevelResult();
+  else if(state.screen==='finalReport') app.innerHTML = renderFinalReport();
+  attachHandlers();
+}
+
+/* ---------------- START ---------------- */
+function renderStart(){
+  return `
+  <div class="hero">
+    <div class="hero-badge">مسابقة الوحدة الأولى · فردية</div>
+    <h1>تكنولوجيا المعلومات والذكاء الاصطناعي</h1>
+    <p class="lead">مسابقة تفاعلية بالصوت والوقت على دروس الوحدة الأولى كاملة، بأربعة مستويات متدرجة الصعوبة. جاوب بنفسك، واحصل على تقرير كامل بإجاباتك في النهاية.</p>
+  </div>
+
+  <div class="roadmap">
+    <div class="roadmap-track">
+      ${LEVEL_ORDER.map((k,i)=>`
+        <div class="stage ${LEVEL_META[k].cls}">
+          <div class="dot">${i+1}</div>
+          <div class="label">${LEVEL_META[k].label}</div>
+          <div class="sub">${QUESTIONS[k].length} أسئلة · ${LEVEL_META[k].time} ث</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="rules-grid">
+    <div class="rule-card"><div class="n">الوقت</div><p>لكل سؤال 20 ثانية بالضبط. إن انتهى الوقت تُحسب الإجابة خاطئة تلقائيًا.</p></div>
+    <div class="rule-card"><div class="n">التسجيل</div><p>كل مستوى له نقاط أساسية أعلى من الذي قبله، وتُضاف نقاط إضافية عن السرعة في الإجابة الصحيحة.</p></div>
+    <div class="rule-card"><div class="n">وسائل المساعدة</div><p>ثلاث وسائل مساعدة (٥٠/٥٠ – تلميح – وقت إضافي)، كل واحدة منها تُستخدم مرة واحدة فقط خلال المسابقة كلها.</p></div>
+    <div class="rule-card"><div class="n">التقرير</div><p>في النهاية يظهر تقرير كامل بكل الأسئلة وإجاباتك والوسيلة المستخدمة، ويمكن حفظه كملف PDF.</p></div>
+  </div>
+
+  <div class="name-box">
+    <label for="nameInput">اكتب اسمك قبل بدء المسابقة</label>
+    <input type="text" id="nameInput" placeholder="مثال: محمد أحمد" value="${esc(state.studentName)}">
+    <div class="field-error" id="nameError">من فضلك اكتب اسمك أولًا قبل بدء المسابقة.</div>
+    <div class="row">
+      <button class="btn" id="startBtn" style="flex:1">ابدأ المسابقة 🚀</button>
+    </div>
+  </div>
+  <footer class="credit">Prepared by Eng. Marco Edwer</footer>
+  `;
+}
+
+/* ---------------- QUESTION ---------------- */
+function renderQuestion(){
+  const lvKey = currentLevelKey();
+  const meta = LEVEL_META[lvKey];
+  const qs = currentQuestions();
+  const q = currentQuestion();
+  const qk = qKeyFor(lvKey, state.qIdx);
+
+  const pct = Math.max(0, Math.round((state.timer.remaining/state.timer.total)*100));
+  let barColor = 'var(--'+meta.cls+')';
+  if(state.timer.remaining <= 5) barColor = 'var(--danger)';
+
+  const optsHtml = q.options.map((opt,i)=>{
+    const hidden = state.hiddenIdx.includes(i) ? 'hidden-opt':'';
+    let cls='';
+    if(state.answered){
+      if(i===q.correct) cls='correct';
+      else if(i===state.chosenIdx) cls='wrong';
+    }
+    return `<button class="opt ${cls} ${hidden}" data-idx="${i}" ${state.answered?'disabled':''}>
+      <span class="mark">${'أبجد'[i]||(i+1)}</span><span>${esc(opt)}</span>
+    </button>`;
+  }).join('');
+
+  const fiftyDisabled = state.lifelines.fifty.used || state.answered;
+  const hintDisabled = state.lifelines.hint.used || state.answered;
+  const timeDisabled = state.lifelines.time.used || state.answered;
+
+  return `
+  <div class="q-top">
+    <span class="level-chip ${meta.cls}">مستوى ${meta.label}</span>
+    <span class="progress-text">سؤال ${state.qIdx+1} من ${qs.length}</span>
+    <span class="score-text">النقاط: ${state.totalScore}</span>
+  </div>
+
+  <div class="timer-wrap">
+    <div class="timer-track"><div class="timer-fill" style="width:${pct}%;background:${barColor}"></div></div>
+    <div class="timer-num ${state.timer.remaining<=5?'warn':''}">${fmtTime(state.timer.remaining)}</div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-text">${esc(q.q)}</div>
+    <div class="options">${optsHtml}</div>
+    <div class="feedback ${state.answered?'show '+(state.lastCorrect?'ok':'bad'):''}" id="feedbackBox">
+      ${state.answered ? (state.lastCorrect ? '✔ إجابة صحيحة! أحسنت.' : '✘ إجابة غير صحيحة. الإجابة الصحيحة: «'+esc(q.options[q.correct])+'»') : ''}
+    </div>
+    <div class="hint-box ${state.hintShown?'show':''}">💡 تلميح من الكتاب: ${esc(q.hint)}</div>
+
+    <div class="lifelines no-print">
+      <button class="life-btn ${state.lifelines.fifty.used?'used':''}" id="lifeFifty" ${fiftyDisabled?'disabled':''}>
+        <span class="ic">✂️</span>
+        <span><span class="tt">٥٠/٥٠</span><br><span class="st">${state.lifelines.fifty.used?'تم الاستخدام':'حذف إجابتين خاطئتين'}</span></span>
+      </button>
+      <button class="life-btn ${state.lifelines.hint.used?'used':''}" id="lifeHint" ${hintDisabled?'disabled':''}>
+        <span class="ic">💡</span>
+        <span><span class="tt">تلميح</span><br><span class="st">${state.lifelines.hint.used?'تم الاستخدام':'تلميح من الكتاب'}</span></span>
+      </button>
+      <button class="life-btn ${state.lifelines.time.used?'used':''}" id="lifeTime" ${timeDisabled?'disabled':''}>
+        <span class="ic">⏱️</span>
+        <span><span class="tt">١٥ ثانية إضافية</span><br><span class="st">${state.lifelines.time.used?'تم الاستخدام':'تمديد وقت السؤال'}</span></span>
+      </button>
+    </div>
+
+    <div class="next-row">
+      <button class="btn" id="nextBtn" style="display:${state.answered?'inline-block':'none'}">
+        ${ (state.qIdx===qs.length-1) ? 'عرض نتيجة المستوى' : 'السؤال التالي ←' }
+      </button>
+    </div>
+  </div>
+  `;
+}
+
+/* ---------------- LEVEL RESULT ---------------- */
+function renderLevelResult(){
+  const lvKey = currentLevelKey();
+  const meta = LEVEL_META[lvKey];
+  const qs = currentQuestions();
+  const levelAnswers = state.answers.filter(a=>a.levelKey===lvKey);
+  const correctCount = levelAnswers.filter(a=>a.isCorrect).length;
+  const pct = Math.round((correctCount/qs.length)*100);
+  let stars = 0;
+  if(pct>=90) stars=3; else if(pct>=70) stars=2; else if(pct>=40) stars=1;
+  const levelScore = levelAnswers.reduce((s,a)=>s+a.points,0);
+  const totalTime = levelAnswers.reduce((s,a)=>s+a.timeTaken,0);
+
+  const isLast = state.levelIdx === LEVEL_ORDER.length-1;
+  const nextLabel = isLast ? 'عرض التقرير النهائي 📊' : `التالي: مستوى ${LEVEL_META[LEVEL_ORDER[state.levelIdx+1]].label} →`;
+
+  return `
+  <div class="result-hero">
+    <span class="level-chip ${meta.cls}" style="font-size:14px;">اكتمل مستوى ${meta.label}</span>
+    <div class="stars">
+      <span class="${stars>=1?'lit':''}">★</span><span class="${stars>=2?'lit':''}">★</span><span class="${stars>=3?'lit':''}">★</span>
+    </div>
+    <h2>${correctCount} من ${qs.length} إجابات صحيحة</h2>
+  </div>
+
+  <div class="result-stats">
+    <div class="stat-card"><div class="val">${levelScore}</div><div class="lab">نقاط هذا المستوى</div></div>
+    <div class="stat-card"><div class="val">${pct}%</div><div class="lab">نسبة الإجابات الصحيحة</div></div>
+    <div class="stat-card"><div class="val">${fmtTime(totalTime)}</div><div class="lab">الوقت المستغرق</div></div>
+  </div>
+
+  <div class="roadmap">
+    <div class="roadmap-track">
+      ${LEVEL_ORDER.map((k,i)=>`
+        <div class="stage ${LEVEL_META[k].cls} ${i<=state.levelIdx?'done':''} ${i===state.levelIdx+1?'active':''}">
+          <div class="dot">${i<=state.levelIdx?'✓':i+1}</div>
+          <div class="label">${LEVEL_META[k].label}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="name-box" style="text-align:center;">
+    <button class="btn" id="continueBtn">${nextLabel}</button>
+  </div>
+  <footer class="credit">Prepared by Eng. Marco Edwer</footer>
+  `;
+}
+
+/* ---------------- FINAL REPORT ---------------- */
+function renderFinalReport(){
+  const total = state.answers.length;
+  const correct = state.answers.filter(a=>a.isCorrect).length;
+  const pct = Math.round((correct/total)*100);
+  const totalTime = state.gameEnd && state.gameStart ? Math.round((state.gameEnd-state.gameStart)/1000) : 0;
+  const maxScore = LEVEL_ORDER.reduce((s,k)=>{
+    const meta = LEVEL_META[k];
+    const maxPerQ = meta.base + Math.floor(meta.time/5); // best case: answered instantly
+    return s + QUESTIONS[k].length*maxPerQ;
+  },0);
+
+  let grade = 'يحتاج مراجعة';
+  if(pct>=90) grade='ممتاز';
+  else if(pct>=75) grade='جيد جدًا';
+  else if(pct>=60) grade='جيد';
+  else if(pct>=40) grade='مقبول';
+
+  const lifelinesUsedList = Object.entries(state.lifelines)
+    .filter(([k,v])=>v.used)
+    .map(([k,v])=>{
+      const a = state.answers.find(x=>qKeyFor(x.levelKey,x.qIdx)===v.qKey);
+      const qLabel = a ? `${LEVEL_META[a.levelKey].label} — سؤال ${a.qIdx+1}` : '—';
+      return `<li><span>${v.label}</span><b>${qLabel}</b></li>`;
+    });
+  const lifelinesHtml = lifelinesUsedList.length
+    ? lifelinesUsedList.join('')
+    : '<li><span>لم تُستخدم أي وسيلة مساعدة</span><b>—</b></li>';
+
+  const levelRows = LEVEL_ORDER.map(k=>{
+    const meta = LEVEL_META[k];
+    const la = state.answers.filter(a=>a.levelKey===k);
+    const c = la.filter(a=>a.isCorrect).length;
+    const p = la.length ? Math.round((c/la.length)*100) : 0;
+    return `<div class="lb-row">
+      <div class="lb-name">${meta.label}</div>
+      <div class="lb-bar"><span style="width:${p}%;background:var(--${meta.cls})"></span></div>
+      <div class="lb-score"><bdi style="unicode-bidi:isolate;direction:ltr;">${c}/${la.length}</bdi> (${p}%)</div>
+    </div>`;
+  }).join('');
+
+  const tableRows = state.answers.map(a=>{
+    const meta = LEVEL_META[a.levelKey];
+    const lifeline = ['fifty','hint','time'].find(k=>state.lifelines[k].qKey===qKeyFor(a.levelKey,a.qIdx));
+    const lifelineLabel = lifeline ? state.lifelines[lifeline].label : '—';
+    return `<tr>
+      <td><span class="lvl-tag ${meta.cls}">${meta.label}</span></td>
+      <td>${a.qIdx+1}</td>
+      <td class="rt-q">${esc(a.question)}</td>
+      <td>${esc(a.chosenText)}</td>
+      <td>${esc(a.correctText)}</td>
+      <td class="${a.isCorrect?'rt-ok':'rt-bad'}">${a.isCorrect?'صحيحة ✔':'خاطئة ✘'}</td>
+      <td>${lifelineLabel}</td>
+      <td>${a.points}</td>
+    </tr>`;
+  }).join('');
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ar-EG', {year:'numeric', month:'long', day:'numeric'});
+
+  return `
+  <div class="report-container" id="reportArea">
+    <div class="report-head">
+      <div>
+        <h2>تقرير مسابقة الوحدة الأولى</h2>
+        <div class="meta">
+          الاسم: <b style="color:var(--text)">${esc(state.studentName||'—')}</b><br>
+          التاريخ: ${dateStr}<br>
+          الوحدة: تكنولوجيا المعلومات والذكاء الاصطناعي (الدروس 1-1 حتى 1-4)
+        </div>
+      </div>
+      <div class="trophy">🏆</div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="stat-card"><div class="val"><bdi style="unicode-bidi:isolate;direction:ltr;">${state.totalScore} / ${maxScore}</bdi></div><div class="lab">إجمالي النقاط</div></div>
+      <div class="stat-card"><div class="val"><bdi style="unicode-bidi:isolate;direction:ltr;">${correct} / ${total}</bdi></div><div class="lab">الإجابات الصحيحة</div></div>
+      <div class="stat-card"><div class="val">${pct}%</div><div class="lab">النسبة المئوية</div></div>
+      <div class="stat-card"><div class="val">${grade}</div><div class="lab">التقييم العام</div></div>
+    </div>
+
+    <h3 style="font-size:15px;margin-bottom:10px;">الأداء حسب المستوى</h3>
+    <div class="level-breakdown">${levelRows}</div>
+
+    <div class="life-summary">
+      <h3>وسائل المساعدة المستخدمة</h3>
+      <ul>${lifelinesHtml}</ul>
+    </div>
+
+    <h3 style="font-size:15px;margin-bottom:10px;">تفاصيل كل سؤال</h3>
+    <div style="overflow-x:auto;">
+      <table class="report-table">
+        <thead><tr>
+          <th>المستوى</th><th>#</th><th>السؤال</th><th>إجابتك</th><th>الإجابة الصحيحة</th><th>النتيجة</th><th>وسيلة مساعدة</th><th>النقاط</th>
+        </tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+
+    <div class="meta" style="margin-top:18px;">إجمالي الوقت المستغرق في المسابقة: ${fmtTime(totalTime)}</div>
+  </div>
+
+  <div class="report-actions no-print">
+    <button class="btn" id="printBtn">تحميل التقرير PDF 🖨️</button>
+    <button class="btn secondary" id="restartBtn">إعادة المسابقة من البداية</button>
+  </div>
+  <div class="print-hint no-print">عند الضغط على «تحميل التقرير» ستُفتح نافذة الطباعة — اختر «حفظ كـ PDF» / «Save as PDF» من قائمة الوجهة (Destination) ثم احفظ الملف.</div>
+  <footer class="credit no-print">Prepared by Eng. Marco Edwer</footer>
+  `;
+}
+
+/* =====================================================================
+   TIMER
+   ===================================================================== */
+function startTimer(){
+  clearTimer();
+  const meta = LEVEL_META[currentLevelKey()];
+  state.timer.total = meta.time;
+  state.timer.remaining = meta.time;
+  state.qStartTs = Date.now();
+  startTension();
+  let intensified = false;
+  state.timer.intervalId = setInterval(()=>{
+    state.timer.remaining--;
+    if(state.timer.remaining<=5 && state.timer.remaining>0){
+      playTick();
+      if(!intensified){ intensifyTension(); intensified = true; }
+    }
+    if(state.timer.remaining<=0){
+      state.timer.remaining = 0;
+      clearTimer();
+      submitAnswer(-1); // timeout, no answer chosen
+      return;
+    }
+    updateTimerUI();
+  },1000);
+  updateTimerUI();
+}
+function clearTimer(){
+  if(state.timer.intervalId){ clearInterval(state.timer.intervalId); state.timer.intervalId=null; }
+}
+function updateTimerUI(){
+  const fill = document.querySelector('.timer-fill');
+  const num = document.querySelector('.timer-num');
+  if(!fill||!num) return;
+  const pct = Math.max(0, Math.round((state.timer.remaining/state.timer.total)*100));
+  const meta = LEVEL_META[currentLevelKey()];
+  fill.style.width = pct+'%';
+  fill.style.background = state.timer.remaining<=5 ? 'var(--danger)' : 'var(--'+meta.cls+')';
+  num.textContent = fmtTime(state.timer.remaining);
+  num.classList.toggle('warn', state.timer.remaining<=5);
+}
+
+/* =====================================================================
+   GAME FLOW
+   ===================================================================== */
+function beginGame(){
+  const input = document.getElementById('nameInput');
+  const name = (input.value||'').trim();
+  if(!name){
+    input.classList.add('error');
+    const err = document.getElementById('nameError');
+    if(err) err.classList.add('show');
+    input.focus();
+    return;
+  }
+  state.studentName = name;
+  QUESTIONS = buildShuffledQuestions();
+  state.levelIdx = 0;
+  state.qIdx = 0;
+  state.answers = [];
+  state.totalScore = 0;
+  state.lifelines = {
+    fifty:{used:false, qKey:null, label:'٥٠/٥٠'},
+    hint:{used:false, qKey:null, label:'تلميح'},
+    time:{used:false, qKey:null, label:'وقت إضافي'}
+  };
+  state.gameStart = Date.now();
+  goToQuestion();
+}
+
+function goToQuestion(){
+  state.screen='question';
+  state.answered=false;
+  state.chosenIdx=null;
+  state.lastCorrect=false;
+  state.hiddenIdx=[];
+  state.hintShown=false;
+  render();
+  startTimer();
+}
+
+function submitAnswer(chosenIdx){
+  if(state.answered) return;
+  clearTimer();
+  stopTension();
+  state.answered = true;
+  state.chosenIdx = chosenIdx;
+  const q = currentQuestion();
+  const isCorrect = chosenIdx === q.correct;
+  state.lastCorrect = isCorrect;
+  const meta = LEVEL_META[currentLevelKey()];
+  const timeTaken = Math.max(0, Math.round((Date.now()-state.qStartTs)/1000));
+  const timeBonus = isCorrect ? Math.max(0, Math.floor(state.timer.remaining/5)) : 0;
+  const points = isCorrect ? meta.base + timeBonus : 0;
+  state.totalScore += points;
+
+  state.answers.push({
+    levelKey: currentLevelKey(),
+    qIdx: state.qIdx,
+    question: q.q,
+    options: q.options,
+    correctIdx: q.correct,
+    correctText: q.options[q.correct],
+    chosenIdx: chosenIdx,
+    chosenText: chosenIdx>=0 ? q.options[chosenIdx] : '(لم تتم الإجابة في الوقت)',
+    isCorrect: isCorrect,
+    timeTaken: timeTaken,
+    points: points
+  });
+
+  if(isCorrect) playCorrect(); else playWrong();
+  render();
+}
+
+function nextStep(){
+  const qs = currentQuestions();
+  if(state.qIdx < qs.length-1){
+    state.qIdx++;
+    goToQuestion();
+  } else {
+    playLevelUp();
+    state.screen='levelResult';
+    render();
+  }
+}
+
+function continueAfterLevel(){
+  if(state.levelIdx < LEVEL_ORDER.length-1){
+    state.levelIdx++;
+    state.qIdx = 0;
+    goToQuestion();
+  } else {
+    state.gameEnd = Date.now();
+    playFinal();
+    state.screen='finalReport';
+    render();
+  }
+}
+
+function restartGame(){
+  state.screen='start';
+  render();
+}
+
+/* ---- lifelines ---- */
+function useFifty(){
+  if(state.lifelines.fifty.used || state.answered) return;
+  const q = currentQuestion();
+  const wrongIdx = q.options.map((_,i)=>i).filter(i=>i!==q.correct);
+  shuffle(wrongIdx);
+  const toHide = wrongIdx.slice(0, Math.min(2, wrongIdx.length));
+  state.hiddenIdx = toHide;
+  state.lifelines.fifty.used = true;
+  state.lifelines.fifty.qKey = qKeyFor(currentLevelKey(), state.qIdx);
+  playSelect();
+  render();
+}
+function useHint(){
+  if(state.lifelines.hint.used || state.answered) return;
+  state.hintShown = true;
+  state.lifelines.hint.used = true;
+  state.lifelines.hint.qKey = qKeyFor(currentLevelKey(), state.qIdx);
+  playSelect();
+  render();
+}
+function useTime(){
+  if(state.lifelines.time.used || state.answered) return;
+  state.timer.remaining += 15;
+  state.timer.total += 15;
+  state.lifelines.time.used = true;
+  state.lifelines.time.qKey = qKeyFor(currentLevelKey(), state.qIdx);
+  playSelect();
+  updateTimerUI();
+  render();
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+function attachHandlers(){
+  const startBtn = document.getElementById('startBtn');
+  if(startBtn) startBtn.addEventListener('click', beginGame);
+
+  const nameInput = document.getElementById('nameInput');
+  if(nameInput){
+    nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter') beginGame(); });
+    nameInput.addEventListener('input', ()=>{
+      nameInput.classList.remove('error');
+      const err = document.getElementById('nameError');
+      if(err) err.classList.remove('show');
+    });
+  }
+
+  document.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(state.answered) return;
+      submitAnswer(parseInt(btn.dataset.idx,10));
+    });
+  });
+
+  const nextBtn = document.getElementById('nextBtn');
+  if(nextBtn) nextBtn.addEventListener('click', nextStep);
+
+  const continueBtn = document.getElementById('continueBtn');
+  if(continueBtn) continueBtn.addEventListener('click', continueAfterLevel);
+
+  const lifeFifty = document.getElementById('lifeFifty');
+  if(lifeFifty) lifeFifty.addEventListener('click', useFifty);
+  const lifeHint = document.getElementById('lifeHint');
+  if(lifeHint) lifeHint.addEventListener('click', useHint);
+  const lifeTime = document.getElementById('lifeTime');
+  if(lifeTime) lifeTime.addEventListener('click', useTime);
+
+  const printBtn = document.getElementById('printBtn');
+  if(printBtn) printBtn.addEventListener('click', ()=>window.print());
+  const restartBtn = document.getElementById('restartBtn');
+  if(restartBtn) restartBtn.addEventListener('click', restartGame);
+}
+
+render();
+</script>
+</body>
+</html>
