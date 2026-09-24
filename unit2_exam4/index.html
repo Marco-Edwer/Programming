@@ -1,0 +1,1155 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>امتحان شامل: تصميم أمان الشبكات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+
+  :root{
+    --primary:#5b3ea6;
+    --primary-dark:#402b78;
+    --accent:#1098ad;
+    --bg:#f2eefb;
+    --card:#ffffff;
+    --correct:#2f9e44;
+    --wrong:#e03131;
+    --border:#e1d9f5;
+    --text:#1f2937;
+    --muted:#64748b;
+    --pdf:#e8590c;
+    --pdf-dark:#c94a08;
+    --fill:#845ef7;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:auto;overflow-x:hidden;width:100%;}
+  body{
+    margin:0;
+    overflow-x:hidden;
+    position:relative;
+    font-family:'Tajawal','Segoe UI', Tahoma, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:20px;
+  }
+  .container{max-width:800px;margin:0 auto;}
+  .header{
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;
+    padding:24px 28px;
+    border-radius:16px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    box-shadow:0 6px 18px rgba(91,62,166,0.28);
+  }
+  .header h1{margin:0;font-size:1.15rem;font-weight:700;line-height:1.5;}
+  .header p{margin:6px 0 0;font-size:0.86rem;opacity:0.95;}
+  #timer{
+    background:rgba(255,255,255,0.2);
+    padding:10px 20px;
+    border-radius:12px;
+    font-size:1.4rem;
+    font-weight:900;
+    min-width:110px;
+    text-align:center;
+    letter-spacing:1px;
+  }
+  #timer.warn{background:#e03131;}
+  .progress-wrap{background:#e3daf7;border-radius:8px;height:10px;margin-bottom:8px;overflow:hidden;}
+  #progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width 0.3s;}
+  .progress-label{text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:18px;font-weight:700;}
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:16px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+    border:1px solid var(--border);
+  }
+  .q-number{
+    display:inline-block;
+    background:var(--primary);
+    color:#fff;
+    padding:0 12px;
+    height:32px;
+    border-radius:16px;
+    text-align:center;
+    line-height:32px;
+    font-size:0.9rem;
+    font-weight:700;
+    margin-left:10px;
+  }
+  .q-type-badge{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:0.78rem;
+    font-weight:700;
+    margin-right:6px;
+  }
+  .badge-mcq{background:#e7f1ff;color:#2b6cb0;}
+  .badge-tf{background:#e6fcf5;color:#0b7285;}
+  .badge-essay{background:#fff4e6;color:#d9480f;}
+  .q-lesson{font-size:0.78rem;color:var(--muted);font-weight:700;margin-top:4px;}
+  .q-text{font-size:1.1rem;font-weight:700;margin:16px 0 20px;line-height:1.8;}
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    transition:all 0.15s;
+    font-size:1rem;
+  }
+  .option:hover{border-color:var(--primary);background:#f7f3ff;}
+  .option.selected{border-color:var(--primary);background:#f0e9ff;font-weight:700;}
+  .option input{accent-color:var(--primary);}
+  textarea.essay-input{
+    width:100%;
+    min-height:150px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    font-family:inherit;
+    font-size:1rem;
+    resize:vertical;
+    line-height:1.7;
+  }
+  textarea.essay-input:focus{outline:none;border-color:var(--primary);}
+  .essay-note{color:var(--muted);font-size:0.85rem;margin-top:8px;}
+  .nav-bar{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:6px;
+  }
+  button{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:14px 34px;
+    font-size:1.02rem;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    transition:all 0.15s;
+    font-family:inherit;
+  }
+  button:hover{background:var(--primary-dark);transform:translateY(-1px);}
+  button:disabled{background:#94a3b8;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);padding:12px 32px;}
+  .btn-secondary:hover{background:#f7f3ff;}
+  .btn-finish{background:var(--correct);}
+  .btn-finish:hover{background:#2b8a3e;}
+  #results{display:none;}
+  .score-card{
+    text-align:center;
+    background:var(--card);
+    border-radius:16px;
+    padding:32px;
+    margin-bottom:20px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+  }
+  .score-num{font-size:3.2rem;font-weight:900;color:var(--primary);}
+  .score-msg{font-size:1.05rem;color:var(--muted);margin-top:8px;font-weight:500;line-height:1.9;}
+  .review-item{border-right:5px solid var(--correct);}
+  .review-item.wrong{border-right:5px solid var(--wrong);}
+  .review-item.essay{border-right:5px solid var(--pdf);}
+  .answer-line{padding:11px 14px;border-radius:10px;margin-top:6px;font-size:0.95rem;}
+  .answer-line.correct{background:#ebfbee;color:var(--correct);font-weight:700;}
+  .answer-line.wrong{background:#fff5f5;color:var(--wrong);font-weight:700;}
+  .answer-line.essay{background:#fff8ef;color:#8a4b08;font-weight:500;white-space:pre-wrap;line-height:1.8;}
+  #not-answered-warning{color:var(--wrong);text-align:center;margin-bottom:10px;font-size:0.9rem;display:none;font-weight:700;}
+  .unanswered{border-color:#f59f00 !important;}
+  #start-screen{
+    background:var(--card);
+    border-radius:16px;
+    padding:36px 30px;
+    text-align:center;
+    box-shadow:0 3px 14px rgba(30,41,59,0.08);
+  }
+  #start-screen h2{margin-top:0;font-size:1.3rem;}
+  #start-screen p{color:var(--muted);}
+  #start-screen input{
+    width:100%;
+    max-width:320px;
+    padding:15px 16px;
+    font-size:1.05rem;
+    border:2px solid var(--border);
+    border-radius:12px;
+    margin:16px 0;
+    text-align:center;
+    font-family:inherit;
+  }
+  #start-screen input:focus{outline:none;border-color:var(--primary);}
+  #name-warning{color:var(--wrong);font-size:0.9rem;display:none;margin-bottom:10px;font-weight:700;}
+  .exam-info{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin:18px 0;
+    font-size:0.88rem;
+    color:var(--muted);
+  }
+  .exam-info span{background:#f1eefc;padding:6px 14px;border-radius:20px;font-weight:700;}
+  .action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .pdf-btn{background:var(--pdf);}
+  .pdf-btn:hover{background:var(--pdf-dark);}
+  .wa-btn{background:#25D366;}
+  .wa-btn:hover{background:#1ea952;}
+  #send-status{margin-top:14px;font-size:0.9rem;color:var(--muted);font-weight:700;min-height:20px;}
+  #pdf-report{position:fixed;left:0;top:0;width:750px;background:#fff;padding:30px;transform:translateX(-100%) translateX(-50px);pointer-events:none;z-index:-1;}
+
+  html, body{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+    color-scheme:light;
+  }
+
+  @media (max-width: 600px){
+    body{padding:10px;background:#f2eefb;}
+    .container{width:100%;max-width:100%;}
+    .header{padding:16px 14px;border-radius:12px;flex-direction:column-reverse;align-items:stretch;text-align:right;gap:10px;}
+    .header h1{font-size:1rem;line-height:1.65;}
+    .header p{font-size:0.76rem;line-height:1.6;}
+    #timer{align-self:center;min-width:100px;width:auto;padding:8px 16px;font-size:1.2rem;}
+    .card{padding:16px 12px;border-radius:12px;}
+    #start-screen{padding:24px 14px;border-radius:12px;}
+    #start-screen input{max-width:none;width:100%;}
+    .exam-info{gap:8px;font-size:0.78rem;}
+    .exam-info span{padding:6px 10px;max-width:100%;}
+    .q-text{font-size:1rem;line-height:1.85;overflow-wrap:anywhere;}
+    .option{padding:12px 10px;font-size:0.94rem;line-height:1.65;align-items:flex-start;overflow-wrap:anywhere;}
+    .option input{flex:0 0 auto;margin-top:4px;}
+    .q-number{margin-left:6px;padding:0 9px;height:30px;line-height:30px;font-size:0.82rem;}
+    .q-type-badge{padding:4px 8px;font-size:0.7rem;margin-right:0;}
+    textarea.essay-input{min-height:180px;font-size:16px;}
+    .nav-bar{gap:8px;}
+    .nav-bar button, #start-btn{flex:1;min-width:0;padding:12px 10px;font-size:0.92rem;}
+    .score-card{padding:22px 12px;}
+    .score-num{font-size:2.5rem;}
+    .action-buttons{flex-direction:column;}
+    .action-buttons button{width:100%;padding:12px 10px;font-size:0.9rem;}
+    #pdf-report{width:750px;}
+  }
+
+
+  /* ===== أنواع الأسئلة الجديدة ===== */
+  .badge-multi{background:#fff0f6;color:#c2255c;}
+  .badge-stmts{background:#f3f0ff;color:#5f3dc4;}
+  .badge-match{background:#e3fafc;color:#0c8599;}
+  .badge-fill{background:#f4fce3;color:#5c940d;}
+  .badge-order{background:#fff9db;color:#e67700;}
+  .passage{background:#f8f5ff;border:1px dashed #b9a5ee;border-radius:12px;padding:14px 16px;line-height:2;margin:-6px 0 18px;font-size:0.98rem;}
+  .bank-label{font-size:0.85rem;color:var(--muted);font-weight:700;margin-bottom:6px;}
+  .bank{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;}
+  .bank span{background:#f1eefc;color:var(--primary-dark);padding:6px 14px;border-radius:20px;font-weight:700;font-size:0.9rem;border:1px solid var(--border);}
+  .row-item{padding:14px;border:2px solid var(--border);border-radius:12px;margin-bottom:10px;display:flex;flex-direction:column;gap:10px;}
+  .row-item .txt{line-height:1.9;font-size:1rem;font-weight:500;}
+  select.pick{width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-family:inherit;font-size:1rem;background:#fff;color:var(--text);}
+  select.pick:focus{outline:none;border-color:var(--primary);}
+  .tf-pair{display:flex;gap:8px;}
+  .tf-pair .option{flex:1;justify-content:center;padding:10px 8px;}
+  .sub-row{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;margin-top:6px;border-right:4px solid #cbd5e1;background:#f8fafc;}
+  .sub-row.ok{border-right-color:var(--correct);background:#ebfbee;}
+  .sub-row.bad{border-right-color:var(--wrong);background:#fff5f5;}
+  .sub-row.miss{border-right-color:#f59f00;background:#fff9db;}
+  .sub-mark{font-weight:900;min-width:18px;text-align:center;}
+  .sub-row.ok .sub-mark{color:var(--correct);}
+  .sub-row.bad .sub-mark{color:var(--wrong);}
+  .sub-row.miss .sub-mark{color:#e67700;}
+  .sub-body{flex:1;line-height:1.8;}
+  .sub-main{font-weight:700;font-size:0.95rem;}
+  .sub-line{font-size:0.88rem;color:#475569;}
+  .sub-total{margin-top:10px;font-weight:900;color:var(--primary);text-align:left;direction:ltr;}
+  @media (max-width:600px){
+    .tf-pair{flex-direction:row;}
+    .row-item{padding:12px 10px;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div id="timer">90:00</div>
+    <div>
+      <p style="margin:0 0 4px;font-size:0.85rem;font-weight:700;opacity:0.9;direction:ltr;text-align:right;">Prepared by Eng.Marco Edwer</p>
+      <h1>امتحان شامل: تصميم أمان الشبكات</h1>
+      <p>اختبار شامل متنوع الأسئلة يغطي تدريبات درس تصميم أمان الشبكات وتمارين كتاب الطالب بالكامل</p>
+    </div>
+  </div>
+
+  <div id="start-screen">
+    <h2>بيانات الطالب</h2>
+    <p>يرجى كتابة الاسم قبل بدء الامتحان</p>
+    <div id="name-warning">يرجى كتابة الاسم أولاً</div>
+    <input type="text" id="student-name" placeholder="الاسم">
+    <div class="exam-info">
+      <span>⏱ المدة: 90 دقيقة (ساعة ونصف)</span>
+      <span id="info-count">📝 عدد الأسئلة</span>
+      <span id="info-types">🔀 أسئلة موضوعية متنوعة + أسئلة مقالية</span>
+    </div>
+    <p style="font-size:0.85rem;">ترتيب الأسئلة والاختيارات عشوائي، والأسئلة الموضوعية تُصحَّح تلقائيًا فور التسليم، أما المقالية فيراجعها المستر بنفسه.</p>
+    <button id="start-btn">ابدأ الامتحان</button>
+  </div>
+
+  <div class="progress-wrap" style="display:none;"><div id="progress-bar"></div></div>
+  <div class="progress-label" id="progress-label" style="display:none;"></div>
+
+  <div id="quiz-area"></div>
+
+  <div id="not-answered-warning">يرجى الإجابة عن هذا السؤال قبل المتابعة</div>
+
+  <div class="results" id="results">
+    <div id="report-content">
+      <div class="score-card" style="padding:24px;">
+        <div id="score-emoji" style="font-size:3rem;line-height:1;margin-bottom:6px;"></div>
+        <div class="score-num" id="score-num">0 / 0</div>
+        <div class="score-msg" id="score-msg"></div>
+        <div class="action-buttons">
+          <button class="wa-btn" id="send-wa-btn">📱 إرسال التقرير PDF على واتساب</button>
+        </div>
+        <div id="send-status"></div>
+      </div>
+      <div id="review-area"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="pdf-report"></div>
+
+<script>
+window.scrollTo(0,0);
+document.documentElement.scrollLeft = 0;
+document.body.scrollLeft = 0;
+window.addEventListener('load', () => {
+  window.scrollTo(0,0);
+  document.documentElement.scrollLeft = 0;
+  document.body.scrollLeft = 0;
+});
+
+const TEACHER_PHONE = "201006723835"; // رقم واتساب المستر
+const EXAM_TITLE = "امتحان شامل: تصميم أمان الشبكات";
+
+/* أنواع الأسئلة:
+   mcq    اختيار من متعدد (إجابة واحدة)
+   multi  اختيار متعدد (أكثر من إجابة)
+   stmts  مجموعة عبارات (حدد الخاطئة / حدد الصحيحة / صح أم خطأ)
+   match  توصيل أو تصنيف (قائمة منسدلة لكل عنصر)
+   fill   أكمل الفراغات من بنك كلمات
+   order  ترتيب خطوات
+   essay  مقالي (لا يُصحَّح تلقائيًا)
+   الأسئلة الموضوعية تُخلط عشوائيًا (الترتيب + الاختيارات) والمقالية تأتي في النهاية بترتيب ثابت. */
+
+const TOPICS = {
+  fw:"جدار الحماية",
+  vpn:"الشبكة الافتراضية الخاصة (VPN)",
+  dmz:"المنطقة المعزولة (DMZ)",
+  defense:"الدفاع في العمق",
+  zt:"نهج انعدام الثقة (Zero Trust)",
+  mix:"مفاهيم ومصطلحات تصميم أمان الشبكات"
+};
+
+const OBJ = [
+
+  /* ================= اختيار من متعدد ================= */
+  {type:"mcq", topic:"defense", q:"أي تصميم يوفر حماية أقوى للشبكة؟",
+   options:["جدار حماية فقط","جدار حماية + شبكة افتراضية خاصة (VPN) فقط","منطقة معزولة (DMZ) فقط","جدار حماية + VPN + DMZ + حماية الأجهزة الطرفية + نهج انعدام الثقة"], correct:3},
+  {type:"mcq", topic:"fw", q:"ما وظيفة جدار الحماية؟",
+   options:["مراقبة حركة مرور الشبكة والسماح بها أو منعها وفق قواعد أمنية","تخزين الملفات","إنشاء كلمات المرور","تشغيل التطبيقات"], correct:0},
+  {type:"mcq", topic:"vpn", q:"ما التقنية التي تستخدمها الشبكة الافتراضية الخاصة (VPN) عادةً لحماية البيانات؟",
+   options:["الطباعة","التشفير وتقنيات النفق","الحذف","النسخ"], correct:1},
+  {type:"mcq", topic:"vpn", q:"ما فائدة استخدام VPN عند الاتصال بشبكة Wi-Fi عامة؟",
+   options:["زيادة حجم الملفات","تقليل مخاطر التنصت","حذف البرامج","إيقاف الإنترنت"], correct:1},
+  {type:"mcq", topic:"dmz", q:"ما المقصود بالمنطقة المعزولة (DMZ)؟",
+   options:["منطقة تُوضع فيها الخوادم المواجهة للجمهور منفصلة عن الشبكة الداخلية","منطقة لتخزين النسخ الاحتياطية فقط","شبكة منزلية","جهاز محمول"], correct:0},
+  {type:"mcq", topic:"dmz", q:"أي ترتيب يمثل التصميم المبسط للمنطقة المعزولة (DMZ)؟",
+   options:["الشبكة الداخلية ← DMZ ← الإنترنت","الإنترنت ← DMZ ← الشبكة الداخلية","DMZ ← الإنترنت ← الشبكة الداخلية","الشبكة الداخلية ← الإنترنت ← DMZ"], correct:1},
+  {type:"mcq", topic:"zt", q:"ما المبدأ الأساسي لنهج انعدام الثقة (Zero Trust)؟",
+   options:["الثقة بالجميع","الثقة بالأجهزة فقط","لا تثق تلقائيًا، بل تحقق دائمًا من كل طلب وصول","السماح بالدخول للجميع"], correct:2},
+  {type:"mcq", topic:"mix", q:"ما الفرضية الأساسية للأمان التقليدي للشبكات؟",
+   options:["لا توجد شبكة داخلية","الداخل والخارج خطران دائمًا","الخارج آمن والداخل خطر","الداخل آمن والخارج خطر"], correct:3},
+  {type:"mcq", topic:"vpn", q:"من بين الخيارات التالية، اختر الخيار الذي لا يمثل استخدامًا مناسبًا للشبكة الافتراضية الخاصة (VPN):",
+   options:["الاتصال بأمان من المنزل بشبكة المؤسسة","ربط المكاتب في مواقع مختلفة بأمان","الحذف التلقائي للملفات المصابة بالفيروسات","تشفير محتوى الاتصال على شبكة Wi-Fi العامة"], correct:2},
+  {type:"mcq", topic:"dmz", q:"اختر السبب الأنسب لاستخدام منطقة معزولة (DMZ):",
+   options:["لتحسين سرعة الاتصال","لتعريض جميع الخوادم للخارج","لمنع الضرر عن الشبكة الداخلية حتى لو تعرض خادم مواجه للجمهور للهجوم","للكشف عن الفيروسات وإزالتها تلقائيًا"], correct:2},
+  {type:"mcq", topic:"zt", q:"من بين الخيارات التالية، اختر الخيار الذي يصف مفهوم نهج انعدام الثقة بأنسب طريقة:",
+   options:["الوصول من داخل شبكة المؤسسة آمن، لذا فإن التحقق غير ضروري","جدار الحماية وحده كافٍ لحماية الشبكة","لا تُمنح الثقة تلقائيًا بناءً على موقع المستخدم أو الجهاز، ويُتحقق من كل طلب وصول وفق الهوية والصلاحيات والسياق","يحتاج فقط الوصول من الخارج إلى المراقبة"], correct:2},
+
+  /* ================= اختيار متعدد (أكثر من إجابة) ================= */
+  {type:"multi", topic:"vpn",
+   q:"اختر جميع الاستخدامات الصحيحة للشبكة الافتراضية الخاصة (VPN):",
+   options:[
+     {t:"الاتصال الآمن بشبكة المؤسسة من المنزل", ok:true},
+     {t:"ربط فروع الشركة في مواقع مختلفة بأمان", ok:true},
+     {t:"تقليل مخاطر التنصت عند استخدام شبكة Wi-Fi عامة", ok:true},
+     {t:"الحذف التلقائي للملفات المصابة بالفيروسات", ok:false},
+     {t:"تخزين النسخ الاحتياطية للبيانات", ok:false},
+     {t:"إيقاف حركة مرور الشبكة عند حدودها", ok:false}
+   ]},
+
+  /* ================= توصيل: طبقات الدفاع في العمق ================= */
+  {type:"match", topic:"defense",
+   q:"وصِّل كل إجراء أمني بطبقة الدفاع في العمق التي ينتمي إليها:",
+   bank:["مدخل الشبكة","مسار الاتصال","وضع الخوادم","الأجهزة الطرفية"],
+   items:[
+     {t:"منع الاتصال غير المصرح به باستخدام جدار الحماية.", a:0},
+     {t:"تشفير الاتصال باستخدام الشبكة الافتراضية الخاصة (VPN).", a:1},
+     {t:"فصل الخوادم المواجهة للجمهور عن الشبكة الداخلية باستخدام المنطقة المعزولة (DMZ).", a:2},
+     {t:"تثبيت برنامج مكافحة الفيروسات والحفاظ على تحديث نظام التشغيل.", a:3}
+   ]},
+
+  /* ================= توصيل: المصطلحات ================= */
+  {type:"match", topic:"mix",
+   q:"اختر المصطلح أو المفهوم العلمي المناسب لكل مما يلي:",
+   bank:["جدار الحماية","الشبكة الافتراضية الخاصة (VPN)","المنطقة المعزولة (DMZ)","الدفاع في العمق","نهج انعدام الثقة","المحيط الأمني","التشفير"],
+   items:[
+     {t:"نظام أمني يراقب حركة مرور الشبكة ويسمح بالاتصال أو يمنعه وفقًا لقواعد أمنية محددة.", a:0},
+     {t:"اتصال أو شبكة منطقية خاصة عبر شبكة عامة مثل الإنترنت، تستخدم التشفير وتقنيات النفق لحماية البيانات.", a:1},
+     {t:"منطقة منفصلة توضع فيها الخوادم التي تحتاج إلى استقبال اتصالات من الإنترنت، مثل خوادم الويب والبريد.", a:2},
+     {t:"استخدام عدة طبقات من الضوابط الأمنية بدلًا من الاعتماد على وسيلة حماية واحدة.", a:3},
+     {t:"نهج أمني لا يمنح الثقة تلقائيًا لأي مستخدم أو جهاز، ويتحقق من كل عملية وصول.", a:4},
+     {t:"الحد الفاصل الذي يفصل الشبكة الداخلية للمؤسسة عن الشبكات الخارجية مثل الإنترنت.", a:5},
+     {t:"تحويل البيانات إلى شكل غير مفهوم لمنع الآخرين من قراءتها أثناء انتقالها.", a:6}
+   ]},
+
+  /* ================= توصيل: السيناريو بالإجراء الأنسب ================= */
+  {type:"match", topic:"mix",
+   q:"لكل موقف من المواقف التالية، اختر الإجراء الأمني الأنسب لمعالجته:",
+   bank:["جدار الحماية","الشبكة الافتراضية الخاصة (VPN)","المنطقة المعزولة (DMZ)","المصادقة متعددة العوامل (MFA)"],
+   items:[
+     {t:"موظف يحتاج إلى الاتصال بأمان بشبكة المؤسسة أثناء العمل من المنزل.", a:1},
+     {t:"شركة تريد فصل خادم الويب العام عن بيانات العملاء الموجودة في الشبكة الداخلية.", a:2},
+     {t:"مؤسسة تريد منع أي اتصال غير مصرح به عند حدود شبكتها.", a:0},
+     {t:"شركة صغيرة تريد إضافة طبقة حماية للحسابات بحيث لا تكفي كلمة المرور وحدها للوصول.", a:3}
+   ]},
+
+  /* ================= توصيل: الأمان التقليدي مقابل نهج انعدام الثقة ================= */
+  {type:"match", topic:"zt",
+   q:"صنِّف كل وصف مما يلي إلى (الأمان التقليدي) أو (نهج انعدام الثقة):",
+   bank:["الأمان التقليدي","نهج انعدام الثقة"],
+   items:[
+     {t:"يفترض أن كل ما هو داخل شبكة المؤسسة آمن تلقائيًا.", a:0},
+     {t:"يتحقق من الهوية والصلاحيات والسياق عند كل طلب وصول، بغض النظر عن موقع المستخدم.", a:1},
+     {t:"يعتمد بشكل أساسي على حماية المحيط الأمني عبر جدار الحماية عند حدود الشبكة.", a:0},
+     {t:"لا يمنح ثقة تلقائية لجهاز أو مستخدم لمجرد وجوده داخل الشبكة أو ملكيته للمؤسسة.", a:1}
+   ]},
+
+  /* ================= أكمل ================= */
+  {type:"fill", topic:"mix",
+   q:"أكمل العبارات التالية مستعينًا ببنك الكلمات:",
+   bank:["المنطقة المعزولة (DMZ)","طبقات","جدار الحماية","التشفير","العمل عن بُعد"],
+   items:[
+     {pre:"المنطقة التي توضع فيها الخوادم المواجهة للإنترنت تُسمى", post:".", a:0},
+     {pre:"يُقصد بالدفاع في العمق استخدام عدة", post:"من الحماية بدلًا من الاعتماد على وسيلة واحدة.", a:1},
+     {pre:"النظام الذي يراقب حركة مرور الشبكة ويسمح بها أو يمنعها وفقًا لقواعد أمنية هو", post:".", a:2},
+     {pre:"تستخدم الشبكة الافتراضية الخاصة", post:"وتقنيات النفق لحماية البيانات.", a:3},
+     {pre:"من أهم استخدامات VPN تمكين الموظفين من", post:"بشبكة المؤسسة بأمان.", a:4}
+   ]},
+  {type:"fill", topic:"mix",
+   q:"اختر الكلمة أو العبارة المناسبة لإكمال كل فراغ:",
+   bank:["ربط الفروع","خادم الويب","الشبكة الداخلية","مكافحة","انعدام"],
+   items:[
+     {pre:"تُستخدم VPN أيضًا في", post:"— أي مكاتب المؤسسة الموجودة في مواقع مختلفة — بأمان.", a:0},
+     {pre:"من أمثلة الخوادم التي يمكن وضعها في DMZ", post:"وخادم البريد.", a:1},
+     {pre:"يساعد وضع الخوادم العامة في DMZ على تقليل احتمال وصول الهجوم إلى", post:".", a:2},
+     {pre:"يشمل حماية الأجهزة الطرفية تثبيت برنامج", post:"الفيروسات.", a:3},
+     {pre:"نهج", post:"الثقة لا يمنح الثقة تلقائيًا لأي مستخدم أو جهاز.", a:4}
+   ]},
+
+  /* ================= ترتيب ================= */
+  {type:"order", topic:"dmz",
+   q:"بالاعتماد على تكوين شبكة المنطقة المعزولة (DMZ)، رتِّب مسار البيانات التالية من الخارج إلى الداخل (الخطوة 1 هي الأولى):",
+   passage:"يبدأ الاتصال من مستخدم على الشبكة الخارجية (الإنترنت). يمر هذا الاتصال أولًا عبر جدار حماية إلى المنطقة المعزولة (DMZ) حيث تقع الخوادم المواجهة للجمهور مثل خادم الويب وخادم البريد الإلكتروني. وتبقى الشبكة الداخلية للمؤسسة، ومعها قاعدة البيانات والبيانات السرية، خلف جدار حماية آخر منفصلة عن هذه الخوادم.",
+   items:[
+     {t:"يبدأ الاتصال من مستخدم على الشبكة الخارجية (الإنترنت).", pos:1},
+     {t:"يمر الاتصال عبر جدار حماية إلى الخوادم المواجهة للجمهور الموجودة في المنطقة المعزولة (DMZ).", pos:2},
+     {t:"تبقى الشبكة الداخلية وقاعدة بياناتها السرية محمية خلف جدار حماية آخر، منفصلة عن خوادم DMZ.", pos:3}
+   ]},
+
+  /* ================= مجموعات عبارات ================= */
+  {type:"stmts", mode:"false", topic:"mix",
+   q:"حدِّد العبارات الخاطئة فقط من بين العبارات التالية:",
+   items:[
+     {t:"جدار الحماية يراقب حركة مرور الشبكة ويسمح بها أو يمنعها وفقًا لقواعد أمنية محددة.", v:true},
+     {t:"يعتمد الدفاع في العمق على استخدام وسيلة أمنية واحدة فقط لحماية الشبكة.", v:false},
+     {t:"تُستخدم الشبكة الافتراضية الخاصة (VPN) فقط لربط أجهزة المؤسسة داخل المبنى نفسه.", v:false},
+     {t:"يساعد وضع الخوادم العامة في المنطقة المعزولة (DMZ) على تقليل احتمال وصول الهجوم إلى الشبكة الداخلية.", v:true},
+     {t:"الهدف من نهج انعدام الثقة هو منح الثقة لجميع المستخدمين والأجهزة داخل المؤسسة دون تحقق.", v:false}
+   ]},
+  {type:"stmts", mode:"true", topic:"mix",
+   q:"حدِّد العبارات الصحيحة فقط من بين العبارات التالية:",
+   items:[
+     {t:"تستخدم الشبكة الافتراضية الخاصة (VPN) التشفير وتقنيات النفق لحماية البيانات.", v:true},
+     {t:"يجب وضع خادم الويب العام داخل الشبكة الداخلية مباشرة لزيادة الأمان.", v:false},
+     {t:"يعتمد نهج انعدام الثقة على التحقق من الهوية والصلاحيات وسياق طلب الوصول.", v:true},
+     {t:"حماية المحيط الأمني وحدها أصبحت كافية مع انتشار الخدمات السحابية والعمل عن بُعد.", v:false},
+     {t:"يمكن أن يوجد جدار الحماية عند حدود الشبكة أو بين أجزائها أو على جهاز مضيف.", v:true}
+   ]},
+  {type:"stmts", mode:"tf", topic:"mix",
+   q:"احكم على كل عبارة من العبارات التالية بأنها صحيحة أو خاطئة:",
+   items:[
+     {t:"نهج انعدام الثقة يمنح الثقة تلقائيًا للمستخدم لمجرد وجوده داخل شبكة المؤسسة.", v:false},
+     {t:"يفترض الأمان التقليدي أن داخل شبكة المؤسسة آمن وخارجها خطر.", v:true},
+     {t:"إذا فشلت إحدى طبقات الدفاع في العمق، فلا توجد طبقات أخرى يمكنها تقليل الخطر.", v:false},
+     {t:"يساعد VPN على حماية البيانات عند استخدام شبكات Wi-Fi العامة.", v:true}
+   ]},
+  {type:"stmts", mode:"tf", topic:"mix",
+   q:"احكم على كل عبارة من العبارات التالية بأنها صحيحة أو خاطئة:",
+   items:[
+     {t:"المنطقة المعزولة (DMZ) هي منطقة توضع فيها الخوادم التي تحتاج إلى استقبال اتصالات من الإنترنت.", v:true},
+     {t:"أدت الخدمات السحابية والعمل عن بُعد إلى جعل الحدود بين داخل الشبكة وخارجها أكثر وضوحًا.", v:false},
+     {t:"يعتمد تصميم أمان الشبكات القوي على تكديس عدة طبقات من الإجراءات الأمنية.", v:true},
+     {t:"حماية الأجهزة الطرفية تشمل تثبيت برامج مكافحة الفيروسات والحفاظ على تحديث نظام التشغيل.", v:true},
+     {t:"يمكن استخدام VPN لتمكين الموظفين من الاتصال الآمن بشبكة المؤسسة من المنزل.", v:true}
+   ]}
+];
+
+const ESSAY_PASSAGE = "لحماية شبكة مؤسسة، تُستخدم طبقات متعددة. يراقب جدار الحماية حركة الشبكة ويسمح بها أو يمنعها وفق قواعد. وتوضع الخوادم العامة في منطقة معزولة (DMZ) منفصلة عن الشبكة الداخلية. ويُحمى الاتصال البعيد عبر الشبكة الافتراضية الخاصة (VPN). ويُسمى استخدام طبقات متعددة من الضوابط الأمنية الدفاع في العمق.";
+
+const ESSAYS = [
+  {topic:"dmz", q:"[اشرح] لماذا يكون وضع خادم ويب عام في المنطقة المعزولة (DMZ) أكثر أمانًا من وضعه داخل الشبكة الداخلية؟"},
+  {topic:"defense", q:"[اشرح] اشرح لماذا يحمي تكديس عدة إجراءات أمنية في طبقات (الدفاع في العمق) المؤسسة بشكل أفضل من الاعتماد على جدار الحماية وحده. استعن بـ: ما يحدث إذا تم اختراق أحد الإجراءات. [6 درجات]"},
+  {topic:"zt", q:"[طبّق ما تعلمته] ينقل مستشفى سجلات مرضاه إلى خدمة سحابية ويسمح للأطباء بالوصول إليها من المنزل. باستخدام نهج انعدام الثقة والدفاع في العمق، اقترح إجراءين ينبغي تطبيقهما وبيّن أين يساعد كل منهما، ثم حدِّد خطرًا واحدًا قد يظل قائمًا."},
+  {topic:"defense", q:"[فكِّر وتحدَّ نفسك] ما الطبقة الدفاعية التي تعتقد أنها الأسهل على المهاجم لتجاوزها، ولماذا؟ ثم اقترح إجراءً واحدًا يمكن لشركة صغيرة إضافته بجانب جدار الحماية، وحدِّد تهديدًا واحدًا سيظل غير مُزال."},
+  {topic:"mix", q:"[قارن] قارن بين وظيفة الشبكة الافتراضية الخاصة (VPN) ووظيفة المنطقة المعزولة (DMZ) في حماية شبكة المؤسسة."},
+  {topic:"mix", q:"[علّل] علّل: أصبحت حماية المحيط الأمني وحدها غير كافية لأمان الشبكات الحديثة."},
+  {topic:"mix", q:"[فكِّر كمهندس] شركة لديها موقع إلكتروني عام، وموظفون يعملون من المنزل، وقاعدة بيانات عملاء سرية. اربط كل أصل من أصول الشركة الثلاثة بطبقة الحماية الأنسب له (مدخل الشبكة / مسار الاتصال / وضع الخوادم / الأجهزة الطرفية)، ثم اختر طبقة واحدة يكون فشلها شديد الأثر في هذا السيناريو، وفسِّر لماذا لا تكفي وحدها."},
+  {topic:"defense", q:"[اذكر] اذكر طبقات الدفاع في العمق الأربع بالترتيب، مع مثال واحد لإجراء أمني في كل طبقة."},
+  {topic:"zt", q:"[وضِّح] وضِّح الفرق بين نهج الأمان التقليدي ونهج انعدام الثقة من حيث الافتراض الأساسي لكل منهما."},
+  {topic:"mix", q:"[اقرأ الفقرة وأجب] بالاعتماد على الفقرة التالية، اشرح كيف تعمل عناصر تصميم أمان الشبكة الأربعة معًا لتقليل احتمال اختراق الشبكة بأكملها.", passage:ESSAY_PASSAGE}
+];
+
+function shuffle(arr){
+  const r = arr.slice();
+  for(let i = r.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+}
+
+function prepare(item){
+  const it = Object.assign({}, item);
+  if(it.type === 'mcq'){
+    it.view = shuffle(it.options.map((t,i) => ({t, i})));
+  } else if(it.type === 'multi'){
+    it.view = shuffle(it.options.map((o,i) => ({t:o.t, i})));
+  } else if(it.type === 'stmts'){
+    it.view = shuffle(it.items.map((o,i) => ({t:o.t, i})));
+  } else if(it.type === 'match' || it.type === 'fill'){
+    it.bankView = shuffle(it.bank.map((t,i) => ({t, i})));
+    it.view = shuffle(it.items.map((o,i) => ({o, i})));
+  } else if(it.type === 'order'){
+    let v;
+    do { v = shuffle(it.items.map((o,i) => ({t:o.t, i}))); } while(v.every((x,k) => x.i === k));
+    it.view = v;
+  }
+  return it;
+}
+
+const questions = shuffle(OBJ).map(prepare).concat(ESSAYS.map(e => Object.assign({type:'essay'}, e)));
+
+
+function initState(it){
+  switch(it.type){
+    case 'mcq': return null;
+    case 'multi': return new Array(it.options.length).fill(false);
+    case 'stmts': return it.mode === 'tf' ? new Array(it.items.length).fill(null) : new Array(it.items.length).fill(false);
+    case 'match': case 'fill': case 'order': return new Array(it.items.length).fill(null);
+    default: return '';
+  }
+}
+
+function maxPoints(it){
+  switch(it.type){
+    case 'mcq': return 1;
+    case 'multi': return it.options.filter(o => o.ok).length;
+    case 'stmts': case 'match': case 'fill': case 'order': return it.items.length;
+    default: return 0;
+  }
+}
+
+const TOTAL_TIME = 90 * 60; // 90 دقيقة (ساعة ونصف)
+let timeLeft = TOTAL_TIME;
+let timerInterval;
+let examStartTimestamp = null;
+let userAnswers = questions.map(initState);
+let currentQ = 0;
+let submitted = false;
+let studentName = "";
+
+(function fillInfo(){
+  const objCount = questions.filter(q => q.type !== 'essay').length;
+  const essayCount = questions.length - objCount;
+  const pts = questions.reduce((s,q) => s + maxPoints(q), 0);
+  document.getElementById('info-count').textContent = '📝 عدد الأسئلة: ' + questions.length;
+  document.getElementById('info-types').textContent = '🔀 ' + objCount + ' سؤالًا موضوعيًا متنوعًا (' + pts + ' درجة) + ' + essayCount + ' أسئلة مقالية';
+})();
+
+function typeBadge(it){
+  switch(it.type){
+    case 'mcq': return '<span class="q-type-badge badge-mcq">اختر الإجابة الصحيحة</span>';
+    case 'multi': return '<span class="q-type-badge badge-multi">اختيار متعدد — قد توجد أكثر من إجابة</span>';
+    case 'stmts': {
+      const t = it.mode === 'false' ? 'حدِّد العبارات الخاطئة' : it.mode === 'true' ? 'حدِّد العبارات الصحيحة' : 'صح أم خطأ';
+      return '<span class="q-type-badge ' + (it.mode === 'tf' ? 'badge-tf' : 'badge-stmts') + '">' + t + '</span>';
+    }
+    case 'match': return '<span class="q-type-badge badge-match">وصِّل / صنِّف</span>';
+    case 'fill': return '<span class="q-type-badge badge-fill">أكمل</span>';
+    case 'order': return '<span class="q-type-badge badge-order">رتِّب الخطوات</span>';
+    default: return '<span class="q-type-badge badge-essay">سؤال مقالي (يصححه المستر)</span>';
+  }
+}
+
+function topicLabel(t){ return TOPICS[t] ? 'المحور: ' + TOPICS[t] : ''; }
+
+function isAnswered(idx){
+  const it = questions[idx], a = userAnswers[idx];
+  switch(it.type){
+    case 'mcq': return a !== null;
+    case 'multi': return a.some(Boolean);
+    case 'stmts': return it.mode === 'tf' ? a.every(v => v !== null) : a.some(Boolean);
+    case 'match': case 'fill': case 'order': return a.every(v => v !== null);
+    default: return a.trim() !== '';
+  }
+}
+
+function warnText(it){
+  if(it.type === 'match' || it.type === 'fill' || it.type === 'order' || (it.type === 'stmts' && it.mode === 'tf'))
+    return 'يرجى إكمال جميع أجزاء السؤال قبل المتابعة';
+  if(it.type === 'multi' || it.type === 'stmts') return 'يرجى تحديد إجابة واحدة على الأقل قبل المتابعة';
+  return 'يرجى الإجابة عن هذا السؤال قبل المتابعة';
+}
+
+function showWarn(idx, msg){
+  const w = document.getElementById('not-answered-warning');
+  w.textContent = msg;
+  w.style.display = 'block';
+  document.getElementById('card-' + idx).classList.add('unanswered');
+}
+
+function renderQuestion(idx){
+  const area = document.getElementById('quiz-area');
+  const it = questions[idx];
+  const a = userAnswers[idx];
+  area.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'card-' + idx;
+
+  let body = '';
+  let extra = '';
+
+  if(it.passage) extra += '<div class="passage">' + it.passage + '</div>';
+
+  if(it.type === 'mcq'){
+    body = '<div class="options">' + it.view.map(o =>
+      '<label class="option' + (a === o.i ? ' selected' : '') + '" data-i="' + o.i + '">' +
+      '<input type="radio" name="q' + idx + '" value="' + o.i + '" ' + (a === o.i ? 'checked' : '') + '>' +
+      '<span>' + o.t + '</span></label>').join('') + '</div>';
+  } else if(it.type === 'multi' || (it.type === 'stmts' && it.mode !== 'tf')){
+    body = '<div class="options">' + it.view.map(o =>
+      '<label class="option' + (a[o.i] ? ' selected' : '') + '" data-i="' + o.i + '">' +
+      '<input type="checkbox" ' + (a[o.i] ? 'checked' : '') + '>' +
+      '<span>' + o.t + '</span></label>').join('') + '</div>';
+  } else if(it.type === 'stmts'){
+    body = it.view.map(o =>
+      '<div class="row-item"><div class="txt">' + o.t + '</div><div class="tf-pair">' +
+      '<label class="option' + (a[o.i] === true ? ' selected' : '') + '" data-i="' + o.i + '" data-v="1"><input type="radio" name="q' + idx + '_' + o.i + '" ' + (a[o.i] === true ? 'checked' : '') + '><span>✔️ صح</span></label>' +
+      '<label class="option' + (a[o.i] === false ? ' selected' : '') + '" data-i="' + o.i + '" data-v="0"><input type="radio" name="q' + idx + '_' + o.i + '" ' + (a[o.i] === false ? 'checked' : '') + '><span>❌ خطأ</span></label>' +
+      '</div></div>').join('');
+  } else if(it.type === 'match' || it.type === 'fill'){
+    if(it.type === 'fill'){
+      extra += '<div class="bank-label">بنك الكلمات:</div><div class="bank">' + it.bankView.map(b => '<span>' + b.t + '</span>').join('') + '</div>';
+    }
+    body = it.view.map(({o, i}) => {
+      const txt = it.type === 'fill' ? (o.pre + ' <b>........</b> ' + o.post) : o.t;
+      const opts = it.bankView.map(b => '<option value="' + b.i + '"' + (a[i] === b.i ? ' selected' : '') + '>' + b.t + '</option>').join('');
+      return '<div class="row-item"><div class="txt">' + txt + '</div>' +
+        '<select class="pick" data-i="' + i + '"><option value="">— اختر —</option>' + opts + '</select></div>';
+    }).join('');
+  } else if(it.type === 'order'){
+    const n = it.items.length;
+    body = it.view.map(o => {
+      let opts = '';
+      for(let p = 1; p <= n; p++) opts += '<option value="' + p + '"' + (a[o.i] === p ? ' selected' : '') + '>الخطوة ' + p + '</option>';
+      return '<div class="row-item"><div class="txt">' + o.t + '</div>' +
+        '<select class="pick" data-i="' + o.i + '"><option value="">— رتِّبها —</option>' + opts + '</select></div>';
+    }).join('');
+  } else {
+    body = '<textarea class="essay-input" id="essay-' + idx + '" placeholder="اكتب إجابتك هنا...">' + a + '</textarea>' +
+           '<div class="essay-note">ملاحظة: هذا السؤال مقالي ولا تُحسب له درجة تلقائيًا، وسيراجعه المستر بنفسه.</div>';
+  }
+
+  card.innerHTML =
+    '<div>' + typeBadge(it) + '<span class="q-number">سؤال ' + (idx + 1) + ' / ' + questions.length + '</span></div>' +
+    '<div class="q-lesson">' + topicLabel(it.topic) + '</div>' +
+    '<div class="q-text">' + it.q + '</div>' + extra + body;
+  area.appendChild(card);
+
+  const clearWarn = () => {
+    card.classList.remove('unanswered');
+    document.getElementById('not-answered-warning').style.display = 'none';
+  };
+
+  if(it.type === 'mcq'){
+    card.querySelectorAll('.option').forEach(lab => {
+      lab.querySelector('input').addEventListener('change', function(){
+        userAnswers[idx] = parseInt(lab.dataset.i);
+        card.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        lab.classList.add('selected');
+        clearWarn();
+      });
+    });
+  } else if(it.type === 'multi' || (it.type === 'stmts' && it.mode !== 'tf')){
+    card.querySelectorAll('.option').forEach(lab => {
+      lab.querySelector('input').addEventListener('change', function(){
+        userAnswers[idx][parseInt(lab.dataset.i)] = this.checked;
+        lab.classList.toggle('selected', this.checked);
+        clearWarn();
+      });
+    });
+  } else if(it.type === 'stmts'){
+    card.querySelectorAll('.option').forEach(lab => {
+      lab.querySelector('input').addEventListener('change', function(){
+        const i = parseInt(lab.dataset.i);
+        userAnswers[idx][i] = lab.dataset.v === '1';
+        lab.parentNode.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        lab.classList.add('selected');
+        clearWarn();
+      });
+    });
+  } else if(it.type === 'match' || it.type === 'fill' || it.type === 'order'){
+    card.querySelectorAll('select.pick').forEach(sel => {
+      sel.addEventListener('change', function(){
+        const i = parseInt(sel.dataset.i);
+        userAnswers[idx][i] = sel.value === '' ? null : parseInt(sel.value);
+        clearWarn();
+      });
+    });
+  } else {
+    document.getElementById('essay-' + idx).addEventListener('input', function(){
+      userAnswers[idx] = this.value;
+    });
+  }
+
+  renderNavBar(idx);
+  updateProgress(idx);
+  document.getElementById('not-answered-warning').style.display = 'none';
+}
+
+function renderNavBar(idx){
+  const area = document.getElementById('quiz-area');
+  const navBar = document.createElement('div');
+  navBar.className = 'nav-bar';
+
+  const backBtn = document.createElement('button');
+  backBtn.className = 'btn-secondary';
+  backBtn.textContent = '⟵ السابق';
+  backBtn.disabled = idx === 0;
+  backBtn.addEventListener('click', () => {
+    if(currentQ > 0){ currentQ--; renderQuestion(currentQ); window.scrollTo({top:0, behavior:'smooth'}); }
+  });
+
+  const nextBtn = document.createElement('button');
+  const isLast = idx === questions.length - 1;
+  nextBtn.className = isLast ? 'btn-finish' : '';
+  nextBtn.textContent = isLast ? 'إنهاء وتسليم الامتحان ✔' : 'التالي ⟶';
+  nextBtn.addEventListener('click', () => {
+    const it = questions[idx];
+    if(!isAnswered(idx)){ showWarn(idx, warnText(it)); return; }
+    if(it.type === 'order' && new Set(userAnswers[idx]).size !== userAnswers[idx].length){
+      showWarn(idx, 'لكل خطوة ترتيب مختلف، يرجى مراجعة الترتيب قبل المتابعة');
+      return;
+    }
+    if(isLast){
+      finishExam(false);
+    } else {
+      currentQ++;
+      renderQuestion(currentQ);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  });
+
+  navBar.appendChild(backBtn);
+  navBar.appendChild(nextBtn);
+  area.appendChild(navBar);
+}
+
+function updateProgress(idx){
+  const pct = ((idx + 1) / questions.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'السؤال ' + (idx + 1) + ' من ' + questions.length;
+}
+
+let audioCtx = null;
+function initAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+}
+function playTick(freq, duration){
+  if(!audioCtx) return;
+  try{
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }catch(e){}
+}
+
+function formatTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return m + ':' + s;
+}
+
+function startTimer(){
+  const timerEl = document.getElementById('timer');
+  examStartTimestamp = Date.now();
+
+  function tick(){
+    if(submitted) return;
+    const elapsed = Math.floor((Date.now() - examStartTimestamp) / 1000);
+    timeLeft = TOTAL_TIME - elapsed;
+    if(timeLeft < 0) timeLeft = 0;
+
+    timerEl.textContent = formatTime(timeLeft);
+    if(timeLeft <= 60 && timeLeft > 0){
+      timerEl.classList.add('warn');
+      const freq = 500 + (60 - timeLeft) * 10;
+      playTick(freq, timeLeft <= 10 ? 0.18 : 0.1);
+    }
+    if(timeLeft <= 0){
+      clearInterval(timerInterval);
+      finishExam(true);
+    }
+  }
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && !submitted && examStartTimestamp !== null){
+      tick();
+    }
+  });
+}
+
+
+
+let finalScore = 0;
+let finalTotalGraded = 0;
+let finalPct = 0;
+let wrongQuestionNumbers = [];
+let examDurationText = '';
+let essayAnswersList = [];
+
+const NA = 'لم تتم الإجابة';
+
+function rowHtml(state, main, lines){
+  const mark = state === 'ok' ? '✓' : state === 'bad' ? '✗' : state === 'miss' ? '!' : '•';
+  return '<div class="sub-row ' + state + '"><span class="sub-mark">' + mark + '</span><div class="sub-body">' +
+    '<div class="sub-main">' + main + '</div>' +
+    lines.map(l => '<div class="sub-line">' + l + '</div>').join('') + '</div></div>';
+}
+
+function gradeQuestion(it, a){
+  let pts = 0, max = maxPoints(it), html = '';
+
+  if(it.type === 'mcq'){
+    const ok = a === it.correct;
+    if(ok) pts = 1;
+    html = ok
+      ? '<div class="answer-line correct">الإجابة: ' + it.options[a] + ' ✓ إجابة صحيحة</div>'
+      : '<div class="answer-line wrong">إجابة الطالب: ' + (a === null ? NA : it.options[a]) + ' ✗</div>' +
+        '<div class="answer-line correct">الإجابة الصحيحة: ' + it.options[it.correct] + '</div>';
+    return {pts, max, html};
+  }
+
+  if(it.type === 'multi'){
+    let cs = 0, ws = 0;
+    it.options.forEach((o, i) => { if(a[i]){ if(o.ok) cs++; else ws++; } });
+    pts = Math.max(0, cs - ws);
+    html = it.options.map((o, i) => {
+      if(a[i] && o.ok) return rowHtml('ok', o.t, ['اخترتها ✓ (إجابة صحيحة)']);
+      if(a[i] && !o.ok) return rowHtml('bad', o.t, ['اخترتها ✗ (غير صحيحة — تُخصم من الدرجة)']);
+      if(!a[i] && o.ok) return rowHtml('miss', o.t, ['لم تخترها — كانت من الإجابات الصحيحة']);
+      return rowHtml('neutral', o.t, ['لم تخترها (وهذا صحيح، فهي ليست من الإجابات)']);
+    }).join('');
+  }
+
+  else if(it.type === 'stmts'){
+    it.items.forEach((s, i) => {
+      let verdict;
+      if(it.mode === 'tf') verdict = a[i];
+      else if(it.mode === 'false') verdict = !a[i];
+      else verdict = !!a[i];
+      const ok = verdict === s.v;
+      if(ok) pts++;
+      const right = s.v ? 'صحيحة' : 'خاطئة';
+      html += rowHtml(ok ? 'ok' : 'bad', s.t,
+        ok ? ['الحكم: ' + right + ' ✓']
+           : ['حكم الطالب: ' + (verdict === null ? NA : (verdict ? 'صحيحة' : 'خاطئة')) + ' ✗', 'الحكم الصحيح: ' + right]);
+    });
+  }
+
+  else if(it.type === 'match' || it.type === 'fill'){
+    it.items.forEach((o, i) => {
+      const ok = a[i] === o.a;
+      if(ok) pts++;
+      const txt = it.type === 'fill' ? (o.pre + ' <b>........</b> ' + o.post) : o.t;
+      html += rowHtml(ok ? 'ok' : 'bad', txt,
+        ok ? ['الإجابة: ' + it.bank[o.a] + ' ✓']
+           : ['إجابة الطالب: ' + (a[i] === null ? NA : it.bank[a[i]]) + ' ✗', 'الإجابة الصحيحة: ' + it.bank[o.a]]);
+    });
+  }
+
+  else if(it.type === 'order'){
+    it.items.map((o, i) => ({o, i})).sort((x, y) => x.o.pos - y.o.pos).forEach(({o, i}) => {
+      const ok = a[i] === o.pos;
+      if(ok) pts++;
+      html += rowHtml(ok ? 'ok' : 'bad', o.t,
+        ok ? ['الترتيب: الخطوة ' + o.pos + ' ✓']
+           : ['ترتيب الطالب: ' + (a[i] === null ? NA : 'الخطوة ' + a[i]) + ' ✗', 'الترتيب الصحيح: الخطوة ' + o.pos]);
+    });
+  }
+
+  html += '<div class="sub-total">' + pts + ' / ' + max + '</div>';
+  return {pts, max, html};
+}
+
+function finishExam(autoSubmit){
+  if(submitted) return;
+  submitted = true;
+  clearInterval(timerInterval);
+  document.getElementById('not-answered-warning').style.display = 'none';
+
+  let score = 0;
+  let totalGraded = 0;
+  wrongQuestionNumbers = [];
+  essayAnswersList = [];
+  const reviewArea = document.getElementById('review-area');
+  reviewArea.innerHTML = '';
+
+  const elapsedSec = examStartTimestamp !== null ? Math.floor((Date.now() - examStartTimestamp) / 1000) : (TOTAL_TIME - timeLeft);
+  const cappedElapsed = Math.min(elapsedSec, TOTAL_TIME);
+  examDurationText = formatTime(cappedElapsed);
+
+  questions.forEach((it, idx) => {
+    const userA = userAnswers[idx];
+    const div = document.createElement('div');
+
+    if(it.type === 'essay'){
+      div.className = 'card review-item essay';
+      const answerText = (userA && userA.trim() !== '') ? userA : NA;
+      essayAnswersList.push({num: idx + 1, q: it.q, a: answerText});
+      div.innerHTML =
+        '<div>' + typeBadge(it) + '<span class="q-number">سؤال ' + (idx + 1) + '</span></div>' +
+        '<div class="q-lesson">' + topicLabel(it.topic) + '</div>' +
+        '<div class="q-text">' + it.q + '</div>' +
+        (it.passage ? '<div class="passage">' + it.passage + '</div>' : '') +
+        '<div class="answer-line essay">إجابة الطالب: ' + answerText + '</div>';
+    } else {
+      const g = gradeQuestion(it, userA);
+      score += g.pts;
+      totalGraded += g.max;
+      if(g.pts < g.max) wrongQuestionNumbers.push(idx + 1);
+      div.className = 'card review-item' + (g.pts === g.max ? '' : ' wrong');
+      div.innerHTML =
+        '<div>' + typeBadge(it) + '<span class="q-number">سؤال ' + (idx + 1) + '</span></div>' +
+        '<div class="q-lesson">' + topicLabel(it.topic) + '</div>' +
+        '<div class="q-text">' + it.q + '</div>' +
+        (it.passage ? '<div class="passage">' + it.passage + '</div>' : '') +
+        g.html;
+    }
+    reviewArea.appendChild(div);
+  });
+
+  finalScore = score;
+  finalTotalGraded = totalGraded;
+  finalPct = Math.round((score / totalGraded) * 100);
+
+  document.getElementById('score-num').textContent = finalScore + ' / ' + finalTotalGraded;
+  let msg = '';
+  let bigEmoji = '';
+  if(finalPct >= 90){ msg = 'ممتاز! أداء رائع'; bigEmoji = '🏆'; }
+  else if(finalPct >= 75){ msg = 'جيد جدًا، استمر في المذاكرة'; bigEmoji = '😄'; }
+  else if(finalPct >= 50){ msg = 'جيد، يحتاج إلى مزيد من المراجعة'; bigEmoji = '🙂'; }
+  else { msg = 'يُنصح بمراجعة الدرس من البداية'; bigEmoji = '😕'; }
+
+  document.getElementById('score-emoji').textContent = bigEmoji;
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ar-EG');
+  document.getElementById('score-msg').innerHTML =
+    'الاسم: <strong>' + studentName + '</strong><br>التاريخ: ' + dateStr +
+    '<br>الوقت المستغرق: <strong>' + examDurationText + '</strong> من أصل 90:00<br>' +
+    'الدرجة (الأسئلة الموضوعية فقط): ' + finalPct + '% — ' + msg + '<br>' +
+    '<span style="font-size:0.85em;">تمت إضافة إجابات الأسئلة المقالية (' + essayAnswersList.length + ') إلى التقرير للمراجعة اليدوية.</span>' +
+    (autoSubmit ? '<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>' : '');
+
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('not-answered-warning').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  document.getElementById('progress-label').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  window.scrollTo({top:0, behavior:'auto'});
+}
+
+function buildWhatsAppSummaryText(){
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ar-EG');
+  const divider = '----------------------';
+  let lines = [];
+  lines.push('*تقرير ' + EXAM_TITLE + '*');
+  lines.push('*Prepared by Eng.Marco Edwer*');
+  lines.push(divider);
+  lines.push('*الاسم:* ' + studentName);
+  lines.push('*التاريخ:* ' + dateStr);
+  lines.push('*الوقت المستغرق:* ' + examDurationText + ' من أصل 90:00');
+  lines.push('*الدرجة (الموضوعي):* ' + finalScore + ' / ' + finalTotalGraded + '  (' + finalPct + '%)');
+  if(wrongQuestionNumbers.length){
+    lines.push('*أسئلة فيها أخطاء:* ' + wrongQuestionNumbers.join('، '));
+  } else {
+    lines.push('*لا توجد أخطاء في الأسئلة الموضوعية*');
+  }
+  lines.push(divider);
+  lines.push('*إجابات الأسئلة المقالية:*');
+  essayAnswersList.forEach(e => {
+    lines.push('س' + e.num + ': ' + e.q);
+    lines.push('الإجابة: ' + e.a);
+    lines.push('. . .');
+  });
+  lines.push(divider);
+  lines.push('تفاصيل كل إجابات الأسئلة الموضوعية مرفقة كاملة في ملف PDF.');
+  return lines.join('\n');
+}
+
+async function buildPdfBlob(){
+  const source = document.getElementById('report-content');
+  const clone = source.cloneNode(true);
+  const wrapper = document.getElementById('pdf-report');
+  wrapper.innerHTML = '';
+  wrapper.appendChild(clone);
+
+  const canvas = await html2canvas(wrapper, {scale:2, backgroundColor:'#ffffff', useCORS:true});
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while(heightLeft > 0){
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  wrapper.innerHTML = '';
+  return pdf.output('blob');
+}
+
+document.getElementById('send-wa-btn').addEventListener('click', async function(){
+  const statusEl = document.getElementById('send-status');
+  const btn = this;
+  btn.disabled = true;
+  statusEl.textContent = '⏳ جاري تجهيز تقرير PDF...';
+
+  try{
+    const blob = await buildPdfBlob();
+    const fileName = `تقرير_${studentName.replace(/\s+/g,'_')}.pdf`;
+    const file = new File([blob], fileName, {type:'application/pdf'});
+    const summaryText = buildWhatsAppSummaryText();
+
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      statusEl.textContent = '📤 اختر واتساب من قائمة المشاركة لإرسال التقرير...';
+      await navigator.share({
+        files:[file],
+        title:'تقرير الامتحان',
+        text: summaryText
+      });
+      statusEl.textContent = '✅ تم فتح قائمة المشاركة';
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      const waText = summaryText + '\n\nتم تحميل ملف تقرير الامتحان (PDF) على جهازك، برجاء إرفاقه في هذه المحادثة.';
+      const waUrl = `https://wa.me/${TEACHER_PHONE}?text=${encodeURIComponent(waText)}`;
+      window.open(waUrl, '_blank');
+      statusEl.textContent = 'تم تحميل ملف PDF وفتح واتساب — برجاء إرفاق الملف يدويًا في المحادثة.';
+    }
+  }catch(err){
+    if(err && err.name === 'AbortError'){
+      statusEl.textContent = 'تم إلغاء المشاركة.';
+    } else {
+      statusEl.textContent = 'حدث خطأ أثناء تجهيز التقرير، برجاء المحاولة مرة أخرى.';
+    }
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  const nameInput = document.getElementById('student-name');
+  const name = nameInput.value.trim();
+  if(name === ''){
+    document.getElementById('name-warning').style.display = 'block';
+    nameInput.focus();
+    return;
+  }
+  studentName = name;
+  initAudio();
+  document.getElementById('start-screen').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'block';
+  document.getElementById('progress-label').style.display = 'block';
+  renderQuestion(currentQ);
+  startTimer();
+  window.scrollTo({top:0, behavior:'auto'});
+});
+
+</script>
+
+</body>
+</html>
