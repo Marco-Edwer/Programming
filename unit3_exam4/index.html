@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>امتحان شامل على الدرس 3-2: طرق اتصال تطبيقات الويب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --primary:#5b3ea6;
+    --primary-dark:#402b78;
+    --accent:#1098ad;
+    --bg:#f2eefb;
+    --card:#ffffff;
+    --correct:#2f9e44;
+    --wrong:#e03131;
+    --border:#e1d9f5;
+    --text:#1f2937;
+    --muted:#64748b;
+    --pdf:#e8590c;
+    --pdf-dark:#c94a08;
+    --fill:#845ef7;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:auto;overflow-x:hidden;width:100%;}
+  body{
+    margin:0;
+    overflow-x:hidden;
+    position:relative;
+    font-family:'Tajawal','Segoe UI', Tahoma, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:20px;
+  }
+  .container{max-width:800px;margin:0 auto;}
+  .header{
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;
+    padding:24px 28px;
+    border-radius:16px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    box-shadow:0 6px 18px rgba(91,62,166,0.28);
+  }
+  .header h1{margin:0;font-size:1.15rem;font-weight:700;line-height:1.5;}
+  .header p{margin:6px 0 0;font-size:0.86rem;opacity:0.95;}
+  #timer{
+    background:rgba(255,255,255,0.2);
+    padding:10px 20px;
+    border-radius:12px;
+    font-size:1.4rem;
+    font-weight:900;
+    min-width:110px;
+    text-align:center;
+    letter-spacing:1px;
+  }
+  #timer.warn{background:#e03131;}
+  .progress-wrap{background:#e3daf7;border-radius:8px;height:10px;margin-bottom:8px;overflow:hidden;}
+  #progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width 0.3s;}
+  .progress-label{text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:18px;font-weight:700;}
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:16px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+    border:1px solid var(--border);
+  }
+  .q-number{
+    display:inline-block;
+    background:var(--primary);
+    color:#fff;
+    padding:0 12px;
+    height:32px;
+    border-radius:16px;
+    text-align:center;
+    line-height:32px;
+    font-size:0.9rem;
+    font-weight:700;
+    margin-left:10px;
+  }
+  .q-type-badge{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:0.78rem;
+    font-weight:700;
+    margin-right:6px;
+  }
+  .badge-mcq{background:#e7f1ff;color:#2b6cb0;}
+  .badge-tf{background:#e6fcf5;color:#0b7285;}
+  .badge-essay{background:#fff4e6;color:#d9480f;}
+  .q-lesson{font-size:0.78rem;color:var(--muted);font-weight:700;margin-top:4px;}
+  .q-text{font-size:1.1rem;font-weight:700;margin:16px 0 20px;line-height:1.8;}
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    transition:all 0.15s;
+    font-size:1rem;
+  }
+  .option:hover{border-color:var(--primary);background:#f7f3ff;}
+  .option.selected{border-color:var(--primary);background:#f0e9ff;font-weight:700;}
+  .option input{accent-color:var(--primary);}
+  textarea.essay-input{
+    width:100%;
+    min-height:150px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    font-family:inherit;
+    font-size:1rem;
+    resize:vertical;
+    line-height:1.7;
+  }
+  textarea.essay-input:focus{outline:none;border-color:var(--primary);}
+  .essay-note{color:var(--muted);font-size:0.85rem;margin-top:8px;}
+  .nav-bar{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:6px;
+  }
+  button{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:14px 34px;
+    font-size:1.02rem;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    transition:all 0.15s;
+    font-family:inherit;
+  }
+  button:hover{background:var(--primary-dark);transform:translateY(-1px);}
+  button:disabled{background:#94a3b8;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);padding:12px 32px;}
+  .btn-secondary:hover{background:#f7f3ff;}
+  .btn-finish{background:var(--correct);}
+  .btn-finish:hover{background:#2b8a3e;}
+  #results{display:none;}
+  .score-card{
+    text-align:center;
+    background:var(--card);
+    border-radius:16px;
+    padding:32px;
+    margin-bottom:20px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+  }
+  .score-num{font-size:3.2rem;font-weight:900;color:var(--primary);}
+  .score-msg{font-size:1.05rem;color:var(--muted);margin-top:8px;font-weight:500;line-height:1.9;}
+  .review-item{border-right:5px solid var(--correct);}
+  .review-item.wrong{border-right:5px solid var(--wrong);}
+  .review-item.essay{border-right:5px solid var(--pdf);}
+  .answer-line{padding:11px 14px;border-radius:10px;margin-top:6px;font-size:0.95rem;}
+  .answer-line.correct{background:#ebfbee;color:var(--correct);font-weight:700;}
+  .answer-line.wrong{background:#fff5f5;color:var(--wrong);font-weight:700;}
+  .answer-line.essay{background:#fff8ef;color:#8a4b08;font-weight:500;white-space:pre-wrap;line-height:1.8;}
+  #not-answered-warning{color:var(--wrong);text-align:center;margin-bottom:10px;font-size:0.9rem;display:none;font-weight:700;}
+  .unanswered{border-color:#f59f00 !important;}
+  #start-screen{
+    background:var(--card);
+    border-radius:16px;
+    padding:36px 30px;
+    text-align:center;
+    box-shadow:0 3px 14px rgba(30,41,59,0.08);
+  }
+  #start-screen h2{margin-top:0;font-size:1.3rem;}
+  #start-screen p{color:var(--muted);}
+  #start-screen input{
+    width:100%;
+    max-width:320px;
+    padding:15px 16px;
+    font-size:1.05rem;
+    border:2px solid var(--border);
+    border-radius:12px;
+    margin:16px 0;
+    text-align:center;
+    font-family:inherit;
+  }
+  #start-screen input:focus{outline:none;border-color:var(--primary);}
+  #name-warning{color:var(--wrong);font-size:0.9rem;display:none;margin-bottom:10px;font-weight:700;}
+  .exam-info{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin:18px 0;
+    font-size:0.88rem;
+    color:var(--muted);
+  }
+  .exam-info span{background:#f1eefc;padding:6px 14px;border-radius:20px;font-weight:700;}
+  .action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .pdf-btn{background:var(--pdf);}
+  .pdf-btn:hover{background:var(--pdf-dark);}
+  .wa-btn{background:#25D366;}
+  .wa-btn:hover{background:#1ea952;}
+  #send-status{margin-top:14px;font-size:0.9rem;color:var(--muted);font-weight:700;min-height:20px;}
+  #pdf-report{position:fixed;left:0;top:0;width:750px;background:#fff;padding:30px;transform:translateX(-100%) translateX(-50px);pointer-events:none;z-index:-1;}
+
+  html, body{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+    color-scheme:light;
+  }
+
+  @media (max-width: 600px){
+    body{padding:10px;background:#f2eefb;}
+    .container{width:100%;max-width:100%;}
+    .header{padding:16px 14px;border-radius:12px;flex-direction:column-reverse;align-items:stretch;text-align:right;gap:10px;}
+    .header h1{font-size:1rem;line-height:1.65;}
+    .header p{font-size:0.76rem;line-height:1.6;}
+    #timer{align-self:center;min-width:100px;width:auto;padding:8px 16px;font-size:1.2rem;}
+    .card{padding:16px 12px;border-radius:12px;}
+    #start-screen{padding:24px 14px;border-radius:12px;}
+    #start-screen input{max-width:none;width:100%;}
+    .exam-info{gap:8px;font-size:0.78rem;}
+    .exam-info span{padding:6px 10px;max-width:100%;}
+    .q-text{font-size:1rem;line-height:1.85;overflow-wrap:anywhere;}
+    .option{padding:12px 10px;font-size:0.94rem;line-height:1.65;align-items:flex-start;overflow-wrap:anywhere;}
+    .option input{flex:0 0 auto;margin-top:4px;}
+    .q-number{margin-left:6px;padding:0 9px;height:30px;line-height:30px;font-size:0.82rem;}
+    .q-type-badge{padding:4px 8px;font-size:0.7rem;margin-right:0;}
+    textarea.essay-input{min-height:180px;font-size:16px;}
+    .nav-bar{gap:8px;}
+    .nav-bar button, #start-btn{flex:1;min-width:0;padding:12px 10px;font-size:0.92rem;}
+    .score-card{padding:22px 12px;}
+    .score-num{font-size:2.5rem;}
+    .action-buttons{flex-direction:column;}
+    .action-buttons button{width:100%;padding:12px 10px;font-size:0.9rem;}
+    #pdf-report{width:750px;}
+  }
+
+  .sec-hdr{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border-radius:14px;padding:14px 18px;margin:22px 0 12px;font-weight:900;font-size:1.05rem;line-height:1.7;}
+  .sub-hdr{background:#efe9fb;color:var(--primary-dark);border-radius:12px;padding:10px 16px;margin:16px 0 10px;font-weight:700;border-right:5px solid var(--primary);line-height:1.7;}
+  .mk{display:inline-block;background:#fff4e6;color:#d9480f;border-radius:14px;padding:2px 10px;font-size:0.76rem;font-weight:700;margin-right:6px;}
+  .answer-line.model{background:#eef6ff;color:#1c4f8a;font-weight:500;white-space:pre-wrap;line-height:1.8;}
+  #timer-float{position:fixed;top:10px;left:10px;z-index:99;background:var(--primary);color:#fff;padding:6px 14px;border-radius:20px;font-weight:900;font-size:1rem;box-shadow:0 3px 10px rgba(0,0,0,.25);display:none;direction:ltr;}
+  #timer-float.warn{background:#e03131;}
+  textarea.essay-input{min-height:110px;}
+  textarea.short-input{min-height:70px;}
+  .submit-box{text-align:center;margin:24px 0 40px;}
+  .rules{text-align:right;background:#f7f3ff;border-radius:12px;padding:12px 18px;line-height:2;font-size:.92rem;color:var(--text);}
+</style>
+</head>
+<body>
+<div id="timer-float">60:00</div>
+<div class="container">
+  <div class="header">
+    <div id="timer">60:00</div>
+    <div>
+      <p style="margin:0 0 4px;font-size:0.85rem;font-weight:700;opacity:0.9;direction:ltr;text-align:right;">Prepared by Eng.Marco Edwer</p>
+      <h1>امتحان شامل على الدرس 3-2: طرق اتصال تطبيقات الويب</h1>
+    </div>
+  </div>
+  <div id="start-screen">
+    <h2>بيانات الطالب</h2>
+    <p>يرجى كتابة الاسم قبل بدء الامتحان</p>
+    <div id="name-warning">يرجى كتابة الاسم أولاً</div>
+    <input type="text" id="student-name" placeholder="الاسم">
+    <div class="exam-info">
+      <span>⏱ المدة: ساعة واحدة (60 دقيقة)</span>
+      <span>💯 الدرجة الكلية: 50</span>
+      <span>🔘 الجزء الأول: 20 درجة (موضوعي)</span>
+      <span>✍️ الجزء الثاني: 30 درجة (مقالي)</span>
+    </div>
+    <br>
+    <button id="start-btn">ابدأ الامتحان</button>
+  </div>
+  <div class="progress-wrap" style="display:none;"><div id="progress-bar"></div></div>
+  <div class="progress-label" id="progress-label" style="display:none;"></div>
+  <div id="quiz-area"></div>
+  <div class="submit-box" id="submit-box" style="display:none;">
+    <div id="not-answered-warning" style="display:none;"></div>
+    <button class="btn-finish" id="submit-btn">إنهاء وتسليم الامتحان ✔</button>
+  </div>
+  <div class="results" id="results">
+    <div id="report-content">
+      <div class="score-card" style="padding:24px;">
+        <div id="score-emoji" style="font-size:3rem;line-height:1;margin-bottom:6px;"></div>
+        <div class="score-num" id="score-num"></div>
+        <div class="score-msg" id="score-msg"></div>
+        <div class="action-buttons">
+          <button class="pdf-btn" id="download-pdf-btn" disabled>⬇️ تحميل التقرير PDF</button>
+          <button class="wa-btn" id="send-wa-btn">📱 إرسال التقرير PDF على واتساب</button>
+        </div>
+        <div id="send-status"></div>
+        <div id="pdf-open-wrap" style="display:none;margin-top:8px;font-size:0.9rem;"><a id="pdf-open-link" href="#" target="_blank" rel="noopener" style="color:var(--primary);font-weight:700;">لو لم يُحمَّل الملف اضغط هنا لفتحه ثم احفظه</a></div>
+      </div>
+      <div id="review-area"></div>
+    </div>
+  </div>
+</div>
+<div id="pdf-report"></div>
+<script>
+window.scrollTo(0,0);
+const TEACHER_PHONE = "201006723835"; // رقم واتساب المستر
+const EXAM_TITLE = "امتحان شامل على الدرس 3-2: طرق اتصال تطبيقات الويب";
+const LESSONS = {"3-2": "الدرس 3-2: طرق اتصال تطبيقات الويب"};
+const questions = [{"type": "mcq", "lesson": "3-2", "q": "أي ترتيب يصف بدقة دورة الطلب والاستجابة عندما تنقر على رابط في صفحة ويب؟", "options": ["الخادم يرسل استجابة ← المتصفح يعالجها ← الخادم يرسل طلبًا", "الخادم يرسل طلبًا ← المتصفح يعالجه ← المتصفح يعيد استجابة", "المتصفح يعيد استجابة ← الخادم يعالجها ← المتصفح يرسل طلبًا", "المتصفح (العميل) يرسل طلبًا ← الخادم يعالجه ← الخادم يعيد استجابة ← المتصفح يستقبلها"], "correct": 3, "first": true, "g": 0, "no": 1, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)", "part": "الجزء الأول: الأسئلة الموضوعية — 20 درجة"}, {"type": "mcq", "lesson": "3-2", "q": "عند النقر على رابط، ما الدور الذي يؤديه المتصفح في هذا التبادل؟", "options": ["عميل يرسل طلبًا إلى خادم عبر الشبكة", "خادم يعالج الطلبات ويعيد الاستجابات", "بروتوكول يحدد قواعد التبادل", "رمز حالة يبلغ عن النتيجة"], "correct": 0, "first": false, "g": 0, "no": 2, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "أي العبارات الآتية تصف العلاقة بين HTTP وHTTPS بشكل أدق؟", "options": ["HTTPS يُستخدم لإرسال البيانات فقط، وHTTP لاستقبالها فقط", "HTTP وHTTPS صيغتان لتبادل البيانات بصيغة JSON", "HTTPS هو استخدام HTTP عبر اتصال آمن محمي بـ TLS", "HTTPS رمز حالة يدل على نجاح الطلب"], "correct": 2, "first": false, "g": 0, "no": 3, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "ما دور TLS في اتصال HTTPS؟", "options": ["تحديد نوع العملية المطلوبة (GET أو POST)", "المساعدة على حماية سرية الاتصال وسلامته ومصادقة الخادم", "تمثيل البيانات المهيكلة بصيغة نصية", "إبلاغ العميل بنتيجة معالجة الطلب"], "correct": 1, "first": false, "g": 0, "no": 4, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "أي العبارات الآتية أدق بشأن نموذج الطلب والاستجابة؟", "options": ["هو الوسيلة الوحيدة للاتصال في كل تطبيقات الويب", "هو أساسي في كثير من تطبيقات الويب، مع وجود وسائل اتصال أخرى عند الحاجة", "لا يحتاج إلى بروتوكول يحدد قواعد التبادل", "يبدأ فيه الخادم دائمًا بإرسال الطلب إلى العميل"], "correct": 1, "first": false, "g": 0, "no": 5, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "أي العمليات الآتية يُستخدم لها GET عادةً؟", "options": ["إرسال معلومات تسجيل الدخول", "إرسال محتويات نموذج التواصل", "استرجاع نتائج البحث", "إرسال بيانات ليعالجها الخادم"], "correct": 2, "first": false, "g": 0, "no": 6, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "أي الخيارات الآتية تطابق فيه كل عملية طريقة الطلب المناسبة لها؟", "options": ["عرض صفحة ويب: GET — إرسال نموذج تسجيل الدخول: POST", "عرض صفحة ويب: POST — إرسال نموذج تسجيل الدخول: GET", "استرجاع نتائج البحث: POST — إرسال محتويات نموذج: GET", "عرض صفحة ويب: POST — استرجاع نتائج البحث: POST"], "correct": 0, "first": false, "g": 0, "no": 7, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "استقبل المتصفح استجابة برمز الحالة 404 عند فتح رابط. ماذا يعني ذلك؟", "options": ["تمت معالجة الطلب بنجاح", "حدث خطأ داخلي في الخادم منعه من إكمال الطلب", "تعذر تشفير الاتصال", "المورد المطلوب غير موجود بهذا العنوان"], "correct": 3, "first": false, "g": 0, "no": 8, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "ظهر رمز الحالة 500 أثناء إكمال طلب. أي استنتاج أدق؟", "options": ["المورد المطلوب غير موجود بهذا العنوان", "تمت معالجة الطلب بنجاح", "حدث خطأ داخلي في الخادم منعه من إكمال الطلب، ولا يحدد الرمز وحده السبب التفصيلي", "أخطأ المستخدم في كتابة العنوان"], "correct": 2, "first": false, "g": 0, "no": 9, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "أي الخيارات الآتية يصف واجهة برمجة التطبيقات (API) بأنسب شكل؟", "options": ["تقنية لتعديل مظهر صفحات الويب", "مجموعة قواعد واضحة تسمح لبرنامج بطلب بيانات أو وظائف من برنامج آخر", "تقنية لتشفير البيانات وإرسالها بأمان", "طريقة طلب HTTP لاسترجاع البيانات من الخادم"], "correct": 1, "first": false, "g": 0, "no": 10, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "أي العبارات الآتية تصف صيغة JSON بدقة؟", "options": ["صيغة نصية شائعة لتمثيل وتبادل البيانات المهيكلة باستخدام كائنات ومصفوفات وقيم بسيطة", "بروتوكول يضيف التشفير إلى HTTP", "رمز رقمي يبلغ عن نتيجة معالجة الطلب", "طريقة طلب تُستخدم لإرسال النماذج"], "correct": 0, "first": false, "g": 0, "no": 11, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "mcq", "lesson": "3-2", "q": "تقدم خدمة طقس واجهة API تعيد توقعات اليوم. ما أنسب تصميم لتطبيق يستخدمها؟", "options": ["إرسال طلب POST عبر HTTP العادي وانتظار رمز الحالة 404 دلالة على النجاح", "استخدام JSON كطريقة طلب بدلًا من GET", "الاستغناء عن الخادم وعن أي استجابة", "إرسال طلب GET عبر HTTPS إلى API، واستقبال التوقعات بصيغة مثل JSON ورمز حالة 200 عند النجاح"], "correct": 3, "first": false, "g": 0, "no": 12, "title": "اختر الإجابة الصحيحة (12 درجة — درجة لكل سؤال)"}, {"type": "tf", "lesson": "3-2", "q": "يحدد بروتوكول HTTP قواعد تبادل الرسائل بين العميل والخادم على الويب.", "correct": true, "short": false, "first": true, "g": 1, "no": 13, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "tf", "lesson": "3-2", "q": "في نموذج الطلب والاستجابة، يرسل الخادم الطلب ويعيد العميل الاستجابة.", "correct": false, "short": false, "first": false, "g": 1, "no": 14, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "tf", "lesson": "3-2", "q": "يُستخدم GET عادةً لإرسال معلومات تسجيل الدخول إلى الخادم.", "correct": false, "short": false, "first": false, "g": 1, "no": 15, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "tf", "lesson": "3-2", "q": "يشير رمز حالة HTTP إلى نتيجة معالجة الطلب.", "correct": true, "short": false, "first": false, "g": 1, "no": 16, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "tf", "lesson": "3-2", "q": "يدل رمز الحالة 500 على أن المورد المطلوب غير موجود بهذا العنوان.", "correct": false, "short": false, "first": false, "g": 1, "no": 17, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "tf", "lesson": "3-2", "q": "قد ترسل الواجهة الأمامية طلبات إلى خدمة خلفية عبر API وتستقبل منها البيانات.", "correct": true, "short": false, "first": false, "g": 1, "no": 18, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "tf", "lesson": "3-2", "q": "تُعد JSON صيغة بيانات خاصة بلغة برمجة واحدة ولا تدعمها لغات أو أدوات أخرى.", "correct": false, "short": false, "first": false, "g": 1, "no": 19, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "tf", "lesson": "3-2", "q": "استخدام HTTPS يساعد على منع المتجسس من قراءة محتوى الاتصال أو تعديله بسهولة أثناء النقل.", "correct": true, "short": false, "first": false, "g": 1, "no": 20, "title": "حدّد العبارة (صح) أو (خطأ) (8 درجات — درجة لكل عبارة)"}, {"type": "essay", "lesson": "3-2", "q": "برنامج أو جهاز يرسل طلبًا إلى خدمة أخرى، ومن أمثلته متصفح الويب وتطبيق الهاتف.", "kind": "term", "model": "العميل (Client)", "marks": 1, "short": true, "first": true, "g": 2, "no": 21, "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)", "part": "الجزء الثاني: الأسئلة المقالية — 30 درجة"}, {"type": "essay", "lesson": "3-2", "q": "الجانب الذي يستقبل الطلبات من العملاء ويعالجها ويعيد الاستجابات.", "kind": "term", "model": "الخادم (Server)", "marks": 1, "short": true, "first": false, "g": 2, "no": 22, "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "بروتوكول يُستخدم لتبادل الرسائل بين عميل وخادم على الويب.", "kind": "term", "model": "HTTP (بروتوكول نقل النص التشعبي)", "marks": 1, "short": true, "first": false, "g": 2, "no": 23, "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "مجموعة قواعد واضحة تسمح لبرنامج بطلب بيانات أو وظائف من برنامج آخر.", "kind": "term", "model": "API (واجهة برمجة التطبيقات)", "marks": 1, "short": true, "first": false, "g": 2, "no": 24, "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "يتبادل العميل والخادم الرسائل وفق نموذج ........ و........ ، ويحدد بروتوكول ........ قواعد هذا التبادل.", "kind": "fill", "model": "الطلب — الاستجابة — HTTP", "marks": 1, "short": true, "first": true, "g": 3, "no": 25, "title": "أكمل ما يأتي (3 درجات — درجة لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "تتضمن الطلبات المرسلة إلى الخادم طريقة طلب HTTP توضح ........ ، ومن أمثلتها ........ لطلب البيانات و........ لإرسال البيانات ليعالجها الخادم.", "kind": "fill", "model": "نوع العملية المطلوبة — GET — POST", "marks": 1, "short": true, "first": false, "g": 3, "no": 26, "title": "أكمل ما يأتي (3 درجات — درجة لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "رمز الحالة 200 يعني ........ ، ورمز الحالة 404 يعني ........ ، ورمز الحالة 500 يعني ........ .", "kind": "fill", "model": "نجاح الطلب (تمت معالجته بنجاح) — المورد المطلوب غير موجود بهذا العنوان — خطأ داخلي في الخادم منعه من إكمال الطلب", "marks": 1, "short": true, "first": false, "g": 3, "no": 27, "title": "أكمل ما يأتي (3 درجات — درجة لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "قارن بين طريقتي الطلب GET وPOST من حيث: الدور المعتاد لكل منهما، ومثال على عملية تناسب كل منهما. [4 درجات]", "kind": "compare", "model": "GET: يُستخدم عادةً لطلب مورد أو بيانات من الخادم — (1.5). مثال: عرض صفحة ويب أو استرجاع نتائج البحث — (0.5).\nPOST: يُستخدم عادةً لإرسال بيانات ليعالجها الخادم — (1.5). مثال: إرسال معلومات تسجيل الدخول أو محتويات نموذج — (0.5).", "marks": 4, "short": false, "first": true, "g": 4, "no": 28, "title": "قارن (4 درجات)"}, {"type": "essay", "lesson": "3-2", "q": "علّل: يجب أن تستخدم صفحة تسجيل الدخول HTTPS بدلًا من HTTP العادي. [2 درجتان]", "kind": "why", "model": "لأن HTTPS يستخدم TLS لحماية سرية الاتصال وسلامته (1)، فلا يستطيع المتجسس قراءة المحتوى أو تعديله بسهولة أثناء النقل (1).", "marks": 2, "short": false, "first": true, "g": 5, "no": 29, "title": "علّل (6 درجات — درجتان لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "علّل: لا يكفي رمز الحالة 500 وحده لمعرفة سبب المشكلة التي حدثت. [2 درجتان]", "kind": "why", "model": "لأن الرمز 500 يدل على خطأ داخلي في الخادم منعه من إكمال الطلب (1)، ولا يحدد الرمز وحده السبب التفصيلي (1).", "marks": 2, "short": false, "first": false, "g": 5, "no": 30, "title": "علّل (6 درجات — درجتان لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "علّل: تفيد واجهة برمجة التطبيقات (API) في التواصل بين الواجهة الأمامية والخدمة الخلفية. [2 درجتان]", "kind": "why", "model": "لأنها مجموعة قواعد واضحة تسمح لبرنامج بطلب بيانات أو وظائف من برنامج آخر (1)، فقد ترسل الواجهة الأمامية طلبات إلى الخدمة الخلفية عبر API وتستقبل منها البيانات، وقد تعيدها بصيغة JSON (1).", "marks": 2, "short": false, "first": false, "g": 5, "no": 31, "title": "علّل (6 درجات — درجتان لكل فقرة)"}, {"type": "essay", "lesson": "3-2", "q": "[طبّق ما تعلمته] تقدم خدمة الطقس واجهة برمجة تطبيقات تعيد توقعات اليوم عندما يرسل العميل طلبًا. باستخدام ما تعلمته: اذكر طريقة طلب HTTP التي سيستخدمها العميل لاسترجاع التوقعات، ولماذا يجب أن تستخدم الخدمة HTTPS، ووضّح ميزة واحدة لاستقبال البيانات بصيغة JSON. [4 درجات]", "kind": "apply", "model": "طريقة الطلب: GET (1)، لأن العميل يطلب بيانات (التوقعات) من الخادم (1).\nلماذا HTTPS: لأنه يحمي سرية الاتصال وسلامته عبر TLS أثناء النقل (1).\nميزة JSON (تُقبل إحدى الميزات): صيغة نصية شائعة وقابلة للقراءة لتمثيل البيانات المهيكلة، وتدعمها لغات وأدوات برمجية كثيرة (1).", "marks": 4, "short": false, "first": true, "g": 6, "no": 32, "title": "طبّق ما تعلمته (7 درجات)"}, {"type": "essay", "lesson": "3-2", "q": "[فكّر كمهندس] تريد مدرسة تطبيق ويب يسجّل فيه الطلاب الدخول ويعرضون جدولهم الدراسي. لكل إجراء مما يأتي حدّد هل الأنسب GET أم POST: (أ) تحميل سجل درجات الطالب، (ب) إرسال نموذج تسجيل الدخول، (ج) طلب الجدول الدراسي لليوم من نظام مدرسة أخرى، ثم حدّد هل تتضمن (ج) واجهة برمجة تطبيقات. [3 درجات]", "kind": "apply", "model": "(أ) GET، لأنه طلب مورد أو بيانات من الخادم (1).\n(ب) POST، لأنه إرسال بيانات (معلومات الدخول) ليعالجها الخادم (1).\n(ج) GET، وتتضمن API لأن برنامجًا يطلب بيانات من نظام أو خدمة أخرى (1).", "marks": 3, "short": false, "first": false, "g": 6, "no": 33, "title": "طبّق ما تعلمته (7 درجات)"}, {"type": "essay", "lesson": "3-2", "q": "[سؤال على نمط الامتحان] اشرح خطوة بخطوة ما يحدث عندما يطلب المتصفح صفحة ويب ويستجيب الخادم. [6 درجات]\nأشِر إلى: العميل، الطلب، طريقة طلب HTTP، الاستجابة، رمز حالة HTTP.", "kind": "exam", "model": "العميل (المتصفح) يرسل طلبًا إلى خادم عبر الشبكة وفق قواعد HTTP أو HTTPS (1).\nيتضمن الطلب طريقة طلب HTTP مثل GET توضح نوع العملية المطلوبة، أي طلب الصفحة (1).\nيستقبل الخادم الطلب ويعالجه (1).\nيعيد الخادم استجابة إلى العميل تتضمن الصفحة أو البيانات المطلوبة (1).\nتتضمن الاستجابة رمز حالة HTTP يشير إلى نتيجة المعالجة، مثل 200 عند النجاح (1)، أو 404 إذا لم يوجد المورد، أو 500 عند خطأ داخلي في الخادم (0.5).\nيستقبل المتصفح الاستجابة ويعرض النتيجة للمستخدم (0.5).", "marks": 6, "short": false, "first": true, "g": 7, "no": 34, "title": "سؤال على نمط الامتحان (6 درجات)"}];
+
+const TOTAL_TIME = 60 * 60; // ساعة واحدة
+let timeLeft = TOTAL_TIME, timerInterval, examStartTimestamp = null, submitted = false, studentName = "";
+const userAnswers = new Array(questions.length).fill(null);
+const KIND = {term:"اكتب المصطلح",fill:"أكمل",compare:"قارن",why:"علّل",apply:"طبّق",exam:"سؤال على نمط الامتحان"};
+
+function typeBadge(item){
+  if(item.type==="mcq") return '<span class="q-type-badge badge-mcq">اختر</span>';
+  if(item.type==="tf") return '<span class="q-type-badge badge-tf">صح أم خطأ</span>';
+  return '<span class="q-type-badge badge-essay">'+KIND[item.kind]+'</span><span class="mk">'+item.marks+' درجة</span>';
+}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+function renderAll(){
+  const area=document.getElementById('quiz-area'); area.innerHTML='';
+  questions.forEach((item,idx)=>{
+    if(item.first){
+      if(item.part){ const h=document.createElement('div'); h.className='sec-hdr'; h.textContent=item.part; area.appendChild(h); }
+      const s=document.createElement('div'); s.className='sub-hdr'; s.textContent=item.title; area.appendChild(s);
+    }
+    const card=document.createElement('div'); card.className='card'; card.id='card-'+idx;
+    let body='';
+    if(item.type==='mcq'){
+      body='<div class="options">'+item.options.map((o,i)=>`<label class="option" data-o="${i}"><input type="radio" name="q${idx}"><span>${esc(o)}</span></label>`).join('')+'</div>';
+    } else if(item.type==='tf'){
+      body='<div class="options"><label class="option" data-o="true"><input type="radio" name="q'+idx+'"><span>✔️ صح</span></label><label class="option" data-o="false"><input type="radio" name="q'+idx+'"><span>❌ خطأ</span></label></div>';
+    } else {
+      body=`<textarea class="essay-input ${item.short?'short-input':''}" id="essay-${idx}" placeholder="اكتب إجابتك هنا..."></textarea>`;
+    }
+    card.innerHTML=`<div>${typeBadge(item)}<span class="q-number">${item.no}</span></div><div class="q-text">${esc(item.q).replace(/\n/g,'<br>')}</div>${body}`;
+    area.appendChild(card);
+    if(item.type==='essay'){
+      card.querySelector('textarea').addEventListener('input',function(){userAnswers[idx]=this.value;updateProgress();});
+    } else {
+      card.querySelectorAll('.option').forEach(opt=>opt.addEventListener('click',function(){
+        const v=this.dataset.o; userAnswers[idx]=item.type==='tf'?(v==='true'):parseInt(v);
+        card.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+        this.classList.add('selected'); this.querySelector('input').checked=true;
+        card.classList.remove('unanswered'); updateProgress();
+      }));
+    }
+  });
+  updateProgress();
+}
+function isAnswered(i){const a=userAnswers[i];return questions[i].type==='essay'?(a&&a.trim()!==''):(a!==null&&a!==undefined);}
+function updateProgress(){
+  let n=0; questions.forEach((_,i)=>{if(isAnswered(i))n++;});
+  document.getElementById('progress-bar').style.width=(n/questions.length*100)+'%';
+  document.getElementById('progress-label').textContent=`تمت الإجابة عن ${n} من ${questions.length} سؤالًا`;
+}
+
+let audioCtx = null;
+function initAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+}
+function playTick(freq, duration){
+  if(!audioCtx) return;
+  try{
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }catch(e){}
+}
+
+function formatTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return m + ':' + s;
+}
+
+
+function startTimer(){
+  const el=document.getElementById('timer'), fl=document.getElementById('timer-float');
+  examStartTimestamp=Date.now();
+  function tick(){
+    if(submitted) return;
+    timeLeft=Math.max(0,TOTAL_TIME-Math.floor((Date.now()-examStartTimestamp)/1000));
+    el.textContent=fl.textContent=formatTime(timeLeft);
+    if(timeLeft<=300){el.classList.add('warn');fl.classList.add('warn');}
+    if(timeLeft<=60&&timeLeft>0) playTick(500+(60-timeLeft)*10,timeLeft<=10?0.18:0.1);
+    if(timeLeft<=0){clearInterval(timerInterval);finishExam(true);}
+  }
+  tick(); timerInterval=setInterval(tick,1000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!submitted)tick();});
+}
+
+let finalA=0, finalAMax=0, wrongQuestionNumbers=[], examDurationText='', essayAnswersList=[];
+function finishExam(auto){
+  if(submitted) return; submitted=true; clearInterval(timerInterval);
+  const elapsed=Math.min(TOTAL_TIME,Math.floor((Date.now()-examStartTimestamp)/1000));
+  examDurationText=formatTime(elapsed);
+  const rv=document.getElementById('review-area'); rv.innerHTML='';
+  let score=0,max=0,wMax=0; wrongQuestionNumbers=[]; essayAnswersList=[];
+  questions.forEach((item,idx)=>{
+    const a=userAnswers[idx], div=document.createElement('div'), label=`سؤال ${item.no}`;
+    const head=`<div>${typeBadge(item)}<span class="q-number">${label}</span></div><div class="q-lesson">${LESSONS[item.lesson]}</div><div class="q-text">${esc(item.q).replace(/\n/g,'<br>')}</div>`;
+    if(item.type==='essay'){
+      wMax+=item.marks; div.className='card review-item essay';
+      const txt=(a&&a.trim()!=='')?a:'لم تتم الإجابة';
+      essayAnswersList.push({num:label,q:item.q,a:txt,model:item.model,marks:item.marks});
+      div.innerHTML=head+`<div class="answer-line essay">إجابة الطالب: ${esc(txt)}</div><div class="answer-line model">نموذج الإجابة (${item.marks} درجة):\n${esc(item.model)}</div>`;
+    } else {
+      max++; const ok=a===item.correct; if(ok)score++; else wrongQuestionNumbers.push(label);
+      const fmt=v=>item.type==='mcq'?(v===null?'لم تتم الإجابة':item.options[v]):(v===null?'لم تتم الإجابة':(v?'صح':'خطأ'));
+      const corr=item.type==='mcq'?item.options[item.correct]:(item.correct?'صح':'خطأ');
+      div.className='card review-item'+(ok?'':' wrong');
+      div.innerHTML=head+(ok?`<div class="answer-line correct">الإجابة: ${esc(fmt(a))} ✓</div>`:`<div class="answer-line wrong">إجابة الطالب: ${esc(fmt(a))} ✗</div><div class="answer-line correct">الإجابة الصحيحة: ${esc(corr)}</div>`);
+    }
+    rv.appendChild(div);
+  });
+  finalA=score; finalAMax=max;
+  const pct=Math.round(score/max*100);
+  document.getElementById('score-num').textContent=`الجزء الأول: ${score} / ${max}`;
+  let msg,em; if(pct>=90){msg='ممتاز! أداء رائع';em='🏆';} else if(pct>=75){msg='جيد جدًا';em='😄';} else if(pct>=50){msg='جيد، يحتاج إلى مزيد من المراجعة';em='🙂';} else {msg='يُنصح بمراجعة الدروس من البداية';em='😕';}
+  document.getElementById('score-emoji').textContent=em;
+  document.getElementById('score-msg').innerHTML=`الاسم: <strong>${esc(studentName)}</strong><br>التاريخ: ${new Date().toLocaleDateString('ar-EG')}<br>الوقت المستغرق: <strong>${examDurationText}</strong> من أصل 60:00<br>الجزء الأول (موضوعي): ${pct}% — ${msg}<br>الجزء الثاني (مقالي): من ${wMax} درجة — يُصحَّح يدويًا بمقارنة إجابتك بنموذج الإجابة أسفل كل سؤال.${auto?'<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>':''}`;
+  ['quiz-area','submit-box'].forEach(i=>document.getElementById(i).style.display='none');
+  document.getElementById('timer-float').style.display='none';
+  document.querySelector('.progress-wrap').style.display='none'; document.getElementById('progress-label').style.display='none';
+  document.getElementById('results').style.display='block'; window.scrollTo({top:0,behavior:'auto'});
+  setTimeout(preparePdf,400);
+}
+
+function buildWhatsAppSummaryText(){
+  const d='----------------------', L=[];
+  L.push('*تقرير '+EXAM_TITLE+'*','*Prepared by Eng.Marco Edwer*',d);
+  L.push(`*الاسم:* ${studentName}`,`*التاريخ:* ${new Date().toLocaleDateString('ar-EG')}`,`*الوقت المستغرق:* ${examDurationText} من أصل 60:00`);
+  L.push(`*الجزء الأول (موضوعي):* ${finalA} / ${finalAMax}`);
+  L.push(wrongQuestionNumbers.length?`*الفقرات الخاطئة:* ${wrongQuestionNumbers.join('، ')}`:'*لا توجد أخطاء في الجزء الموضوعي*',d,'*إجابات الجزء المقالي (30 درجة — للتصحيح اليدوي):*');
+  essayAnswersList.forEach(e=>{L.push(`${e.num} [${e.marks}]: ${e.q}`,`الإجابة: ${e.a}`,'. . .');});
+  L.push(d,'تفاصيل كل الأسئلة ونموذج الإجابة مرفقة في ملف PDF.');
+  return L.join('\n');
+}
+
+// ===== إنشاء ملف PDF (مقسّم إلى أجزاء صغيرة ليعمل على الموبايل والتابلت) =====
+let pdfBlob=null, pdfFileName='', pdfUrl='', pdfPromise=null, pdfAutoTried=false;
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+function setPdfStatus(t){ const el=document.getElementById('send-status'); if(el) el.textContent=t; }
+function nextFrame(){ return new Promise(r=>setTimeout(r,30)); }
+
+async function buildPdfBlob(onProgress){
+  const wrapper=document.getElementById('pdf-report');
+  wrapper.innerHTML='';
+  const clone=document.getElementById('report-content').cloneNode(true);
+  clone.querySelectorAll('.action-buttons,#send-status,#pdf-open-wrap').forEach(e=>e.remove());
+  wrapper.appendChild(clone);
+
+  const blocks=[clone.querySelector('.score-card'), ...clone.querySelectorAll('.review-item')].filter(Boolean);
+  const { jsPDF } = window.jspdf;
+  const pdf=new jsPDF('p','mm','a4');
+  const PW=210, PH=297, M=8, CW=PW-2*M, BOTTOM=PH-M;
+  let y=M;
+
+  for(let i=0;i<blocks.length;i++){
+    if(onProgress) onProgress(i+1,blocks.length);
+    await nextFrame();
+    const canvas=await html2canvas(blocks[i],{scale:1.6,backgroundColor:'#ffffff',useCORS:true});
+    const h=canvas.height*CW/canvas.width;
+    if(h<=BOTTOM-M){
+      if(y+h>BOTTOM){ pdf.addPage(); y=M; }
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.85),'JPEG',M,y,CW,h);
+      y+=h+3;
+    } else {
+      // عنصر أطول من صفحة كاملة: يُقسَّم إلى شرائح
+      const pxPerMm=canvas.width/CW, slicePx=Math.floor((BOTTOM-M)*pxPerMm);
+      for(let sy=0; sy<canvas.height; sy+=slicePx){
+        const sh=Math.min(slicePx,canvas.height-sy);
+        const part=document.createElement('canvas'); part.width=canvas.width; part.height=sh;
+        part.getContext('2d').drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);
+        const ph=sh/pxPerMm;
+        if(y+ph>BOTTOM){ pdf.addPage(); y=M; }
+        pdf.addImage(part.toDataURL('image/jpeg',0.85),'JPEG',M,y,CW,ph);
+        y+=ph+3; part.width=part.height=0;
+      }
+    }
+    canvas.width=canvas.height=0;
+  }
+  wrapper.innerHTML='';
+  return pdf.output('blob');
+}
+
+function preparePdf(){
+  if(pdfPromise) return pdfPromise;
+  pdfFileName=('تقرير_'+(studentName||'طالب').replace(/[\\\/:*?"<>|\s]+/g,'_')+'.pdf');
+  setPdfStatus('⏳ جاري تجهيز ملف PDF... (قد يستغرق دقيقة، لا تغلق الصفحة)');
+  pdfPromise=buildPdfBlob((n,t)=>setPdfStatus('⏳ جاري تجهيز ملف PDF... '+n+' / '+t))
+    .then(blob=>{
+      pdfBlob=blob;
+      try{ pdfUrl=URL.createObjectURL(blob); }catch(e){}
+      const wrap=document.getElementById('pdf-open-wrap');
+      const link=document.getElementById('pdf-open-link');
+      if(wrap&&link&&pdfUrl){ link.href=pdfUrl; wrap.style.display='block'; }
+      document.getElementById('download-pdf-btn').disabled=false;
+      if(!IS_IOS && !pdfAutoTried){
+        pdfAutoTried=true;
+        triggerAnchorDownload();
+        setPdfStatus('✅ تم تجهيز التقرير وبدأ تحميله. لو لم يظهر في التنزيلات اضغط زر «تحميل التقرير PDF».');
+      } else {
+        setPdfStatus('✅ التقرير جاهز. اضغط زر «تحميل التقرير PDF».');
+      }
+      return blob;
+    })
+    .catch(err=>{
+      console.error(err);
+      pdfPromise=null;
+      setPdfStatus('⚠️ تعذّر تجهيز ملف PDF. اضغط «تحميل التقرير PDF» للمحاولة مرة أخرى.');
+      document.getElementById('download-pdf-btn').disabled=false;
+      return null;
+    });
+  return pdfPromise;
+}
+
+function triggerAnchorDownload(){
+  if(!pdfUrl) return;
+  const a=document.createElement('a');
+  a.href=pdfUrl; a.download=pdfFileName; a.style.display='none';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ if(a.parentNode) a.parentNode.removeChild(a); },1000);
+}
+
+async function downloadPdfNow(){
+  if(!pdfBlob){
+    const btn=document.getElementById('download-pdf-btn'); btn.disabled=true;
+    await preparePdf(); btn.disabled=false;
+    if(!pdfBlob) return;
+  }
+  const file=new File([pdfBlob],pdfFileName,{type:'application/pdf'});
+  if(IS_IOS && navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file],title:EXAM_TITLE});
+      setPdfStatus('✅ اختر «حفظ في الملفات» لحفظ التقرير على الجهاز.');
+      return;
+    }catch(err){
+      if(err&&err.name==='AbortError') return;
+    }
+  }
+  triggerAnchorDownload();
+  setPdfStatus('✅ تم طلب تحميل الملف. لو لم يظهر اضغط رابط «فتح الملف» أسفل الزر.');
+}
+
+document.getElementById('download-pdf-btn').addEventListener('click',downloadPdfNow);
+
+document.getElementById('send-wa-btn').addEventListener('click', async function(){
+  const btn=this; btn.disabled=true;
+  try{
+    if(!pdfBlob){ setPdfStatus('⏳ جاري تجهيز تقرير PDF...'); await preparePdf(); }
+    if(!pdfBlob){ setPdfStatus('⚠️ تعذّر تجهيز ملف PDF، حاول مرة أخرى.'); return; }
+    const file=new File([pdfBlob],pdfFileName,{type:'application/pdf'});
+    const summaryText=buildWhatsAppSummaryText();
+    let shared=false;
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        setPdfStatus('📤 اختر واتساب من قائمة المشاركة لإرسال التقرير...');
+        await navigator.share({files:[file],title:'تقرير الامتحان',text:summaryText});
+        setPdfStatus('✅ تم فتح قائمة المشاركة'); shared=true;
+      }catch(err){
+        if(err&&err.name==='AbortError'){ setPdfStatus('تم إلغاء المشاركة.'); return; }
+      }
+    }
+    if(!shared){
+      triggerAnchorDownload();
+      const waText=summaryText+'\n\nتم تحميل ملف تقرير الامتحان (PDF) على جهازك، برجاء إرفاقه في هذه المحادثة.';
+      window.open('https://wa.me/'+TEACHER_PHONE+'?text='+encodeURIComponent(waText),'_blank');
+      setPdfStatus('تم تحميل ملف PDF وفتح واتساب — برجاء إرفاق الملف يدويًا في المحادثة.');
+    }
+  }catch(err){
+    setPdfStatus('حدث خطأ أثناء تجهيز التقرير، برجاء المحاولة مرة أخرى.');
+  } finally { btn.disabled=false; }
+});
+
+
+document.getElementById('submit-btn').addEventListener('click',()=>{
+  const miss=[]; questions.forEach((_,i)=>{if(!isAnswered(i))miss.push(i);});
+  if(miss.length){
+    const w=document.getElementById('not-answered-warning');
+    w.style.display='block'; w.style.color='var(--wrong)'; w.style.fontWeight='700'; w.style.marginBottom='10px';
+    w.textContent=`لم تجب عن ${miss.length} سؤالًا. اضغط مرة أخرى للتسليم أو عُد لإكمالها.`;
+    miss.forEach(i=>document.getElementById('card-'+i).classList.add('unanswered'));
+    document.getElementById('card-'+miss[0]).scrollIntoView({behavior:'smooth',block:'center'});
+    if(!window.__warned){window.__warned=true;return;}
+  }
+  finishExam(false);
+});
+
+// ===== قفل المحاولة الواحدة (على نفس المتصفح) =====
+const LOCK_KEY='exam_attempt_lock_lesson_3_1';
+try{ if(/[?&]reset=1/.test(location.search)) localStorage.removeItem(LOCK_KEY); }catch(e){}
+function isLocked(){ try{ return !!localStorage.getItem(LOCK_KEY); }catch(e){ return false; } }
+function lockExam(name){ try{ localStorage.setItem(LOCK_KEY, JSON.stringify({name:name,time:new Date().toISOString()})); }catch(e){} }
+function showLocked(){
+  let who='';
+  try{ const d=JSON.parse(localStorage.getItem(LOCK_KEY)); if(d&&d.name) who=' باسم ('+d.name+')'; }catch(e){}
+  const ss=document.getElementById('start-screen');
+  ss.style.display='block';
+  ss.innerHTML='<div style="font-size:3rem;">🔒</div><h2>تم أداء هذا الامتحان من قبل</h2><p>تم دخول الامتحان من هذا الجهاز'+who+' ولا يمكن إعادته أكثر من مرة.<br>إذا كان هناك خطأ، تواصل مع المعلم.</p>';
+}
+document.getElementById('start-btn').addEventListener('click',()=>{
+  const inp=document.getElementById('student-name'), name=inp.value.trim();
+  if(!name){document.getElementById('name-warning').style.display='block';inp.focus();return;}
+  if(isLocked()){showLocked();return;}
+  lockExam(name);
+  studentName=name; initAudio();
+  document.getElementById('start-screen').style.display='none';
+  document.querySelector('.progress-wrap').style.display='block';
+  document.getElementById('progress-label').style.display='block';
+  document.getElementById('submit-box').style.display='block';
+  document.getElementById('timer-float').style.display='block';
+  renderAll(); startTimer(); window.scrollTo({top:0,behavior:'auto'});
+});
+if(isLocked()) showLocked();
+</script>
+</body>
+</html>
