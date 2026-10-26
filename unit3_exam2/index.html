@@ -298,6 +298,7 @@
         <div class="action-buttons">
           <button class="pdf-btn" id="download-pdf-btn" disabled>⬇️ تحميل التقرير PDF</button>
           <button class="wa-btn" id="send-wa-btn">📱 إرسال التقرير PDF على واتساب</button>
+          <button class="btn-secondary" id="retake-btn">🔄 إعادة الامتحان</button>
         </div>
         <div id="send-status"></div>
         <div id="pdf-open-wrap" style="display:none;margin-top:8px;font-size:0.9rem;"><a id="pdf-open-link" href="#" target="_blank" rel="noopener" style="color:var(--primary);font-weight:700;">لو لم يُحمَّل الملف اضغط هنا لفتحه ثم احفظه</a></div>
@@ -606,23 +607,12 @@ document.getElementById('submit-btn').addEventListener('click',()=>{
   finishExam(false);
 });
 
-// ===== قفل المحاولة الواحدة (على نفس المتصفح) =====
-const LOCK_KEY='exam_attempt_lock_lesson_3_1';
-try{ if(/[?&]reset=1/.test(location.search)) localStorage.removeItem(LOCK_KEY); }catch(e){}
-function isLocked(){ try{ return !!localStorage.getItem(LOCK_KEY); }catch(e){ return false; } }
-function lockExam(name){ try{ localStorage.setItem(LOCK_KEY, JSON.stringify({name:name,time:new Date().toISOString()})); }catch(e){} }
-function showLocked(){
-  let who='';
-  try{ const d=JSON.parse(localStorage.getItem(LOCK_KEY)); if(d&&d.name) who=' باسم ('+d.name+')'; }catch(e){}
-  const ss=document.getElementById('start-screen');
-  ss.style.display='block';
-  ss.innerHTML='<div style="font-size:3rem;">🔒</div><h2>تم أداء هذا الامتحان من قبل</h2><p>تم دخول الامتحان من هذا الجهاز'+who+' ولا يمكن إعادته أكثر من مرة.<br>إذا كان هناك خطأ، تواصل مع المعلم.</p>';
-}
+// ===== الامتحان قابل للتكرار: تم إلغاء قفل المحاولة الواحدة =====
+// تنظيف أي قفل قديم محفوظ في المتصفح من النسخة السابقة
+try{ localStorage.removeItem('exam_attempt_lock_lesson_3_1'); }catch(e){}
 document.getElementById('start-btn').addEventListener('click',()=>{
   const inp=document.getElementById('student-name'), name=inp.value.trim();
   if(!name){document.getElementById('name-warning').style.display='block';inp.focus();return;}
-  if(isLocked()){showLocked();return;}
-  lockExam(name);
   studentName=name; initAudio();
   document.getElementById('start-screen').style.display='none';
   document.querySelector('.progress-wrap').style.display='block';
@@ -631,7 +621,7 @@ document.getElementById('start-btn').addEventListener('click',()=>{
   document.getElementById('timer-float').style.display='block';
   renderAll(); startTimer(); window.scrollTo({top:0,behavior:'auto'});
 });
-if(isLocked()) showLocked();
+document.getElementById('retake-btn').addEventListener('click',()=>{ location.reload(); });
 </script>
 </body>
 </html>
