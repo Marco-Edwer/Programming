@@ -296,11 +296,9 @@
         <div class="score-num" id="score-num"></div>
         <div class="score-msg" id="score-msg"></div>
         <div class="action-buttons">
-          <button class="pdf-btn" id="download-pdf-btn" disabled>⬇️ تحميل التقرير PDF</button>
           <button class="wa-btn" id="send-wa-btn">📱 إرسال التقرير PDF على واتساب</button>
         </div>
         <div id="send-status"></div>
-        <div id="pdf-open-wrap" style="display:none;margin-top:8px;font-size:0.9rem;"><a id="pdf-open-link" href="#" target="_blank" rel="noopener" style="color:var(--primary);font-weight:700;">لو لم يُحمَّل الملف اضغط هنا لفتحه ثم احفظه</a></div>
       </div>
       <div id="review-area"></div>
     </div>
@@ -442,7 +440,6 @@ function finishExam(auto){
   document.getElementById('timer-float').style.display='none';
   document.querySelector('.progress-wrap').style.display='none'; document.getElementById('progress-label').style.display='none';
   document.getElementById('results').style.display='block'; window.scrollTo({top:0,behavior:'auto'});
-  setTimeout(preparePdf,400);
 }
 
 function buildWhatsAppSummaryText(){
@@ -456,140 +453,84 @@ function buildWhatsAppSummaryText(){
   return L.join('\n');
 }
 
-// ===== إنشاء ملف PDF (مقسّم إلى أجزاء صغيرة ليعمل على الموبايل والتابلت) =====
-let pdfBlob=null, pdfFileName='', pdfUrl='', pdfPromise=null, pdfAutoTried=false;
-const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
-function setPdfStatus(t){ const el=document.getElementById('send-status'); if(el) el.textContent=t; }
-function nextFrame(){ return new Promise(r=>setTimeout(r,30)); }
-
-async function buildPdfBlob(onProgress){
-  const wrapper=document.getElementById('pdf-report');
-  wrapper.innerHTML='';
-  const clone=document.getElementById('report-content').cloneNode(true);
-  clone.querySelectorAll('.action-buttons,#send-status,#pdf-open-wrap').forEach(e=>e.remove());
+async function buildPdfBlob(){
+  const source = document.getElementById('report-content');
+  const clone = source.cloneNode(true);
+  const wrapper = document.getElementById('pdf-report');
+  wrapper.innerHTML = '';
   wrapper.appendChild(clone);
 
-  const blocks=[clone.querySelector('.score-card'), ...clone.querySelectorAll('.review-item')].filter(Boolean);
-  const { jsPDF } = window.jspdf;
-  const pdf=new jsPDF('p','mm','a4');
-  const PW=210, PH=297, M=8, CW=PW-2*M, BOTTOM=PH-M;
-  let y=M;
+  const canvas = await html2canvas(wrapper, {scale:2, backgroundColor:'#ffffff', useCORS:true});
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
 
-  for(let i=0;i<blocks.length;i++){
-    if(onProgress) onProgress(i+1,blocks.length);
-    await nextFrame();
-    const canvas=await html2canvas(blocks[i],{scale:1.6,backgroundColor:'#ffffff',useCORS:true});
-    const h=canvas.height*CW/canvas.width;
-    if(h<=BOTTOM-M){
-      if(y+h>BOTTOM){ pdf.addPage(); y=M; }
-      pdf.addImage(canvas.toDataURL('image/jpeg',0.85),'JPEG',M,y,CW,h);
-      y+=h+3;
-    } else {
-      // عنصر أطول من صفحة كاملة: يُقسَّم إلى شرائح
-      const pxPerMm=canvas.width/CW, slicePx=Math.floor((BOTTOM-M)*pxPerMm);
-      for(let sy=0; sy<canvas.height; sy+=slicePx){
-        const sh=Math.min(slicePx,canvas.height-sy);
-        const part=document.createElement('canvas'); part.width=canvas.width; part.height=sh;
-        part.getContext('2d').drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);
-        const ph=sh/pxPerMm;
-        if(y+ph>BOTTOM){ pdf.addPage(); y=M; }
-        pdf.addImage(part.toDataURL('image/jpeg',0.85),'JPEG',M,y,CW,ph);
-        y+=ph+3; part.width=part.height=0;
-      }
-    }
-    canvas.width=canvas.height=0;
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while(heightLeft > 0){
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
   }
-  wrapper.innerHTML='';
+
+  wrapper.innerHTML = '';
   return pdf.output('blob');
 }
 
-function preparePdf(){
-  if(pdfPromise) return pdfPromise;
-  pdfFileName=('تقرير_'+(studentName||'طالب').replace(/[\\\/:*?"<>|\s]+/g,'_')+'.pdf');
-  setPdfStatus('⏳ جاري تجهيز ملف PDF... (قد يستغرق دقيقة، لا تغلق الصفحة)');
-  pdfPromise=buildPdfBlob((n,t)=>setPdfStatus('⏳ جاري تجهيز ملف PDF... '+n+' / '+t))
-    .then(blob=>{
-      pdfBlob=blob;
-      try{ pdfUrl=URL.createObjectURL(blob); }catch(e){}
-      const wrap=document.getElementById('pdf-open-wrap');
-      const link=document.getElementById('pdf-open-link');
-      if(wrap&&link&&pdfUrl){ link.href=pdfUrl; wrap.style.display='block'; }
-      document.getElementById('download-pdf-btn').disabled=false;
-      if(!IS_IOS && !pdfAutoTried){
-        pdfAutoTried=true;
-        triggerAnchorDownload();
-        setPdfStatus('✅ تم تجهيز التقرير وبدأ تحميله. لو لم يظهر في التنزيلات اضغط زر «تحميل التقرير PDF».');
-      } else {
-        setPdfStatus('✅ التقرير جاهز. اضغط زر «تحميل التقرير PDF».');
-      }
-      return blob;
-    })
-    .catch(err=>{
-      console.error(err);
-      pdfPromise=null;
-      setPdfStatus('⚠️ تعذّر تجهيز ملف PDF. اضغط «تحميل التقرير PDF» للمحاولة مرة أخرى.');
-      document.getElementById('download-pdf-btn').disabled=false;
-      return null;
-    });
-  return pdfPromise;
-}
-
-function triggerAnchorDownload(){
-  if(!pdfUrl) return;
-  const a=document.createElement('a');
-  a.href=pdfUrl; a.download=pdfFileName; a.style.display='none';
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>{ if(a.parentNode) a.parentNode.removeChild(a); },1000);
-}
-
-async function downloadPdfNow(){
-  if(!pdfBlob){
-    const btn=document.getElementById('download-pdf-btn'); btn.disabled=true;
-    await preparePdf(); btn.disabled=false;
-    if(!pdfBlob) return;
-  }
-  const file=new File([pdfBlob],pdfFileName,{type:'application/pdf'});
-  if(IS_IOS && navigator.canShare && navigator.canShare({files:[file]})){
-    try{
-      await navigator.share({files:[file],title:EXAM_TITLE});
-      setPdfStatus('✅ اختر «حفظ في الملفات» لحفظ التقرير على الجهاز.');
-      return;
-    }catch(err){
-      if(err&&err.name==='AbortError') return;
-    }
-  }
-  triggerAnchorDownload();
-  setPdfStatus('✅ تم طلب تحميل الملف. لو لم يظهر اضغط رابط «فتح الملف» أسفل الزر.');
-}
-
-document.getElementById('download-pdf-btn').addEventListener('click',downloadPdfNow);
-
 document.getElementById('send-wa-btn').addEventListener('click', async function(){
-  const btn=this; btn.disabled=true;
+  const statusEl = document.getElementById('send-status');
+  const btn = this;
+  btn.disabled = true;
+  statusEl.textContent = '⏳ جاري تجهيز تقرير PDF...';
+
   try{
-    if(!pdfBlob){ setPdfStatus('⏳ جاري تجهيز تقرير PDF...'); await preparePdf(); }
-    if(!pdfBlob){ setPdfStatus('⚠️ تعذّر تجهيز ملف PDF، حاول مرة أخرى.'); return; }
-    const file=new File([pdfBlob],pdfFileName,{type:'application/pdf'});
-    const summaryText=buildWhatsAppSummaryText();
-    let shared=false;
+    const blob = await buildPdfBlob();
+    const fileName = `تقرير_${studentName.replace(/\s+/g,'_')}.pdf`;
+    const file = new File([blob], fileName, {type:'application/pdf'});
+    const summaryText = buildWhatsAppSummaryText();
+
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{
-        setPdfStatus('📤 اختر واتساب من قائمة المشاركة لإرسال التقرير...');
-        await navigator.share({files:[file],title:'تقرير الامتحان',text:summaryText});
-        setPdfStatus('✅ تم فتح قائمة المشاركة'); shared=true;
-      }catch(err){
-        if(err&&err.name==='AbortError'){ setPdfStatus('تم إلغاء المشاركة.'); return; }
-      }
-    }
-    if(!shared){
-      triggerAnchorDownload();
-      const waText=summaryText+'\n\nتم تحميل ملف تقرير الامتحان (PDF) على جهازك، برجاء إرفاقه في هذه المحادثة.';
-      window.open('https://wa.me/'+TEACHER_PHONE+'?text='+encodeURIComponent(waText),'_blank');
-      setPdfStatus('تم تحميل ملف PDF وفتح واتساب — برجاء إرفاق الملف يدويًا في المحادثة.');
+      statusEl.textContent = '📤 اختر واتساب من قائمة المشاركة لإرسال التقرير...';
+      await navigator.share({
+        files:[file],
+        title:'تقرير الامتحان',
+        text: summaryText
+      });
+      statusEl.textContent = '✅ تم فتح قائمة المشاركة';
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      const waText = summaryText + '\n\nتم تحميل ملف تقرير الامتحان (PDF) على جهازك، برجاء إرفاقه في هذه المحادثة.';
+      const waUrl = `https://wa.me/${TEACHER_PHONE}?text=${encodeURIComponent(waText)}`;
+      window.open(waUrl, '_blank');
+      statusEl.textContent = 'تم تحميل ملف PDF وفتح واتساب — برجاء إرفاق الملف يدويًا في المحادثة.';
     }
   }catch(err){
-    setPdfStatus('حدث خطأ أثناء تجهيز التقرير، برجاء المحاولة مرة أخرى.');
-  } finally { btn.disabled=false; }
+    if(err && err.name === 'AbortError'){
+      statusEl.textContent = 'تم إلغاء المشاركة.';
+    } else {
+      statusEl.textContent = 'حدث خطأ أثناء تجهيز التقرير، برجاء المحاولة مرة أخرى.';
+    }
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 
@@ -605,24 +546,9 @@ document.getElementById('submit-btn').addEventListener('click',()=>{
   }
   finishExam(false);
 });
-
-// ===== قفل المحاولة الواحدة (على نفس المتصفح) =====
-const LOCK_KEY='exam_attempt_lock_unit1_2';
-try{ if(/[?&]reset=1/.test(location.search)) localStorage.removeItem(LOCK_KEY); }catch(e){}
-function isLocked(){ try{ return !!localStorage.getItem(LOCK_KEY); }catch(e){ return false; } }
-function lockExam(name){ try{ localStorage.setItem(LOCK_KEY, JSON.stringify({name:name,time:new Date().toISOString()})); }catch(e){} }
-function showLocked(){
-  let who='';
-  try{ const d=JSON.parse(localStorage.getItem(LOCK_KEY)); if(d&&d.name) who=' باسم ('+d.name+')'; }catch(e){}
-  const ss=document.getElementById('start-screen');
-  ss.style.display='block';
-  ss.innerHTML='<div style="font-size:3rem;">🔒</div><h2>تم أداء هذا الامتحان من قبل</h2><p>تم دخول الامتحان من هذا الجهاز'+who+' ولا يمكن إعادته أكثر من مرة.<br>إذا كان هناك خطأ، تواصل مع المعلم.</p>';
-}
 document.getElementById('start-btn').addEventListener('click',()=>{
   const inp=document.getElementById('student-name'), name=inp.value.trim();
   if(!name){document.getElementById('name-warning').style.display='block';inp.focus();return;}
-  if(isLocked()){showLocked();return;}
-  lockExam(name);
   studentName=name; initAudio();
   document.getElementById('start-screen').style.display='none';
   document.querySelector('.progress-wrap').style.display='block';
@@ -631,7 +557,6 @@ document.getElementById('start-btn').addEventListener('click',()=>{
   document.getElementById('timer-float').style.display='block';
   renderAll(); startTimer(); window.scrollTo({top:0,behavior:'auto'});
 });
-if(isLocked()) showLocked();
 </script>
 </body>
 </html>
