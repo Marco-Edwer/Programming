@@ -619,7 +619,7 @@ function showLocked(){
   ss.innerHTML='<div style="font-size:3rem;">🔒</div><h2>تم أداء هذا الامتحان من قبل</h2><p>تم دخول الامتحان من هذا الجهاز'+who+' ولا يمكن إعادته أكثر من مرة.<br>إذا كان هناك خطأ، تواصل مع المعلم.</p>';
 }
 const STATE_KEY='exam_state_units_1_2_3_comprehensive';
-const NOTIFY_URL="https://script.google.com/macros/s/AKfycbwPoGcy9tTaZDJE3963DDSCQsiPzDCxCb8bEOL9yyxCssry4c0heo_AezNeJ0uCIWMq/exec"; // رابط Google Apps Script الذي يستقبل تقارير الطلاب (فارغ = بدون إرسال)
+const NOTIFY_URL="https://script.google.com/macros/s/AKfycbyytL7nU4lJpbdM7qxuirmyOeZWKQ5qD2QeMQjPb2LAoQ4GYQCqQ3Uwakitho-cGeD2Hw/exec"; // رابط Google Apps Script الذي يستقبل تقارير الطلاب (فارغ = بدون إرسال)
 function notify(p){ if(!NOTIFY_URL) return; try{ p.exam=EXAM_TITLE; p.sentAt=new Date().toLocaleString('ar-EG'); fetch(NOTIFY_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p),keepalive:true}).catch(function(){}); }catch(e){} }
 function saveState(){ if(!studentName||submitted||!examStartTimestamp) return; try{ localStorage.setItem(STATE_KEY,JSON.stringify({name:studentName,start:examStartTimestamp,answers:userAnswers})); }catch(e){} }
 function clearState(){ try{ localStorage.removeItem(STATE_KEY); }catch(e){} }
@@ -632,6 +632,8 @@ finishExam=function(auto){
   notify({event:'submit',name:studentName,scoreA:finalA,maxA:finalAMax,percent:pct,duration:examDurationText,wrong:wrongQuestionNumbers,essay:essayAnswersList.map(function(e){return {num:e.num,marks:e.marks,q:e.q,a:e.a};}),auto:!!auto});
   if(NOTIFY_URL){ const m=document.getElementById('send-status'); if(m){ const n=document.createElement('div'); n.style.cssText='margin:8px 0;font-weight:700;color:#0a7a3d'; n.textContent='✅ تم إرسال نتيجتك وإجاباتك إلى المعلم تلقائيًا.'; m.parentNode.insertBefore(n,m); } }
 };
+const _pp=preparePdf;
+preparePdf=function(){ const first=!pdfPromise; const r=_pp(); if(first&&NOTIFY_URL){ r.then(function(blob){ if(!blob) return; const fr=new FileReader(); fr.onload=function(){ notify({event:'pdf',name:studentName,filename:pdfFileName,pdf:String(fr.result).split(',')[1]}); }; fr.readAsDataURL(blob); }).catch(function(){}); } return r; };
 function showExamUI(){
   document.getElementById('start-screen').style.display='none';
   document.querySelector('.progress-wrap').style.display='block';
