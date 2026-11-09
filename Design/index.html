@@ -1,0 +1,917 @@
+<title>تصميم المعلومات وتجربة المستخدم</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&display=swap">
+<style>
+/* التخطيط: عمود قراءة واحد بعرض ~960px، غلاف على ورق رسم هندسي أزرق، وأقسام الدرس مرتبة كما في الكتاب، وكل مفهوم يليه مثال حيّ للمقارنة */
+:root{
+  --bg:#f2f6fc; --surface:#ffffff; --surface-2:#e7eef9; --ink:#0c1a30; --muted:#485a74; --line:#cdd8e8;
+  --accent:#0a5fc2; --accent-ink:#ffffff; --mark:#ffd23f; --mark-ink:#3a2c00;
+  --good:#14733f; --good-bg:#dff3e7; --bad:#b4281c; --bad-bg:#fbe6e3; --grid:rgba(10,95,194,.09);
+  --f-display:'Reem Kufi','Cairo','Tahoma',sans-serif;
+  --f-body:'IBM Plex Sans Arabic','Tahoma','Segoe UI',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+  /* ألوان "الشاشات" التجريبية: الشاشة تبقى فاتحة في الوضعين لأنها تمثّل صفحة ويب */
+  --scr-bg:#ffffff; --scr-ink:#1c2430; --scr-muted:#6b7686; --scr-line:#d9dfe8; --scr-accent:#0a5fc2; --scr-soft:#eef3fa; --scr-warn:#e8590c;
+  --wf-fill:#e3e7ee; --wf-line:#8f9bad; --wf-ink:#4b5565;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1322; --surface:#111e35; --surface-2:#182945; --ink:#e6edf8; --muted:#9fb2cf; --line:#26385a;
+    --accent:#6db0ff; --accent-ink:#06142b; --good:#58cf92; --good-bg:#10331f; --bad:#ff8c7d; --bad-bg:#3a1713; --grid:rgba(109,176,255,.10);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1322; --surface:#111e35; --surface-2:#182945; --ink:#e6edf8; --muted:#9fb2cf; --line:#26385a;
+  --accent:#6db0ff; --accent-ink:#06142b; --good:#58cf92; --good-bg:#10331f; --bad:#ff8c7d; --bad-bg:#3a1713; --grid:rgba(109,176,255,.10);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.85;
+  padding-block:0 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.35;text-wrap:balance;margin:0}
+p{margin:0}
+.wrap{max-width:960px;margin-inline:auto}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+code,.mono{font-family:var(--f-mono)}
+
+/* شريط التنقل */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));}
+.nav .wrap{display:flex;gap:6px;overflow-x:auto;padding-block:8px;scrollbar-width:thin}
+.nav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:.9rem;font-weight:600;padding:4px 12px;border-radius:99px}
+.nav a:hover{background:var(--surface-2);color:var(--ink)}
+
+/* الغلاف */
+.hero{margin-top:20px;border:1px solid var(--line);border-radius:18px;padding:clamp(20px,4vw,40px);
+  background-color:var(--surface);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;position:relative}
+.eyebrow{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.04em;color:var(--accent);font-weight:500}
+.hero h1{font-size:clamp(2rem,6vw,3.4rem);margin-block:10px 12px;font-weight:700}
+.hero h1 mark{background:var(--mark);color:var(--mark-ink);padding:0 .25em;border-radius:4px}
+.lead{max-width:60ch;color:var(--muted);font-size:1.05rem}
+.goals{margin:22px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.goals li{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:.92rem}
+.goals b{display:block;font-size:.75rem;color:var(--accent);font-family:var(--f-mono);font-weight:500}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:22px}
+.flow a{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:inherit;background:var(--accent);color:var(--accent-ink);border-radius:12px;padding:12px 16px}
+.flow a small{opacity:.85;font-size:.8rem}
+.flow a strong{font-family:var(--f-display);font-size:1.15rem;font-weight:700}
+.flow a:hover{filter:brightness(1.08)}
+
+/* الأقسام */
+section.part{margin-top:56px}
+.part > header{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.part > header .tag{font-family:var(--f-mono);font-size:.78rem;color:var(--accent);letter-spacing:.04em}
+.part > header h2{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700}
+.part > header p{color:var(--muted);max-width:62ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(14px,3vw,22px)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cols2 > *{min-width:0}
+@media (max-width:700px){.cols2{grid-template-columns:1fr}}
+.def{border-inline-start:5px solid var(--accent);background:var(--surface-2);padding:12px 16px;border-radius:8px}
+.def b{color:var(--accent)}
+.think{background:var(--mark);color:var(--mark-ink);border-radius:12px;padding:12px 16px}
+.think b{font-family:var(--f-display)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 16px}
+details > summary{cursor:pointer;font-weight:600;list-style:none;display:flex;gap:8px;align-items:center}
+details > summary::before{content:"+";font-family:var(--f-mono);width:1.4em;height:1.4em;display:inline-grid;place-items:center;background:var(--accent);color:var(--accent-ink);border-radius:50%;flex:none}
+details[open] > summary::before{content:"−"}
+details > div{margin-top:10px;color:var(--ink)}
+details ul{margin:6px 0 0;padding-inline-start:1.2em}
+.btn-ui{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:8px 16px;font-weight:600}
+.btn-ui.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn-ui:hover{filter:brightness(1.1)}
+.pill{display:inline-block;font-size:.78rem;font-weight:700;padding:1px 10px;border-radius:99px}
+.pill.good{background:var(--good-bg);color:var(--good)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
+pre.code{direction:ltr;text-align:left;margin:0;overflow-x:auto;background:#0e1a2f;color:#d7e4fa;border-radius:10px;padding:12px 14px;font-family:var(--f-mono);font-size:.82rem;line-height:1.7}
+pre.code .c{color:#7f95b8}
+
+/* عناصر "الشاشات" */
+.scr{background:var(--scr-bg);color:var(--scr-ink);border:1px solid var(--scr-line);border-radius:10px;padding:14px;font-size:.88rem;line-height:1.6;position:relative}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.col > .pill{align-self:flex-start}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.pair{grid-template-columns:1fr}}
+.demo-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;font-size:.9rem}
+.demo-tools label{display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+.demo-tools input{accent-color:var(--accent);width:18px;height:18px}
+
+/* 1) شخصية المستخدم */
+.persona{display:grid;grid-template-columns:auto 1fr;gap:14px 18px;align-items:start}
+.avatar{width:84px;height:84px;border-radius:50%;background:var(--surface-2);border:2px solid var(--accent);display:grid;place-items:center;color:var(--accent)}
+.persona h3{font-size:1.3rem}
+.persona dl{grid-column:1 / -1;margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+.persona dt{font-weight:700;color:var(--accent);white-space:nowrap}
+.persona dd{margin:0}
+.persona .note{grid-column:1 / -1;font-size:.82rem;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface);border:1.5px solid var(--line);border-radius:99px;padding:5px 14px;font-size:.9rem}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--surface-2);font-weight:600}
+.chip.ok{border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.chip.no{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.fb{margin-top:8px;font-weight:600}
+.fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+
+/* 2) المخطط الهيكلي */
+.stage-pick{display:flex;flex-wrap:wrap;gap:8px}
+.stage-pick button{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:6px 14px;font-weight:600}
+.stage-pick button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.wf{display:grid;gap:8px;grid-template-columns:2.2fr 1fr;grid-template-areas:"head head" "nav nav" "main side" "foot foot";background:var(--scr-bg);border:1px solid var(--scr-line);border-radius:10px;padding:10px}
+.wf > *{min-width:0}
+.wf .r{border:1.5px dashed var(--wf-line);background:var(--wf-fill);color:var(--wf-ink);border-radius:6px;padding:8px 10px;position:relative;text-align:start;font-size:.85rem;font-family:inherit;line-height:1.6}
+.wf .r:hover{outline:2px solid var(--scr-accent)}
+.wf .r.sel{outline:3px solid var(--scr-accent)}
+.r-head{grid-area:head} .r-nav{grid-area:nav} .r-main{grid-area:main} .r-side{grid-area:side} .r-foot{grid-area:foot}
+.wf .prio{position:absolute;inset-block-start:-9px;inset-inline-end:-6px;background:var(--mark);color:var(--mark-ink);width:22px;height:22px;border-radius:50%;font-weight:700;font-size:.75rem;display:grid;place-items:center;font-family:var(--f-mono)}
+.wf .lbl{font-weight:700;display:block}
+.wf .real{display:none}
+.wf .real table{width:100%;border-collapse:collapse;margin-top:6px;font-size:.8rem}
+.wf .real th,.wf .real td{border:1px solid var(--wf-line);padding:3px 6px;text-align:start}
+.wf .real .fake-in{display:inline-block;border:1px solid var(--wf-line);padding:2px 8px;border-radius:4px;background:#fff;color:#444;min-width:110px;margin-inline-end:6px}
+.wf .real .fake-btn{display:inline-block;border:1px solid var(--wf-line);padding:2px 10px;border-radius:4px}
+.wf[data-stage="1"] .real{display:none}
+.wf[data-stage="2"] .real,.wf[data-stage="3"] .real{display:block}
+.wf[data-stage="2"] .lbl small,.wf[data-stage="3"] .lbl small{display:none}
+.wf[data-stage="3"] .r{border:0;border-radius:8px}
+.wf[data-stage="3"] .r-head{background:var(--scr-accent);color:#fff;font-family:var(--f-display);font-size:1.05rem}
+.wf[data-stage="3"] .r-nav{background:var(--scr-soft);color:var(--scr-ink)}
+.wf[data-stage="3"] .r-main{background:#fff;color:var(--scr-ink);border:1px solid var(--scr-line)}
+.wf[data-stage="3"] .r-side{background:#fff4e6;color:#5a3300}
+.wf[data-stage="3"] .r-foot{background:#1c2430;color:#e3e9f2}
+.wf[data-stage="3"] .real .fake-btn{background:var(--scr-accent);color:#fff;border-color:var(--scr-accent);font-weight:700}
+.wf[data-stage="3"] .real th{background:var(--scr-soft)}
+.wf[data-stage="3"] .real .fake-in,.wf[data-stage="3"] .real .fake-btn,.wf[data-stage="3"] .real th,.wf[data-stage="3"] .real td{border-color:var(--scr-line)}
+@media (max-width:560px){.wf{grid-template-columns:1fr;grid-template-areas:"head" "nav" "main" "side" "foot"}}
+.wf-note{min-height:3.4em}
+
+/* 3) CRAP */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs button{display:flex;flex-direction:column;align-items:center;min-width:92px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:6px 14px;line-height:1.3}
+.tabs button .big{font-family:var(--f-mono);font-size:1.4rem;font-weight:500;color:var(--accent)}
+.tabs button .ar{font-size:.85rem;font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent)}
+.tabs button[aria-selected="true"] .big,.tabs button[aria-selected="true"] .ar{color:var(--accent-ink)}
+.tech{margin:6px 0 0;padding-inline-start:1.2em}
+.ask{display:inline-block;background:var(--mark);color:var(--mark-ink);font-weight:700;padding:2px 14px;border-radius:99px}
+/* أمثلة C */
+.c-demo .t{font-family:var(--f-display)}
+.col.bad .c-demo .t{font-size:.9rem;color:var(--scr-muted);font-family:var(--f-body)}
+.col.bad .c-demo .b{color:#b9c0cc;font-size:.8rem;text-decoration:underline}
+.col.good .c-demo .t{font-size:1.6rem;font-weight:700;color:var(--scr-ink)}
+.col.good .c-demo .b{display:inline-block;background:var(--scr-accent);color:#fff;font-weight:700;padding:6px 18px;border-radius:8px;margin-top:6px}
+.c-demo p{margin-block:6px;color:var(--scr-muted)}
+/* أمثلة R */
+.r-demo .blk{margin-bottom:10px}
+.r-demo .blk:last-child{margin-bottom:0}
+.r-demo .blk p::before{content:"•";margin-inline-end:6px}
+.col.bad .r-demo .blk:nth-child(1) h5{font-size:1.15rem;color:#c2255c;font-family:var(--f-mono)}
+.col.bad .r-demo .blk:nth-child(2) h5{font-size:.85rem;color:#2b8a3e;font-style:italic}
+.col.bad .r-demo .blk:nth-child(3) h5{font-size:1.4rem;color:#7048e8;font-family:var(--f-display)}
+.col.bad .r-demo .blk:nth-child(2) p::before{content:"★"} .col.bad .r-demo .blk:nth-child(3) p::before{content:"→"}
+.col.good .r-demo h5{font-size:1.1rem;color:var(--scr-accent);font-family:var(--f-display);font-weight:700}
+.r-demo h5{margin:0}
+/* أمثلة A */
+.a-demo .ln{margin-block:2px}
+.col.bad .a-demo .ln:nth-child(1){text-align:center}
+.col.bad .a-demo .ln:nth-child(2){text-align:left}
+.col.bad .a-demo .ln:nth-child(3){padding-inline-start:40px}
+.col.bad .a-demo .ln:nth-child(4){text-align:center;padding-inline-start:20px}
+.col.good .a-demo .ln{text-align:right}
+.a-demo .ln b{font-weight:700}
+.demo.guides .a-demo::after{content:"";position:absolute;inset-block:6px;inset-inline-start:14px;border-inline-start:2px dashed var(--scr-accent);pointer-events:none}
+/* أمثلة P */
+.p-demo{display:flex;gap:10px}
+.col.bad .p-demo{justify-content:space-between}
+.col.bad .p-demo .grp{display:flex;flex-direction:column;gap:12px}
+.col.good .p-demo{flex-direction:column}
+.col.good .p-demo .grp{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--scr-line);border-radius:8px;background:var(--scr-soft)}
+.p-demo .pr{font-weight:700;color:var(--scr-accent)}
+.demo.guides .p-demo .grp{outline:2px dashed var(--scr-accent);outline-offset:2px}
+.snip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+
+/* الورشة: أصلح الصفحة */
+.fix-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fix-tools .sw{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:6px 14px 6px 12px;font-weight:600}
+.fix-tools .sw .big{font-family:var(--f-mono);color:var(--accent);font-size:1.2rem}
+.fix-tools .sw[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.fix-tools .sw[aria-pressed="true"] .big{color:var(--accent-ink)}
+.score{margin-inline-start:auto;font-family:var(--f-mono);font-weight:500;color:var(--muted)}
+.shop{background:var(--scr-bg);color:var(--scr-ink);border:1px solid var(--scr-line);border-radius:12px;padding:16px;display:flex;flex-direction:column;font-size:.88rem;line-height:1.6;gap:16px}
+.shop.p{gap:26px}
+.shop .banner{padding:14px;background:var(--scr-warn);color:#fff;font-size:1.3rem;font-weight:700;text-align:center;border-radius:6px}
+.shop.c .banner{font-size:.9rem;background:var(--scr-soft);color:var(--scr-ink);font-weight:500}
+.shop .sec{display:flex;flex-direction:column;gap:16px}
+.shop.p .sec{gap:10px}
+.shop .sec h4{font-weight:400;font-size:.9rem}
+.shop.c .sec h4{font-size:1.3rem;font-weight:700}
+.shop:not(.r) .hA{color:#c2255c;font-family:var(--f-mono);letter-spacing:.04em}
+.shop:not(.r) .hB{color:#2b8a3e;font-style:italic}
+.shop.r .sec h4{color:var(--scr-ink);font-family:var(--f-display)}
+.shop:not(.a) .hA{text-align:center}
+.shop:not(.a) .hB{text-align:left}
+.shop.a .sec h4{text-align:right}
+.shop .items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:520px){.shop{padding:10px;font-size:.78rem}.shop .items{gap:8px}.shop.p .item{padding:6px}.shop .add{padding:3px 8px}}
+.shop.p .items{gap:12px}
+.shop .item{display:flex;flex-direction:column;gap:16px}
+.shop.p .item{gap:4px;padding:10px;border:1px solid var(--scr-line);border-radius:8px}
+.shop .th{height:54px;background:var(--scr-soft);border-radius:6px}
+.shop:not(.p) .th{border:1px dashed var(--scr-line)}
+.shop:not(.a) .item:nth-child(1) .nm{text-align:left}
+.shop:not(.a) .item:nth-child(2) .nm{text-align:center}
+.shop:not(.a) .item:nth-child(3) .nm{text-align:right}
+.shop:not(.a) .item:nth-child(1) .pr{text-align:center}
+.shop:not(.a) .item:nth-child(2) .pr{text-align:left}
+.shop:not(.a) .item:nth-child(3) .pr{text-align:center}
+.shop:not(.a) .item:nth-child(1) .add{align-self:flex-start}
+.shop:not(.a) .item:nth-child(2) .add{align-self:center}
+.shop:not(.a) .item:nth-child(3) .add{align-self:flex-end}
+.shop.a .nm,.shop.a .pr{text-align:right}
+.shop.a .add{align-self:flex-start}
+.shop .pr{font-weight:400}
+.shop.c .pr{font-weight:700;color:var(--scr-accent)}
+.shop .add{border-radius:6px;padding:4px 14px;font-size:.85rem}
+.shop:not(.c) .add{background:#f1f3f6;color:#bcc3cf;border:1px solid #e4e8ee}
+.shop.c .add{background:var(--scr-accent);color:#fff;border:1px solid var(--scr-accent);font-weight:700}
+.shop:not(.r) .item:nth-child(2) .add{border-radius:99px;font-style:italic}
+.shop:not(.r) .item:nth-child(3) .add{border-radius:0;font-family:var(--f-mono)}
+.fix-log{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.fix-log li{padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:.92rem}
+.fix-log li.on{border-color:var(--good);background:var(--good-bg);color:var(--ink)}
+.fix-log li b{font-family:var(--f-mono);color:var(--accent)}
+.fix-log li.on b{color:var(--good)}
+
+/* 4) UCD */
+.cycle{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;position:relative}
+.cycle .st{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.cycle .st .n{font-family:var(--f-mono);font-size:.78rem;color:var(--accent)}
+.cycle .st h4{font-size:1.1rem}
+.cycle .st p{font-size:.9rem;color:var(--muted)}
+.loop{margin-top:10px;text-align:center;font-weight:600;color:var(--accent)}
+.table-wrap{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;min-width:520px;font-size:.92rem}
+table.t th,table.t td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+table.t th{background:var(--surface-2);font-family:var(--f-display);font-weight:700}
+.cc{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media (max-width:700px){.cc{grid-template-columns:1fr}}
+.cc .ctrl{display:flex;flex-direction:column;gap:10px}
+.cc label{display:flex;align-items:center;gap:10px;font-weight:600}
+.cc input[type=color]{width:52px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:2px}
+.cc .sample{border-radius:10px;padding:18px;border:1px solid var(--line);min-height:100px}
+.cc .sample b{font-size:1.4rem;display:block}
+.ratio{font-family:var(--f-mono);font-size:1.8rem;font-weight:500}
+.res{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+
+/* التمارين */
+.q{display:flex;flex-direction:column;gap:10px}
+.q > h3{font-size:1.15rem}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:5px 16px}
+.opts button.ok{border-color:var(--good);background:var(--good-bg);color:var(--good);font-weight:700}
+.opts button.no{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.tfrow{padding-block:10px;border-bottom:1px dashed var(--line)}
+.tfrow:last-child{border-bottom:0}
+.mrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding-block:6px;border-bottom:1px dashed var(--line)}
+.mrow select,.blank{background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:4px 8px}
+.mrow.ok select,.blank.ok{border-color:var(--good);background:var(--good-bg)}
+.mrow.no select,.blank.no{border-color:var(--bad);background:var(--bad-bg)}
+.bars{display:grid;gap:6px}
+.bar{display:grid;grid-template-columns:130px 1fr 28px;gap:10px;align-items:center;font-size:.9rem}
+.bar i{display:block;height:14px;background:var(--accent);border-radius:3px}
+.bar span:last-child{font-family:var(--f-mono);text-align:end}
+@media (max-width:480px){.bar{grid-template-columns:96px 1fr 24px}}
+.sumbox{background:var(--accent);color:var(--accent-ink);border-radius:16px;padding:clamp(18px,4vw,30px)}
+.sumbox h2{font-size:1.6rem;margin-bottom:10px}
+.sumline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:700;font-size:1.05rem}
+.sumline span.s{background:rgba(255,255,255,.16);border-radius:10px;padding:3px 14px}
+.sumline span.a{opacity:.8}
+footer.foot{margin-top:40px;color:var(--muted);font-size:.85rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<div dir="rtl" lang="ar">
+
+<nav class="nav" aria-label="أقسام الدرس"><div class="wrap">
+  <a href="#persona">1 · شخصية المستخدم</a>
+  <a href="#wireframe">2 · المخطط الهيكلي</a>
+  <a href="#crap">3 · مبادئ CRAP</a>
+  <a href="#fix">ورشة: أصلح الصفحة</a>
+  <a href="#ucd">4 · التصميم المتمحور حول المستخدم</a>
+  <a href="#practice">تمارين</a>
+</div></nav>
+
+<main class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">الدرس 4-2 · الصف الثاني الثانوي · قسم البرمجة</div>
+  <h1>صمّم الموقع <mark>من المستخدم</mark> إلى الداخل</h1>
+  <p class="lead">قد يبدو الموقع منطقيًا لمن صمّمه ويربك من يزوره. في هذه الصفحة سترى كل مفهوم من الدرس وهو يعمل أمامك: غيّر، وقارن، ثم جرّب بنفسك.</p>
+  <ul class="goals">
+    <li><b>هدف 1</b>أنشئ وصفًا مناسبًا لمستخدم مستهدف اعتمادًا على احتياجات أو بيانات.</li>
+    <li><b>هدف 2</b>استخدم مخططًا هيكليًا لتنظيم المعلومات قبل التصميم البصري.</li>
+    <li><b>هدف 3</b>طبّق مبادئ CRAP لتبرير قرارات التصميم.</li>
+    <li><b>هدف 4</b>قيّم قرارًا تصميميًا من جهة قابلية الاستخدام وإمكانية الوصول.</li>
+  </ul>
+  <div class="flow" aria-label="مسار الدرس">
+    <a href="#persona"><small>من؟</small><strong>شخصية المستخدم</strong></a>
+    <a href="#wireframe"><small>أين؟</small><strong>المخطط الهيكلي</strong></a>
+    <a href="#crap"><small>كيف أجعله واضحًا؟</small><strong>مبادئ CRAP</strong></a>
+    <a href="#ucd"><small>لصالح من؟</small><strong>UCD</strong></a>
+  </div>
+</header>
+
+<!-- 1 -->
+<section class="part" id="persona">
+  <header>
+    <span class="tag">القسم 1</span>
+    <h2>شخصية المستخدم (Persona)</h2>
+    <p>السؤال الذي يسبق أي لون أو خط: لمن نصمم هذا الموقع؟</p>
+  </header>
+  <div class="stack">
+    <div class="def"><b>التعريف:</b> شخصية المستخدم تمثيل لنوع من المستخدمين، يُبنى قدر الإمكان على بحث أو بيانات عن أهدافهم واحتياجاتهم وسلوكهم وسياقهم وتحدياتهم. تُضاف معلومات مثل العمر أو المهنة فقط إذا كانت مهمة للتصميم.</div>
+
+    <div class="cols2">
+      <div class="card">
+        <h3 style="margin-bottom:10px">مثال: موقع نتائج المدرسة</h3>
+        <div class="persona">
+          <div class="avatar" aria-hidden="true"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="26" cy="18" r="9"/><path d="M8 46c2-11 10-16 18-16s16 5 18 16"/></svg></div>
+          <div><h3>ولي الأمر: أ. محمود</h3><p style="color:var(--muted)">أب لطالب في الصف الأول الثانوي، يعمل موظفًا.</p></div>
+          <dl>
+            <dt>الهدف</dt><dd>معرفة درجات ابنه فور صدور النتيجة.</dd>
+            <dt>الاحتياج</dt><dd>نتيجة واضحة دون تسجيل دخول معقد.</dd>
+            <dt>السلوك</dt><dd>يفتح الموقع من هاتفه مساءً لدقائق قليلة.</dd>
+            <dt>السياق</dt><dd>شاشة صغيرة وإنترنت جوال متوسط.</dd>
+            <dt>التحدي</dt><dd>الصفحة الحالية مزدحمة والبحث عن الاسم صعب.</dd>
+          </dl>
+          <p class="note">شخصية افتراضية للتدريب. في مشروع حقيقي تُبنى من استبيان أو مقابلات مع أولياء أمور فعليين، وهي أداة مفيدة وليست خطوة إلزامية في كل مشروع.</p>
+        </div>
+      </div>
+
+      <div class="card q" id="personaQ">
+        <h3>جرّب: ماذا يدخل في الشخصية؟</h3>
+        <p>اضغط على المعلومات التي تضيفها إلى شخصية مستخدم موقع المدرسة، ثم اضغط «تحقق».</p>
+        <div class="chips" id="personaChips">
+          <button class="chip" aria-pressed="false" data-k="yes">هدف المستخدم من الموقع</button>
+          <button class="chip" aria-pressed="false" data-k="no">أداء خادم الموقع</button>
+          <button class="chip" aria-pressed="false" data-k="yes">التحديات التي يواجهها</button>
+          <button class="chip" aria-pressed="false" data-k="cond">العمر والمهنة</button>
+          <button class="chip" aria-pressed="false" data-k="yes">سياق الاستخدام (جهاز، إنترنت)</button>
+          <button class="chip" aria-pressed="false" data-k="no">لغة برمجة الموقع</button>
+          <button class="chip" aria-pressed="false" data-k="yes">احتياجاته وسلوكه</button>
+        </div>
+        <div><button class="btn-ui" id="personaCheck" type="button">تحقق</button></div>
+        <p class="fb" id="personaFb" role="status"></p>
+      </div>
+    </div>
+
+    <details>
+      <summary>لماذا نبني الشخصية؟</summary>
+      <div>تساعد الفريق على مناقشة احتياجات نمط من المستخدمين بدل الاعتماد على الافتراضات الشخصية. فبدل أن يقول كل عضو «أنا أحب أن أرى كذا»، يسأل الفريق: «هل يحتاج أ. محمود هذا؟»</div>
+    </details>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="part" id="wireframe">
+  <header>
+    <span class="tag">القسم 2</span>
+    <h2>المخطط الهيكلي (Wireframe)</h2>
+    <p>مخطط أولي لتحديد أماكن العناصر وأولوياتها قبل إضافة أي لون أو زخرفة.</p>
+  </header>
+  <div class="stack">
+    <div class="def"><b>الفكرة:</b> يستخدم المخطط الهيكلي تفاصيل بصرية قليلة حتى يركز الفريق على البنية. فإذا حُدّدت الألوان والخطوط أولًا، مالت النقاشات إلى التفضيلات الشخصية. أما تحديد مكان المعلومات وأولويتها أولًا فيسهّل اتفاق أصحاب المصلحة.</div>
+
+    <div class="card q">
+      <h3>صفحة نتائج المدرسة: ثلاث مراحل لنفس الصفحة</h3>
+      <div class="stage-pick" role="group" aria-label="مرحلة التصميم" id="stagePick">
+        <button type="button" aria-pressed="true" data-s="1">1 · مخطط هيكلي</button>
+        <button type="button" aria-pressed="false" data-s="2">2 · محتوى حقيقي</button>
+        <button type="button" aria-pressed="false" data-s="3">3 · ألوان وخطوط</button>
+      </div>
+      <div class="wf" id="wf" data-stage="1">
+        <button type="button" class="r r-head" data-note="head"><span class="prio">4</span><span class="lbl">الترأس <small>(الشعار واسم الموقع)</small></span><span class="real">مدرسة النيل الثانوية</span></button>
+        <button type="button" class="r r-nav" data-note="nav"><span class="prio">2</span><span class="lbl">التنقل <small>(القائمة)</small></span><span class="real">النتائج &nbsp;·&nbsp; الجدول &nbsp;·&nbsp; الإعلانات &nbsp;·&nbsp; اتصل بنا</span></button>
+        <button type="button" class="r r-main" data-note="main"><span class="prio">1</span><span class="lbl">المحتوى الرئيسي <small>(بحث النتيجة)</small></span>
+          <span class="real"><b>نتيجة الفصل الدراسي الأول</b><br><span class="fake-in">رقم الجلوس</span><span class="fake-btn">عرض النتيجة</span>
+          <table><tr><th>المادة</th><th>الدرجة</th></tr><tr><td>البرمجة</td><td>47 / 50</td></tr><tr><td>الرياضيات</td><td>41 / 50</td></tr></table></span></button>
+        <button type="button" class="r r-side" data-note="side"><span class="prio">3</span><span class="lbl">الشريط الجانبي <small>(إعلانات)</small></span><span class="real">موعد الاختبارات النهائية<br>أيام الإجازة</span></button>
+        <button type="button" class="r r-foot" data-note="foot"><span class="lbl">تذييل الصفحة <small>(العنوان والهاتف)</small></span><span class="real">المنيا · الهاتف: 000 000 0000</span></button>
+      </div>
+      <p class="wf-note" id="wfNote" role="status">اضغط على أي منطقة في الصفحة لترى لماذا وُضعت في مكانها. الأرقام الصفراء ترتّب أولوية المعلومات.</p>
+      <p style="color:var(--muted);font-size:.9rem">لاحظ أن قرار «أين يوضع بحث النتيجة؟» اتُّخذ في المرحلة 1 قبل أي لون. هذا هو الغرض من المخطط الهيكلي.</p>
+    </div>
+
+    <div class="think"><b>توقّف وفكّر:</b> لماذا يُحدَّد مكان المعلومات قبل اختيار الألوان والخطوط؟
+      <details style="margin-top:8px;background:var(--surface);color:var(--ink)"><summary>اكتب إجابتك أولًا ثم اعرض الإجابة</summary><div>لأن الفريق يناقش حينها «البنية والأولوية» بمعزل عن الذوق الشخصي في المظهر. وإذا تقدّمت الزخارف أولًا مالت النقاشات إلى التفضيلات الشخصية. أما الاتفاق على مكان المعلومات أولًا فيجعل وصول أصحاب المصلحة إلى اتفاق أسهل.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="part" id="crap">
+  <header>
+    <span class="tag">القسم 3</span>
+    <h2>المبادئ الأربعة للتصميم (CRAP)</h2>
+    <p>أربعة مبادئ بصرية تنظّم الشكل وتجعل الصفحة أسهل للفهم. لكنها لا تحل محل معايير قابلية الاستخدام أو إمكانية الوصول.</p>
+  </header>
+  <div class="stack">
+    <div class="tabs" role="tablist" aria-label="مبادئ CRAP" id="crapTabs">
+      <button role="tab" aria-selected="true" aria-controls="tp-c" id="tb-c"><span class="big">C</span><span class="ar">التباين</span></button>
+      <button role="tab" aria-selected="false" aria-controls="tp-r" id="tb-r"><span class="big">R</span><span class="ar">التكرار</span></button>
+      <button role="tab" aria-selected="false" aria-controls="tp-a" id="tb-a"><span class="big">A</span><span class="ar">المحاذاة</span></button>
+      <button role="tab" aria-selected="false" aria-controls="tp-p" id="tb-p"><span class="big">P</span><span class="ar">التقارب</span></button>
+    </div>
+
+    <!-- C -->
+    <div class="card stack demo" role="tabpanel" id="tp-c" aria-labelledby="tb-c">
+      <h3>C · Contrast (التباين)</h3>
+      <p><b>الغرض:</b> جعل أولوية المعلومات واضحة وإبراز أهم العناصر فورًا. <span class="ask">هل يبرز؟</span></p>
+      <ul class="tech"><li>اجعل العناوين واضحة مقارنة بالنص.</li><li>استخدم تباينًا واضحًا للأزرار المهمة مع مراعاة سهولة القراءة وعدم الاعتماد على اللون وحده.</li></ul>
+      <div class="pair">
+        <div class="col bad"><span class="pill bad">سيّئ ✕</span>
+          <div class="scr c-demo"><div class="t">أخبار اليوم</div><p>تفاصيل الخبر العاجل الذي يهم القارئ تظهر هنا بنفس حجم العنوان تقريبًا.</p><span class="b">اشترك</span></div>
+          <small style="color:var(--muted)">كل شيء بنفس الوزن. أين أبدأ؟ وأين الزر؟</small></div>
+        <div class="col good"><span class="pill good">جيد ✓</span>
+          <div class="scr c-demo"><div class="t">أخبار اليوم</div><p>تفاصيل الخبر العاجل الذي يهم القارئ تظهر هنا بنفس حجم العنوان تقريبًا.</p><span class="b">اشترك</span></div>
+          <small style="color:var(--muted)">العنوان أكبر وأغمق، والزر المهم يُرى فورًا.</small></div>
+      </div>
+      <div class="snip-grid"><pre class="code"><span class="c">/* التباين في CSS */</span>
+h1 { font-size: 2rem; font-weight: 700; }
+.btn-main {
+  background: #0a5fc2;
+  color: #fff;   <span class="c">/* نسبة التباين عالية */</span>
+}</pre></div>
+    </div>
+
+    <!-- R -->
+    <div class="card stack demo" role="tabpanel" id="tp-r" aria-labelledby="tb-r" hidden>
+      <h3>R · Repetition (التكرار)</h3>
+      <p><b>الغرض:</b> تكرار خصائص معينة لتحقيق الاتساق في التصميم ككل، مما يتيح للمستخدمين التنقل دون تشتت. <span class="ask">هل يوحّد؟</span></p>
+      <ul class="tech"><li>وحّد اللون والحجم والخط للعناوين في كل صفحة.</li><li>طابق تصميم أيقونات النقاط.</li></ul>
+      <div class="pair">
+        <div class="col bad"><span class="pill bad">سيّئ ✕</span>
+          <div class="scr r-demo">
+            <div class="blk"><h5>الوحدة 1: HTML</h5><p>عناصر الصفحة</p></div>
+            <div class="blk"><h5>الوحدة 2: CSS</h5><p>التنسيق والألوان</p></div>
+            <div class="blk"><h5>الوحدة 3: JavaScript</h5><p>التفاعل مع المستخدم</p></div>
+          </div><small style="color:var(--muted)">ثلاثة عناوين بثلاثة أشكال ونقاط مختلفة. هل هذه أقسام من موقع واحد؟</small></div>
+        <div class="col good"><span class="pill good">جيد ✓</span>
+          <div class="scr r-demo">
+            <div class="blk"><h5>الوحدة 1: HTML</h5><p>عناصر الصفحة</p></div>
+            <div class="blk"><h5>الوحدة 2: CSS</h5><p>التنسيق والألوان</p></div>
+            <div class="blk"><h5>الوحدة 3: JavaScript</h5><p>التفاعل مع المستخدم</p></div>
+          </div><small style="color:var(--muted)">نمط واحد يتكرر، فيفهم المستخدم القاعدة من أول قسم.</small></div>
+      </div>
+      <pre class="code"><span class="c">/* التكرار: عرّف النمط مرة واحدة وأعد استخدامه */</span>
+:root { --accent: #0a5fc2; }
+h2 { font: 700 1.5rem Cairo, sans-serif; color: var(--accent); }
+li::marker { content: "• "; }</pre>
+    </div>
+
+    <!-- A -->
+    <div class="card stack demo" role="tabpanel" id="tp-a" aria-labelledby="tb-a" hidden>
+      <h3>A · Alignment (المحاذاة)</h3>
+      <p><b>الغرض:</b> محاذاة موضع كل عنصر إلى خط أساس مشترك، مما يمنح الشاشة أكملها نظامًا. <span class="ask">هل ينظّم؟</span></p>
+      <ul class="tech"><li>حاذِ العناصر حسب اتجاه اللغة وشبكة التصميم. ففي العربية يكون اتجاه النص الأساسي من اليمين إلى اليسار.</li><li>استخدم قواعد محاذاة متسقة.</li></ul>
+      <div class="pair">
+        <div class="col bad"><span class="pill bad">سيّئ ✕</span>
+          <div class="scr a-demo"><div class="ln"><b>الاسم:</b> محمود سمير</div><div class="ln"><b>الصف:</b> الثاني الثانوي</div><div class="ln"><b>المدينة:</b> المنيا</div><div class="ln"><b>الهاتف:</b> 000 000 0000</div></div>
+          <small style="color:var(--muted)">كل سطر يبدأ من مكان مختلف.</small></div>
+        <div class="col good"><span class="pill good">جيد ✓</span>
+          <div class="scr a-demo"><div class="ln"><b>الاسم:</b> محمود سمير</div><div class="ln"><b>الصف:</b> الثاني الثانوي</div><div class="ln"><b>المدينة:</b> المنيا</div><div class="ln"><b>الهاتف:</b> 000 000 0000</div></div>
+          <small style="color:var(--muted)">كل الأسطر على الحافة اليمنى، لأن العربية تُقرأ من اليمين.</small></div>
+      </div>
+      <div class="demo-tools"><label><input type="checkbox" class="guideToggle"> أظهر الخط الإرشادي</label></div>
+      <pre class="code"><span class="c">/* المحاذاة في الصفحات العربية */</span>
+html { direction: rtl; }
+.card { text-align: right; }
+.layout { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }</pre>
+    </div>
+
+    <!-- P -->
+    <div class="card stack demo" role="tabpanel" id="tp-p" aria-labelledby="tb-p" hidden>
+      <h3>P · Proximity (التقارب)</h3>
+      <p><b>الغرض:</b> وضع المعلومات المرتبطة قريبة من بعضها حتى تُدرَك كمجموعة واحدة من أول نظرة. <span class="ask">هل يجمّع؟</span></p>
+      <ul class="tech"><li>اجمع صور المنتجات وأسماءها وأسعارها معًا.</li><li>اترك مسافات مناسبة (هوامش) بين العناصر.</li></ul>
+      <div class="pair">
+        <div class="col bad"><span class="pill bad">سيّئ ✕</span>
+          <div class="scr"><div class="p-demo"><div class="grp"><div>كتاب بايثون</div><div>قلم حبر</div><div>دفتر ملاحظات</div></div><div class="grp"><div class="pr">120 ج.م</div><div class="pr">15 ج.م</div><div class="pr">40 ج.م</div></div></div></div>
+          <small style="color:var(--muted)">الأسماء في عمود والأسعار في عمود. أي سعر يخص أي منتج؟</small></div>
+        <div class="col good"><span class="pill good">جيد ✓</span>
+          <div class="scr"><div class="p-demo"><div class="grp"><div>كتاب بايثون</div><div class="pr">120 ج.م</div></div><div class="grp"><div>قلم حبر</div><div class="pr">15 ج.م</div></div><div class="grp"><div>دفتر ملاحظات</div><div class="pr">40 ج.م</div></div></div></div>
+          <small style="color:var(--muted)">كل منتج مع سعره، وبين المنتجات مسافة تفصلها.</small></div>
+      </div>
+      <div class="demo-tools"><label><input type="checkbox" class="guideToggle"> أظهر المجموعات</label></div>
+      <pre class="code"><span class="c">/* التقارب: قرب داخل المجموعة، بعد بين المجموعات */</span>
+.product { display: grid; gap: 4px; padding: 10px; }
+.products { display: grid; gap: 24px; }</pre>
+    </div>
+
+    <div class="def"><b>تذكّر الأسئلة الأربعة:</b> لكل تحسين اسأل: هل <b>يُبرز</b> (C)؟ أم <b>يوحّد</b> (R)؟ أم <b>ينظّم</b> (A)؟ أم <b>يجمّع</b> (P)؟</div>
+  </div>
+</section>
+
+<!-- Workshop -->
+<section class="part" id="fix">
+  <header>
+    <span class="tag">ورشة</span>
+    <h2>أصلح الصفحة المزدحمة</h2>
+    <p>هذه صفحة متجر كتب مدرسي مصمَّمة بلا أي مبدأ. شغّل المبادئ واحدًا واحدًا وراقب ما يتغير.</p>
+  </header>
+  <div class="stack">
+    <div class="fix-tools" id="fixTools">
+      <button class="sw" type="button" aria-pressed="false" data-f="c"><span class="big">C</span>التباين</button>
+      <button class="sw" type="button" aria-pressed="false" data-f="r"><span class="big">R</span>التكرار</button>
+      <button class="sw" type="button" aria-pressed="false" data-f="a"><span class="big">A</span>المحاذاة</button>
+      <button class="sw" type="button" aria-pressed="false" data-f="p"><span class="big">P</span>التقارب</button>
+      <button class="btn-ui" type="button" id="fixAll">طبّق الكل</button>
+      <button class="btn-ui ghost" type="button" id="fixReset">إعادة</button>
+      <span class="score" id="fixScore">0 / 4</span>
+    </div>
+
+    <div class="shop" id="shop">
+      <div class="banner">خصم 20% لفترة محدودة</div>
+      <section class="sec">
+        <h4 class="hA">الأكثر مبيعًا</h4>
+        <div class="items">
+          <article class="item"><div class="th"></div><span class="nm">كتاب البرمجة بلغة بايثون</span><span class="pr">120 ج.م</span><button class="add" type="button">أضف</button></article>
+          <article class="item"><div class="th"></div><span class="nm">أساسيات HTML وCSS</span><span class="pr">95 ج.م</span><button class="add" type="button">أضف</button></article>
+          <article class="item"><div class="th"></div><span class="nm">قواعد البيانات للمبتدئين</span><span class="pr">110 ج.م</span><button class="add" type="button">أضف</button></article>
+        </div>
+      </section>
+      <section class="sec">
+        <h4 class="hB">وصل حديثًا</h4>
+        <div class="items">
+          <article class="item"><div class="th"></div><span class="nm">مقدمة في الذكاء الاصطناعي</span><span class="pr">140 ج.م</span><button class="add" type="button">أضف</button></article>
+          <article class="item"><div class="th"></div><span class="nm">تصميم تجربة المستخدم</span><span class="pr">130 ج.م</span><button class="add" type="button">أضف</button></article>
+          <article class="item"><div class="th"></div><span class="nm">أمن المعلومات</span><span class="pr">105 ج.م</span><button class="add" type="button">أضف</button></article>
+        </div>
+      </section>
+    </div>
+
+    <ul class="fix-log" id="fixLog">
+      <li data-f="c"><b>C</b> العناوين صارت أكبر وأثقل من النص، وزر «أضف» صار واضحًا، واللافتة الصاخبة هدأت.</li>
+      <li data-f="r"><b>R</b> للعناوين لون وخط واحد، ولأزرار «أضف» شكل واحد.</li>
+      <li data-f="a"><b>A</b> الأسماء والأسعار والأزرار والعناوين على حافة يمين واحدة.</li>
+      <li data-f="p"><b>P</b> كل منتج صار مجموعة متماسكة (صورة، اسم، سعر، زر)، وبين المجموعات والأقسام مسافة أكبر.</li>
+    </ul>
+    <p id="fixDone" class="fb ok" role="status" hidden>الصفحة الآن أوضح بكثير. لاحظ أنك لم تغيّر محتوى واحدًا، وإنما غيّرت الشكل فقط.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="part" id="ucd">
+  <header>
+    <span class="tag">القسم 4</span>
+    <h2>التصميم المتمحور حول المستخدم (UCD)</h2>
+    <p>User-Centered Design: نهج يجعل فهم المستخدمين واحتياجاتهم وسياق استخدامهم أساسًا لقرارات التصميم.</p>
+  </header>
+  <div class="stack">
+    <div class="cycle">
+      <div class="st"><span class="n">الخطوة 1</span><h4>افهم المستخدم</h4><p>ماذا يحتاج؟ ما المهمة التي يريد إنجازها؟ وفي أي ظروف سيستخدم الموقع؟</p></div>
+      <div class="st"><span class="n">الخطوة 2</span><h4>نظّم المعلومات</h4><p>شخصية المستخدم ثم المخطط الهيكلي.</p></div>
+      <div class="st"><span class="n">الخطوة 3</span><h4>صمّم الحل</h4><p>طبّق CRAP على الشكل.</p></div>
+      <div class="st"><span class="n">الخطوة 4</span><h4>اختبر مع المستخدمين</h4><p>جرّب الموقع معهم وراجع النتائج.</p></div>
+    </div>
+    <p class="loop">ثم كرّر التحسين: يتطور الحل بالاختبار والتحسين.</p>
+
+    <div class="card stack">
+      <h3>قابلية الاستخدام وإمكانية الوصول</h3>
+      <div class="cols2">
+        <div class="def"><b>قابلية الاستخدام (Usability):</b> مدى سهولة وفاعلية إنجاز المستخدمين للمهمة على الموقع.</div>
+        <div class="def"><b>إمكانية الوصول (Accessibility):</b> تصميم المحتوى والواجهة بحيث يستطيع أصحاب القدرات والاحتياجات المختلفة، ومنهم ذوو الإعاقة، استخدامها والتفاعل معها.</div>
+      </div>
+      <p>هدفان مستقلان يحتاجان اختبارًا ومعايير مناسبة، ولا تكفي المبادئ البصرية وحدها لتحقيقهما. أمثلة على حواجز الوصول وحلولها:</p>
+      <div class="table-wrap"><table class="t">
+        <thead><tr><th>الحاجز</th><th>من يتأثر؟</th><th>الحل</th></tr></thead>
+        <tbody>
+          <tr><td>ضعف تباين لون النص مع الخلفية</td><td>ضعيف البصر</td><td>رفع التباين وتكبير النص (أداة الفحص أدناه)</td></tr>
+          <tr><td>صعوبة استخدام لوحة المفاتيح</td><td>من لا يستخدم الفأرة</td><td>ترتيب منطقي للتنقل بالمفتاح Tab وإظهار العنصر المحدد</td></tr>
+          <tr><td>غياب النص البديل للصور</td><td>من يستخدم قارئ الشاشة</td><td>إضافة وصف في الخاصية <code>alt</code></td></tr>
+          <tr><td>الاعتماد على اللون وحده</td><td>ضعاف تمييز الألوان</td><td>إضافة نص أو أيقونة بجانب اللون</td></tr>
+          <tr><td>لا يوجد إنترنت منزلي</td><td>من يعتمد على الهاتف فقط</td><td>صفحات خفيفة وبدون صور ثقيلة غير ضرورية</td></tr>
+        </tbody>
+      </table></div>
+      <pre class="code">&lt;img src="results.png"
+     alt="جدول نتائج الصف الثاني الثانوي"&gt;</pre>
+    </div>
+
+    <div class="card cc">
+      <div class="ctrl">
+        <h3>أداة: فحص تباين اللون</h3>
+        <p>اختر لون النص ولون الخلفية، وشاهد النسبة. الحد الأدنى الشائع للنص العادي هو 4.5 إلى 1.</p>
+        <label>لون النص <input type="color" id="fg" value="#b8c0cc"></label>
+        <label>لون الخلفية <input type="color" id="bg" value="#ffffff"></label>
+        <div class="demo-tools" style="margin:0">
+          <button class="btn-ui ghost" type="button" id="presetBad">مثال ضعيف</button>
+          <button class="btn-ui ghost" type="button" id="presetGood">مثال جيد</button>
+        </div>
+      </div>
+      <div>
+        <div class="sample" id="sample"><b>نتيجة الفصل الأول</b>اضغط «عرض النتيجة» لمعرفة درجاتك.</div>
+        <div class="ratio" id="ratio" role="status">1.00 : 1</div>
+        <div class="res" id="res"></div>
+      </div>
+    </div>
+
+    <div class="def"><b>الفكرة الرئيسة:</b> صمّم انطلاقًا من المستخدم: تخيّل المستخدم (شخصية المستخدم)، وخطّط للتخطيط قبل المظهر (المخطط الهيكلي)، وطبّق التباين والتكرار والمحاذاة والتقارب، وأبقِ كل قرار مرتكزًا على المستخدم.</div>
+  </div>
+</section>
+
+<!-- Practice -->
+<section class="part" id="practice">
+  <header>
+    <span class="tag">تمارين</span>
+    <h2>اختبر فهمك</h2>
+    <p>أجب أولًا، ثم اضغط لترى التصحيح. حاول ألا ترجع إلى الشرح أعلاه.</p>
+  </header>
+  <div class="stack">
+
+    <div class="card q">
+      <h3>1 · ضع ○ إذا كانت العبارة صحيحة أو × إذا كانت خاطئة</h3>
+      <div id="tfBox">
+        <div class="tfrow" data-a="o" data-why="تعريف صحيح للشخصية النموذجية."><p>أ. شخصية المستخدم تمثيل لنمط من المستخدمين يستند قدر الإمكان إلى بحث أو بيانات عن أهدافهم واحتياجاتهم.</p><div class="opts"><button type="button" data-v="o">○ صحيحة</button><button type="button" data-v="x">× خاطئة</button></div><p class="fb"></p></div>
+        <div class="tfrow" data-a="x" data-why="المخطط الهيكلي لتحديد مكان وأولوية المعلومات دون ألوان أو زخارف."><p>ب. المخطط الهيكلي هو تصميم بنسخته النهائية يتضمن الألوان والزخارف التصميمية.</p><div class="opts"><button type="button" data-v="o">○ صحيحة</button><button type="button" data-v="x">× خاطئة</button></div><p class="fb"></p></div>
+        <div class="tfrow" data-a="o" data-why="تعريف صحيح للتقارب."><p>ج. «التقارب» في المبادئ الأربعة يعني تجميع المعلومات المرتبطة قريبة من بعضها.</p><div class="opts"><button type="button" data-v="o">○ صحيحة</button><button type="button" data-v="x">× خاطئة</button></div><p class="fb"></p></div>
+        <div class="tfrow" data-a="x" data-why="التصميم المتمحور حول المستخدم يصمم من منظور المستخدم، لا من راحة المُنشئ."><p>د. التصميم المتمحور حول المستخدم نهج يعطي الأولوية لراحة المُنشئ.</p><div class="opts"><button type="button" data-v="o">○ صحيحة</button><button type="button" data-v="x">× خاطئة</button></div><p class="fb"></p></div>
+      </div>
+    </div>
+
+    <div class="card q">
+      <h3>2 · طابق كل وصف مع المبدأ المناسب</h3>
+      <div id="matchBox">
+        <div class="mrow" data-a="a"><span>1. إبراز المعلومات المهمة والإشارة بصريًا إلى الأولوية</span><select aria-label="الوصف 1"><option value="">اختر</option><option value="a">أ · التباين</option><option value="b">ب · التكرار</option><option value="c">ج · المحاذاة</option><option value="d">د · التقارب</option></select></div>
+        <div class="mrow" data-a="b"><span>2. تكرار نفس النمط لإعطاء مظهر موحد</span><select aria-label="الوصف 2"><option value="">اختر</option><option value="a">أ · التباين</option><option value="b">ب · التكرار</option><option value="c">ج · المحاذاة</option><option value="d">د · التقارب</option></select></div>
+        <div class="mrow" data-a="c"><span>3. محاذاة مواضع العناصر لإعطاء مظهر منظم</span><select aria-label="الوصف 3"><option value="">اختر</option><option value="a">أ · التباين</option><option value="b">ب · التكرار</option><option value="c">ج · المحاذاة</option><option value="d">د · التقارب</option></select></div>
+        <div class="mrow" data-a="d"><span>4. تجميع المعلومات المرتبطة قريبة من بعضها</span><select aria-label="الوصف 4"><option value="">اختر</option><option value="a">أ · التباين</option><option value="b">ب · التكرار</option><option value="c">ج · المحاذاة</option><option value="d">د · التقارب</option></select></div>
+      </div>
+      <div><button class="btn-ui" type="button" id="matchCheck">تحقق</button></div>
+      <p class="fb" id="matchFb" role="status"></p>
+    </div>
+
+    <div class="card q">
+      <h3>3 · اختر الإجابة الصحيحة</h3>
+      <div class="mcq" data-why="أداء الخادم لا علاقة له بوصف المستخدم، أما العمر والمهنة والغرض والتحديات فمعلومات مناسبة إذا كانت مهمة للتصميم.">
+        <p>أ. الخيار الذي <b>لا يُعد</b> معلومة مناسبة عند إعداد شخصية نموذجية:</p>
+        <div class="opts"><button type="button">عمر المستخدم ومهنته</button><button type="button">غرضه من استخدام الموقع</button><button type="button" data-ok="1">أداء خادم الموقع</button><button type="button">التحديات التي يواجهها</button></div><p class="fb"></p>
+      </div>
+      <div class="mcq" data-why="CRAP هي التباين والتكرار والمحاذاة والتقارب. التشفير ليس منها.">
+        <p>ب. الخيار غير المدرج ضمن مبادئ CRAP:</p>
+        <div class="opts"><button type="button">التباين</button><button type="button" data-ok="1">التشفير</button><button type="button">المحاذاة</button><button type="button">التقارب</button></div><p class="fb"></p>
+      </div>
+      <div class="mcq" data-why="UCD يبدأ التصميم مما يحتاجه المستخدم.">
+        <p>ج. أنسب وصف لمفهوم التصميم المتمحور حول المستخدم:</p>
+        <div class="opts"><button type="button">إعطاء الأولوية لما يجده المطوّر سهلًا</button><button type="button">إعطاء الأهمية القصوى للتصميم البصري</button><button type="button" data-ok="1">بدء التصميم انطلاقًا مما يحتاجه المستخدم</button><button type="button">استخدام أكبر عدد ممكن من أحدث التقنيات</button></div><p class="fb"></p>
+      </div>
+    </div>
+
+    <div class="card q">
+      <h3>4 · املأ الفراغات</h3>
+      <p id="blanksP">عند تصميم موقع، ابدأ بفهم المستخدم وسياق الاستخدام. يمكنك استخدام
+        <select class="blank" data-a="persona" aria-label="الفراغ 1"><option value="">...</option><option value="persona">شخصية المستخدم</option><option value="wire">المخطط الهيكلي</option><option value="crap">CRAP</option></select>
+        لتلخيص نوع من المستخدمين واحتياجاته، و
+        <select class="blank" data-a="wire" aria-label="الفراغ 2"><option value="">...</option><option value="persona">شخصية المستخدم</option><option value="wire">المخطط الهيكلي</option><option value="crap">CRAP</option></select>
+        لتخطيط أماكن العناصر وأولوياتها. كما يمكن استخدام
+        <select class="blank" data-a="crap" aria-label="الفراغ 3"><option value="">...</option><option value="persona">شخصية المستخدم</option><option value="wire">المخطط الهيكلي</option><option value="crap">CRAP</option></select>
+        (التباين والتكرار والمحاذاة والتقارب) لتنظيم الشكل.</p>
+      <div><button class="btn-ui" type="button" id="blankCheck">تحقق</button></div>
+      <p class="fb" id="blankFb" role="status"></p>
+    </div>
+
+    <div class="card q">
+      <h3>5 · طبّق ما تعلمته: حدّد المبدأ</h3>
+      <p>لكل تحسين، حدّد المبدأ الذي يقابله. (الإجابات جاهزة تحت كل بند.)</p>
+      <details><summary>جعل العناوين كبيرة وغامقة لتمييزها عن نص المحتوى</summary><div><span class="pill good">أ · التباين</span> لأن العناوين تبرز.</div></details>
+      <details><summary>تجميع أسماء المنتجات وأسعارها وصورها قريبة من بعضها</summary><div><span class="pill good">د · التقارب</span> لأن المعلومات المرتبطة تُدرك كمجموعة.</div></details>
+      <details><summary>محاذاة الحواف اليمنى للنص العربي والعناصر المرتبطة وفق شبكة التصميم</summary><div><span class="pill good">ج · المحاذاة</span> لأن العناصر على خط أساس مشترك.</div></details>
+      <details><summary>توحيد خط ولون العناوين في جميع الصفحات</summary><div><span class="pill good">ب · التكرار</span> لأن النمط نفسه يتكرر.</div></details>
+    </div>
+
+    <div class="card q">
+      <h3>6 · مدرسة تريد إعادة تصميم صفحة نتائجها المزدحمة</h3>
+      <p>حتى يجد أولياء الأمور درجات أطفالهم بسرعة. اذكر: شخصية المستخدم التي ستحددها، وقرارًا واحدًا خاصًا بالمخطط الهيكلي، ومبدأ واحدًا من CRAP تطبقه، وما الذي يحسّنه كل منها.</p>
+      <details><summary>مثال لإجابة</summary><div><ul>
+        <li><b>الشخصية:</b> ولي أمر يفتح الموقع من هاتفه مساءً ليعرف درجات ابنه بسرعة. تحسّن الشخصية الفهم، فنصمم حول هذا الموقف بدل التخمين.</li>
+        <li><b>المخطط الهيكلي:</b> وضع حقل «رقم الجلوس» وزر «عرض النتيجة» في أعلى المحتوى الرئيسي، والإعلانات في شريط جانبي. يحسّن هذا ترتيب الأولويات قبل أي زخرفة.</li>
+        <li><b>المبدأ:</b> التباين، بجعل زر «عرض النتيجة» أوضح عنصر في الصفحة. يحسّن هذا سرعة الوصول إلى الهدف.</li>
+      </ul></div></details>
+    </div>
+
+    <div class="card q">
+      <h3>سؤال بنمط الامتحان (6 درجات)</h3>
+      <p><b>اشرح</b> لماذا يُنشئ المصمم شخصية نموذجية وإطارًا هيكليًا قبل اختيار الألوان والخطوط.</p>
+      <details><summary>إجابة نموذجية</summary><div><ul>
+        <li>الشخصية النموذجية تلخص احتياجات نمط من المستخدمين، فتبني القرارات على بحث لا على افتراضات شخصية. (درجتان)</li>
+        <li>الإطار الهيكلي يحدد مكان المعلومات وأولويتها بتفاصيل بصرية قليلة، فيركز الفريق على البنية. (درجتان)</li>
+        <li>لو بدأنا بالألوان والخطوط لمالت النقاشات إلى التفضيلات الشخصية، أما تحديد المكان والأولوية أولًا فيسهّل اتفاق أصحاب المصلحة. (درجتان)</li>
+      </ul></div></details>
+    </div>
+
+    <div class="card q">
+      <h3>فكّر كمهندس: ابحث ثم قرّر</h3>
+      <p>عيادة مجتمعية في مدينتك تريد موقعًا بسيطًا يعرف منه المرضى ساعات العمل والخدمات والاتجاهات. أنت تقود التصميم.</p>
+      <ol style="margin:0;padding-inline-start:1.3em">
+        <li><b>اجمع البيانات:</b> اسأل ثمانية إلى عشرة من زملائك: «لو فتحت موقع عيادة مجتمعية، فما أول شيء ستبحث عنه؟» وسجّل الإجابات في جدول تكراري.</li>
+        <li><b>حلّل مستخدميك:</b> ادرس مثالين: مستخدمًا ضعيف البصر، وشخصًا ليس لديه إنترنت منزلي، واكتب ما يحتاجه كل نوع.</li>
+        <li><b>قرّر بناءً على بياناتك:</b> رتّب أقسام الصفحة الرئيسة وبرّر الترتيب، واختر مبدأ CRAP لحل مشكلة تنظيمية، وحدد حاجز وصول مع حل له.</li>
+      </ol>
+      <details><summary>مثال لما قد تصل إليه</summary><div>
+        <p>جدول تكراري من 10 إجابات (بيانات تجريبية):</p>
+        <div class="bars" style="margin-block:8px">
+          <div class="bar"><span>ساعات العمل</span><i style="width:100%"></i><span>4</span></div>
+          <div class="bar"><span>العنوان والاتجاهات</span><i style="width:75%"></i><span>3</span></div>
+          <div class="bar"><span>الخدمات</span><i style="width:50%"></i><span>2</span></div>
+          <div class="bar"><span>الحجز</span><i style="width:25%"></i><span>1</span></div>
+        </div>
+        <ul>
+          <li><b>الترتيب:</b> ساعات العمل أعلى الصفحة لأنها الأكثر طلبًا، ثم الاتجاهات، ثم الخدمات، ثم الحجز.</li>
+          <li><b>المبدأ:</b> التقارب، فنجمع ساعات العمل والهاتف والعنوان في مجموعة واحدة.</li>
+          <li><b>حاجز الوصول:</b> ضعف التباين لدى ضعيف البصر. الحل: نص كبير بتباين عالٍ.</li>
+          <li><b>بدون إنترنت منزلي:</b> صفحة نصية خفيفة وسريعة على بيانات الهاتف.</li>
+        </ul>
+      </div></details>
+    </div>
+
+    <div class="think"><b>فكّر وتحدَّ نفسك:</b> عيادتك تستطيع تمويل تحسين واحد فقط في إمكانية الوصول هذا العام. اختر مبدأً واحدًا من CRAP لتطبيقه، وبيّن ما ستتخلى عنه (زخرفة أو ميزة) ولماذا تخدم هذه المقايضة المستخدم بشكل أفضل.</div>
+  </div>
+</section>
+
+<section class="part">
+  <div class="sumbox">
+    <h2>الخلاصة</h2>
+    <div class="sumline"><span class="s">شخصية المستخدم (من)</span><span class="a">←</span><span class="s">المخطط الهيكلي (أين)</span><span class="a">←</span><span class="s">CRAP (اجعله واضحًا)</span><span class="a">←</span><span class="s">UCD (قرّر لصالح المستخدم)</span></div>
+    <p style="margin-top:12px">صمّم من المستخدم إلى الداخل.</p>
+  </div>
+  <footer class="foot">مبني على الدرس 4-2 «تصميم المعلومات وتجربة المستخدم للمواقع الإلكترونية». الشخصيات والبيانات في الأمثلة افتراضية لأغراض التدريب.</footer>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  try{document.documentElement.setAttribute('dir','rtl');document.documentElement.setAttribute('lang','ar');}catch(e){}
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+  /* شخصية المستخدم */
+  $$('#personaChips .chip').forEach(function(c){
+    c.addEventListener('click',function(){
+      c.classList.remove('ok','no');
+      c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')==='true'?'false':'true');
+    });
+  });
+  $('#personaCheck').addEventListener('click',function(){
+    var good=0,bad=0,missed=0;
+    $$('#personaChips .chip').forEach(function(c){
+      var on=c.getAttribute('aria-pressed')==='true',k=c.getAttribute('data-k');
+      c.classList.remove('ok','no');
+      if(k==='yes'){ if(on){c.classList.add('ok');good++;} else missed++; }
+      else if(k==='no'){ if(on){c.classList.add('no');bad++;} }
+      else { if(on){c.classList.add('ok');good++;} }
+    });
+    var fb=$('#personaFb');
+    if(bad===0&&missed===0){fb.className='fb ok';fb.textContent='ممتاز. كل ما اخترته مناسب. العمر والمهنة يُضافان فقط إذا أثّرا على التصميم.';}
+    else{fb.className='fb no';var t=[];if(bad)t.push('اخترت '+bad+' معلومة لا علاقة لها بوصف المستخدم (باللون الأحمر)');if(missed)t.push('ينقصك '+missed+' من المعلومات المهمة');fb.textContent=t.join(' و')+'.';}
+  });
+
+  /* المخطط الهيكلي */
+  var wf=$('#wf');
+  $$('#stagePick button').forEach(function(b){
+    b.addEventListener('click',function(){
+      $$('#stagePick button').forEach(function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');
+      wf.setAttribute('data-stage',b.getAttribute('data-s'));
+    });
+  });
+  var notes={
+    main:'المحتوى الرئيسي أولًا (الأولوية 1): الشخصية تقول إن ولي الأمر جاء ليعرف النتيجة، فحقل الرقم وزر العرض في أعلى مكان.',
+    nav:'التنقل ثانيًا: يساعد من يريد صفحة أخرى، لكنه لا يجب أن ينافس بحث النتيجة.',
+    side:'الشريط الجانبي ثالثًا: الإعلانات مفيدة لكنها ليست سبب الزيارة، فتبقى على الجانب.',
+    head:'الترأس رابعًا: يعرّف باسم المدرسة بدون أن يأخذ مساحة كبيرة.',
+    foot:'التذييل: معلومات مرجعية (العنوان والهاتف) يبحث عنها قلة، فمكانها أسفل الصفحة.'
+  };
+  $$('#wf .r').forEach(function(r){
+    r.addEventListener('click',function(){
+      $$('#wf .r').forEach(function(x){x.classList.remove('sel')});
+      r.classList.add('sel');
+      $('#wfNote').textContent=notes[r.getAttribute('data-note')];
+    });
+  });
+
+  /* CRAP tabs */
+  var tabs=$$('#crapTabs button');
+  function showTab(b){
+    tabs.forEach(function(t){
+      var on=t===b;t.setAttribute('aria-selected',on?'true':'false');
+      var p=document.getElementById(t.getAttribute('aria-controls'));if(p)p.hidden=!on;
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){showTab(t)});
+    t.addEventListener('keydown',function(e){
+      var n=null;
+      if(e.key==='ArrowLeft')n=tabs[(i+1)%tabs.length];
+      if(e.key==='ArrowRight')n=tabs[(i-1+tabs.length)%tabs.length];
+      if(n){n.focus();showTab(n);e.preventDefault();}
+    });
+  });
+  $$('.guideToggle').forEach(function(cb){
+    cb.addEventListener('change',function(){cb.closest('.demo').classList.toggle('guides',cb.checked)});
+  });
+
+  /* ورشة الإصلاح */
+  var shop=$('#shop'),state={c:0,r:0,a:0,p:0};
+  function renderFix(){
+    var n=0;
+    ['c','r','a','p'].forEach(function(k){
+      shop.classList.toggle(k,!!state[k]);
+      n+=state[k];
+      var li=$('#fixLog li[data-f="'+k+'"]');if(li)li.classList.toggle('on',!!state[k]);
+      var sw=$('#fixTools .sw[data-f="'+k+'"]');if(sw)sw.setAttribute('aria-pressed',state[k]?'true':'false');
+    });
+    $('#fixScore').textContent=n+' / 4';
+    $('#fixDone').hidden=n<4;
+  }
+  $$('#fixTools .sw').forEach(function(b){
+    b.addEventListener('click',function(){var k=b.getAttribute('data-f');state[k]=state[k]?0:1;renderFix();});
+  });
+  $('#fixAll').addEventListener('click',function(){state={c:1,r:1,a:1,p:1};renderFix();});
+  $('#fixReset').addEventListener('click',function(){state={c:0,r:0,a:0,p:0};renderFix();});
+  renderFix();
+
+  /* فحص التباين */
+  function lum(hex){
+    var c=[1,3,5].map(function(i){return parseInt(hex.substr(i,2),16)/255}).map(function(v){return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});
+    return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2];
+  }
+  function ratio(a,b){var x=lum(a),y=lum(b);var hi=Math.max(x,y),lo=Math.min(x,y);return (hi+0.05)/(lo+0.05);}
+  function updC(){
+    var f=$('#fg').value,b=$('#bg').value,r=ratio(f,b);
+    var s=$('#sample');s.style.color=f;s.style.background=b;
+    $('#ratio').textContent=r.toFixed(2)+' : 1';
+    function pill(ok,t){return '<span class="pill '+(ok?'good':'bad')+'">'+(ok?'✓ ':'✕ ')+t+'</span>';}
+    $('#res').innerHTML=pill(r>=4.5,'نص عادي (4.5)')+pill(r>=3,'نص كبير (3)')+pill(r>=7,'مستوى أعلى (7)');
+  }
+  $('#fg').addEventListener('input',updC);$('#bg').addEventListener('input',updC);
+  $('#presetBad').addEventListener('click',function(){$('#fg').value='#b8c0cc';$('#bg').value='#ffffff';updC();});
+  $('#presetGood').addEventListener('click',function(){$('#fg').value='#0c1a30';$('#bg').value='#ffffff';updC();});
+  updC();
+
+  /* تمارين: صح/خطأ */
+  $$('#tfBox .tfrow').forEach(function(row){
+    $$('button',row).forEach(function(b){
+      b.addEventListener('click',function(){
+        var ok=b.getAttribute('data-v')===row.getAttribute('data-a');
+        $$('button',row).forEach(function(x){x.classList.remove('ok','no')});
+        b.classList.add(ok?'ok':'no');
+        var fb=$('.fb',row);fb.className='fb '+(ok?'ok':'no');
+        fb.textContent=(ok?'إجابة صحيحة. ':'إجابة خاطئة. ')+row.getAttribute('data-why');
+      });
+    });
+  });
+  /* مطابقة */
+  $('#matchCheck').addEventListener('click',function(){
+    var ok=0,tot=0;
+    $$('#matchBox .mrow').forEach(function(r){
+      tot++;var v=$('select',r).value;r.classList.remove('ok','no');
+      if(v===r.getAttribute('data-a')){ok++;r.classList.add('ok');} else r.classList.add('no');
+    });
+    var fb=$('#matchFb');fb.className='fb '+(ok===tot?'ok':'no');
+    fb.textContent=ok===tot?'ممتاز. الإجابات الأربع صحيحة.':'أجبت صحيحًا عن '+ok+' من '+tot+'. راجع البنود الحمراء.';
+  });
+  /* اختيار من متعدد */
+  $$('.mcq').forEach(function(q){
+    $$('button',q).forEach(function(b){
+      b.addEventListener('click',function(){
+        var ok=b.getAttribute('data-ok')==='1';
+        $$('button',q).forEach(function(x){x.classList.remove('ok','no')});
+        b.classList.add(ok?'ok':'no');
+        var fb=$('.fb',q);fb.className='fb '+(ok?'ok':'no');
+        fb.textContent=(ok?'صحيح. ':'ليست الإجابة الصحيحة. ')+(ok?q.getAttribute('data-why'):'فكّر مرة أخرى.');
+      });
+    });
+  });
+  /* الفراغات */
+  $('#blankCheck').addEventListener('click',function(){
+    var ok=0,t=0;
+    $$('#blanksP .blank').forEach(function(s){
+      t++;s.classList.remove('ok','no');
+      if(s.value===s.getAttribute('data-a')){ok++;s.classList.add('ok');} else s.classList.add('no');
+    });
+    var fb=$('#blankFb');fb.className='fb '+(ok===t?'ok':'no');
+    fb.textContent=ok===t?'ممتاز. أكملت الفقرة بشكل صحيح.':'صحيح '+ok+' من '+t+'. راجع الخانات الحمراء.';
+  });
+})();
+</script>
