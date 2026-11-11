@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>امتحان شامل على الدرس 4-3: طرق تقييم المواقع الإلكترونية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --primary:#5b3ea6;
+    --primary-dark:#402b78;
+    --accent:#1098ad;
+    --bg:#f2eefb;
+    --card:#ffffff;
+    --correct:#2f9e44;
+    --wrong:#e03131;
+    --border:#e1d9f5;
+    --text:#1f2937;
+    --muted:#64748b;
+    --pdf:#e8590c;
+    --pdf-dark:#c94a08;
+    --fill:#845ef7;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:auto;overflow-x:hidden;width:100%;}
+  body{
+    margin:0;
+    overflow-x:hidden;
+    position:relative;
+    font-family:'Tajawal','Segoe UI', Tahoma, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:20px;
+  }
+  .container{max-width:800px;margin:0 auto;}
+  .header{
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;
+    padding:24px 28px;
+    border-radius:16px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    box-shadow:0 6px 18px rgba(91,62,166,0.28);
+  }
+  .header h1{margin:0;font-size:1.15rem;font-weight:700;line-height:1.5;}
+  .header p{margin:6px 0 0;font-size:0.86rem;opacity:0.95;}
+  #timer{
+    background:rgba(255,255,255,0.2);
+    padding:10px 20px;
+    border-radius:12px;
+    font-size:1.4rem;
+    font-weight:900;
+    min-width:110px;
+    text-align:center;
+    letter-spacing:1px;
+  }
+  #timer.warn{background:#e03131;}
+  .progress-wrap{background:#e3daf7;border-radius:8px;height:10px;margin-bottom:8px;overflow:hidden;}
+  #progress-bar{height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width 0.3s;}
+  .progress-label{text-align:center;color:var(--muted);font-size:0.85rem;margin-bottom:18px;font-weight:700;}
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:16px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+    border:1px solid var(--border);
+  }
+  .q-number{
+    display:inline-block;
+    background:var(--primary);
+    color:#fff;
+    padding:0 12px;
+    height:32px;
+    border-radius:16px;
+    text-align:center;
+    line-height:32px;
+    font-size:0.9rem;
+    font-weight:700;
+    margin-left:10px;
+  }
+  .q-type-badge{
+    display:inline-block;
+    padding:4px 12px;
+    border-radius:20px;
+    font-size:0.78rem;
+    font-weight:700;
+    margin-right:6px;
+  }
+  .badge-mcq{background:#e7f1ff;color:#2b6cb0;}
+  .badge-tf{background:#e6fcf5;color:#0b7285;}
+  .badge-essay{background:#fff4e6;color:#d9480f;}
+  .q-lesson{font-size:0.78rem;color:var(--muted);font-weight:700;margin-top:4px;}
+  .q-text{font-size:1.1rem;font-weight:700;margin:16px 0 20px;line-height:1.8;}
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .option{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    transition:all 0.15s;
+    font-size:1rem;
+  }
+  .option:hover{border-color:var(--primary);background:#f7f3ff;}
+  .option.selected{border-color:var(--primary);background:#f0e9ff;font-weight:700;}
+  .option input{accent-color:var(--primary);}
+  textarea.essay-input{
+    width:100%;
+    min-height:150px;
+    padding:14px 16px;
+    border:2px solid var(--border);
+    border-radius:12px;
+    font-family:inherit;
+    font-size:1rem;
+    resize:vertical;
+    line-height:1.7;
+  }
+  textarea.essay-input:focus{outline:none;border-color:var(--primary);}
+  .essay-note{color:var(--muted);font-size:0.85rem;margin-top:8px;}
+  .nav-bar{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:6px;
+  }
+  button{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:14px 34px;
+    font-size:1.02rem;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    transition:all 0.15s;
+    font-family:inherit;
+  }
+  button:hover{background:var(--primary-dark);transform:translateY(-1px);}
+  button:disabled{background:#94a3b8;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:#fff;color:var(--primary);border:2px solid var(--primary);padding:12px 32px;}
+  .btn-secondary:hover{background:#f7f3ff;}
+  .btn-finish{background:var(--correct);}
+  .btn-finish:hover{background:#2b8a3e;}
+  #results{display:none;}
+  .score-card{
+    text-align:center;
+    background:var(--card);
+    border-radius:16px;
+    padding:32px;
+    margin-bottom:20px;
+    box-shadow:0 3px 12px rgba(30,41,59,0.07);
+  }
+  .score-num{font-size:3.2rem;font-weight:900;color:var(--primary);}
+  .score-msg{font-size:1.05rem;color:var(--muted);margin-top:8px;font-weight:500;line-height:1.9;}
+  .review-item{border-right:5px solid var(--correct);}
+  .review-item.wrong{border-right:5px solid var(--wrong);}
+  .review-item.essay{border-right:5px solid var(--pdf);}
+  .answer-line{padding:11px 14px;border-radius:10px;margin-top:6px;font-size:0.95rem;}
+  .answer-line.correct{background:#ebfbee;color:var(--correct);font-weight:700;}
+  .answer-line.wrong{background:#fff5f5;color:var(--wrong);font-weight:700;}
+  .answer-line.essay{background:#fff8ef;color:#8a4b08;font-weight:500;white-space:pre-wrap;line-height:1.8;}
+  #not-answered-warning{color:var(--wrong);text-align:center;margin-bottom:10px;font-size:0.9rem;display:none;font-weight:700;}
+  .unanswered{border-color:#f59f00 !important;}
+  #start-screen{
+    background:var(--card);
+    border-radius:16px;
+    padding:36px 30px;
+    text-align:center;
+    box-shadow:0 3px 14px rgba(30,41,59,0.08);
+  }
+  #start-screen h2{margin-top:0;font-size:1.3rem;}
+  #start-screen p{color:var(--muted);}
+  #start-screen input{
+    width:100%;
+    max-width:320px;
+    padding:15px 16px;
+    font-size:1.05rem;
+    border:2px solid var(--border);
+    border-radius:12px;
+    margin:16px 0;
+    text-align:center;
+    font-family:inherit;
+  }
+  #start-screen input:focus{outline:none;border-color:var(--primary);}
+  #name-warning{color:var(--wrong);font-size:0.9rem;display:none;margin-bottom:10px;font-weight:700;}
+  .exam-info{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin:18px 0;
+    font-size:0.88rem;
+    color:var(--muted);
+  }
+  .exam-info span{background:#f1eefc;padding:6px 14px;border-radius:20px;font-weight:700;}
+  .action-buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;}
+  .pdf-btn{background:var(--pdf);}
+  .pdf-btn:hover{background:var(--pdf-dark);}
+  .wa-btn{background:#25D366;}
+  .wa-btn:hover{background:#1ea952;}
+  #send-status{margin-top:14px;font-size:0.9rem;color:var(--muted);font-weight:700;min-height:20px;}
+  #pdf-report{position:fixed;left:0;top:0;width:750px;background:#fff;padding:30px;transform:translateX(-100%) translateX(-50px);pointer-events:none;z-index:-1;}
+
+  html, body{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden;
+    -webkit-text-size-adjust:100%;
+    color-scheme:light;
+  }
+
+  @media (max-width: 600px){
+    body{padding:10px;background:#f2eefb;}
+    .container{width:100%;max-width:100%;}
+    .header{padding:16px 14px;border-radius:12px;flex-direction:column-reverse;align-items:stretch;text-align:right;gap:10px;}
+    .header h1{font-size:1rem;line-height:1.65;}
+    .header p{font-size:0.76rem;line-height:1.6;}
+    #timer{align-self:center;min-width:100px;width:auto;padding:8px 16px;font-size:1.2rem;}
+    .card{padding:16px 12px;border-radius:12px;}
+    #start-screen{padding:24px 14px;border-radius:12px;}
+    #start-screen input{max-width:none;width:100%;}
+    .exam-info{gap:8px;font-size:0.78rem;}
+    .exam-info span{padding:6px 10px;max-width:100%;}
+    .q-text{font-size:1rem;line-height:1.85;overflow-wrap:anywhere;}
+    .option{padding:12px 10px;font-size:0.94rem;line-height:1.65;align-items:flex-start;overflow-wrap:anywhere;}
+    .option input{flex:0 0 auto;margin-top:4px;}
+    .q-number{margin-left:6px;padding:0 9px;height:30px;line-height:30px;font-size:0.82rem;}
+    .q-type-badge{padding:4px 8px;font-size:0.7rem;margin-right:0;}
+    textarea.essay-input{min-height:180px;font-size:16px;}
+    .nav-bar{gap:8px;}
+    .nav-bar button, #start-btn{flex:1;min-width:0;padding:12px 10px;font-size:0.92rem;}
+    .score-card{padding:22px 12px;}
+    .score-num{font-size:2.5rem;}
+    .action-buttons{flex-direction:column;}
+    .action-buttons button{width:100%;padding:12px 10px;font-size:0.9rem;}
+    #pdf-report{width:750px;}
+  }
+
+  .sec-hdr{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;border-radius:14px;padding:14px 18px;margin:22px 0 12px;font-weight:900;font-size:1.05rem;line-height:1.7;}
+  .sub-hdr{background:#efe9fb;color:var(--primary-dark);border-radius:12px;padding:10px 16px;margin:16px 0 10px;font-weight:700;border-right:5px solid var(--primary);line-height:1.7;}
+  .mk{display:inline-block;background:#fff4e6;color:#d9480f;border-radius:14px;padding:2px 10px;font-size:0.76rem;font-weight:700;margin-right:6px;}
+  .answer-line.model{background:#eef6ff;color:#1c4f8a;font-weight:500;white-space:pre-wrap;line-height:1.8;}
+  #timer-float{position:fixed;top:10px;left:10px;z-index:99;background:var(--primary);color:#fff;padding:6px 14px;border-radius:20px;font-weight:900;font-size:1rem;box-shadow:0 3px 10px rgba(0,0,0,.25);display:none;direction:ltr;}
+  #timer-float.warn{background:#e03131;}
+  textarea.essay-input{min-height:110px;}
+  textarea.short-input{min-height:70px;}
+  .submit-box{text-align:center;margin:24px 0 40px;}
+  .rules{text-align:right;background:#f7f3ff;border-radius:12px;padding:12px 18px;line-height:2;font-size:.92rem;color:var(--text);}
+.fix-box{display:none;margin-top:14px;}
+  .fix-box label{display:block;font-weight:700;color:#d9480f;margin-bottom:6px;font-size:.92rem;}
+</style>
+</head>
+<body>
+<div id="timer-float">70:00</div>
+<div class="container">
+  <div class="header">
+    <div id="timer">70:00</div>
+    <div>
+      <p style="margin:0 0 4px;font-size:0.85rem;font-weight:700;opacity:0.9;direction:ltr;text-align:right;">Prepared by Eng.Marco Edwer</p>
+      <h1>امتحان شامل على الدرس 4-3: طرق تقييم المواقع الإلكترونية</h1>
+    </div>
+  </div>
+  <div id="start-screen">
+    <h2>بيانات الطالب</h2>
+    <p>يرجى كتابة الاسم قبل بدء الامتحان</p>
+    <div id="name-warning">يرجى كتابة الاسم أولاً</div>
+    <input type="text" id="student-name" placeholder="الاسم">
+    <div class="exam-info">
+      <span>⏱ المدة: 70 دقيقة</span>
+      <span>💯 الدرجة الكلية: 70</span>
+      <span>🔘 الجزء الأول: 30 درجة (موضوعي)</span>
+      <span>✍️ الجزء الثاني: 40 درجة (مقالي + تصحيح الخطأ)</span>
+    </div>
+    <br>
+    <button id="start-btn">ابدأ الامتحان</button>
+  </div>
+  <div class="progress-wrap" style="display:none;"><div id="progress-bar"></div></div>
+  <div class="progress-label" id="progress-label" style="display:none;"></div>
+  <div id="quiz-area"></div>
+  <div class="submit-box" id="submit-box" style="display:none;">
+    <div id="not-answered-warning" style="display:none;"></div>
+    <button class="btn-finish" id="submit-btn">إنهاء وتسليم الامتحان ✔</button>
+  </div>
+  <div class="results" id="results">
+    <div id="report-content">
+      <div class="score-card" style="padding:24px;">
+        <div id="score-emoji" style="font-size:3rem;line-height:1;margin-bottom:6px;"></div>
+        <div class="score-num" id="score-num"></div>
+        <div class="score-msg" id="score-msg"></div>
+        <div style="background:#fff3cd;border:2px solid #f0ad4e;border-radius:10px;padding:10px;margin:10px 0;font-weight:700;color:#7a4b00">⚠️ مهم: بعد تجهيز التقرير اضغط زر «إرسال التقرير PDF على واتساب» لإرسال إجاباتك إلى المعلم. (الملف يُحمَّل أيضًا على جهازك)</div><div class="action-buttons">
+          <button class="pdf-btn" id="download-pdf-btn" disabled>⬇️ تحميل التقرير PDF</button>
+          <button class="wa-btn" id="send-wa-btn">📱 إرسال التقرير PDF على واتساب</button>
+        </div>
+        <div id="send-status"></div>
+        <div id="pdf-open-wrap" style="display:none;margin-top:8px;font-size:0.9rem;"><a id="pdf-open-link" href="#" target="_blank" rel="noopener" style="color:var(--primary);font-weight:700;">لو لم يُحمَّل الملف اضغط هنا لفتحه ثم احفظه</a></div>
+      </div>
+      <div id="review-area"></div>
+    </div>
+  </div>
+</div>
+<div id="pdf-report"></div>
+<script>
+window.scrollTo(0,0);
+const TEACHER_PHONE = "201275166855"; // رقم واتساب المستر
+const EXAM_TITLE = "امتحان شامل على الدرس 4-3: طرق تقييم المواقع الإلكترونية";
+const LESSONS = {"4-3": "الدرس 4-3: طرق تقييم المواقع الإلكترونية"};
+const questions = [{"type": "mcq", "hard": 0, "q": "للإجابة عن السؤال: «لماذا يغادر المستخدمون صفحة ما؟» تكون الطريقة الأنسب:", "options": ["الاعتماد على عدّ الزيارات (PV) فقط", "متابعة معدل التحويل (CVR) وحده", "إجراء مقابلات أو اختبار قابلية استخدام مع المستخدمين", "حساب إجمالي عدد صفحات الموقع"], "correct": 2, "no": 1, "first": true, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)", "part": "الجزء الأول: الأسئلة الموضوعية — 30 درجة"}, {"type": "mcq", "hard": 0, "q": "جعل المستخدمين يستكشفون الموقع الإلكتروني فعليًا ومراقبة قابلية استخدامه يُعد تقييمًا:", "options": ["نوعيًا", "كميًا", "لا يُعد تقييمًا", "قائمًا على اختبار A/B"], "correct": 0, "no": 2, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 0, "q": "إحصاء عدد مرات الوصول ومشاهدات الصفحة للموقع الإلكتروني يُعد تقييمًا:", "options": ["نوعيًا", "كميًا", "إرشاديًا", "قائمًا على المقابلات"], "correct": 1, "no": 3, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "أي مما يأتي لا يُعد من طرق التقييم الكمي؟", "options": ["تحليلات الويب", "اختبار A/B", "تحليل مؤشرات مثل PV والوقت المستغرق", "اختبار قابلية الاستخدام"], "correct": 3, "no": 4, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 0, "q": "نسبة المستخدمين الذين غادروا الموقع بعد مشاهدة الصفحة الأولى فقط هي مثال مبسط على:", "options": ["معدل الارتداد", "PV", "معدل التحويل", "التقييم الإرشادي"], "correct": 0, "no": 5, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 0, "q": "أي خيار يصف معدل التحويل (CVR) بأفضل شكل؟", "options": ["نسبة مرات مشاهدة صفحة ما", "نسبة المستخدمين الذين غادروا الموقع بعد الصفحة الأولى فقط", "نسبة الصفحات المشاهدة إلى إجمالي عدد صفحات الموقع", "نسبة المستخدمين الذين حققوا إجراءً مستهدفًا (شراء منتج، تسجيل عضوية، إلخ)"], "correct": 3, "no": 6, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 0, "q": "أي خيار يصف التقييم الإرشادي بأفضل شكل؟", "options": ["طريقة يستكشف فيها المستخدمون الموقع وتُراقَب قابلية الاستخدام", "طريقة يتم فيها إحصاء بيانات عددية وتحليل استخدام الموقع", "طريقة يحدد فيها الخبراء مشكلات واجهة المستخدم استنادًا إلى قواعد عملية", "طريقة يتم فيها إعداد نمطين ومقارنتهما بالبيانات لمعرفة أيهما أكثر فاعلية"], "correct": 2, "no": 7, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 0, "q": "القاعدة الإرشادية التي تتحقق من أن حالة النظام موضحة بوضوح للمستخدمين (مثل مؤشرات المعالجة ورسائل أخطاء الإدخال) هي:", "options": ["الاتساق", "منع الأخطاء", "اختبار A/B", "وضوح حالة النظام"], "correct": 3, "no": 8, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "موقع تختلف فيه ألوان الأزرار وأماكنها وخطوات تنفيذ الإجراء نفسه من صفحة إلى أخرى. أي قاعدة إرشادية يخالفها؟", "options": ["منع الأخطاء", "الاتساق", "وضوح حالة النظام", "معدل الارتداد"], "correct": 1, "no": 9, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "يصمّم فريق نموذجًا يجعل من الصعب على المستخدمين ارتكاب الأخطاء عند إدخال بياناتهم. أي قاعدة إرشادية يحقق ذلك؟", "options": ["الاتساق", "وضوح حالة النظام", "منع الأخطاء", "اختبار A/B"], "correct": 2, "no": 10, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "ارتفع PV لموقع مدرسة بينما انخفض CVR. أنسب تفسير مبدئي لذلك هو:", "options": ["الموقع حقق أفضل أداء ممكن ولا يحتاج إلى فحص", "يصل كثير من المستخدمين إلى الموقع لكن عددًا منهم لا يتخذ الإجراء المستهدف، ويحتاج السبب إلى فحص نوعي", "عدد الزوار انخفض بشكل كبير", "جميع المستخدمين أكملوا الإجراء المطلوب"], "correct": 1, "no": 11, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "عند الاعتماد على معدل الارتداد في تقييم موقع، يجب:", "options": ["اعتماد تعريف واحد ثابت له في جميع أدوات التحليلات", "اعتباره يفسر سبب مغادرة المستخدمين وحده", "تجاهله لأنه لا يفيد في أي حال", "الرجوع إلى تعريف أداة التحليل المستخدمة لأن طريقة حسابه تختلف بين الأدوات"], "correct": 3, "no": 12, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "سجّلت صفحة منتج 500 مشاهدة (PV) خلال يوم واحد. ما الاستنتاج الصحيح؟", "options": ["أن 500 شخص مختلف زاروا الصفحة", "أن الصفحة شوهدت 500 مرة في الإجمالي، وقد تشمل مشاهدات متكررة من الأشخاص أنفسهم", "أن 500 مستخدم اشتروا المنتج", "أن معدل التحويل يساوي 500%"], "correct": 1, "no": 13, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "أي عبارة صحيحة عن التقييمين النوعي والكمي؟", "options": ["يغني التقييم الكمي عن النوعي دائمًا", "تمثل الملاحظة النوعية جميع المستخدمين بالضرورة", "تصف الأرقام ما يحدث، وتساعد الطرق النوعية على فهم التجربة والأسباب المحتملة", "لا يمكن أن تجمع دراسة واحدة بين النوعين"], "correct": 2, "no": 14, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 1, "q": "متجر كتب إلكتروني صغير يريد معرفة ما إذا كان موقعه يعمل لصالح العملاء. أي نهج يُوصى به؟", "options": ["استخدام الطرق الكمية والنوعية معًا مع دليل من كل منهما", "الاعتماد على رأي صاحب المتجر وحده", "متابعة PV فقط", "سؤال شخص واحد فقط عن رأيه"], "correct": 0, "no": 15, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "mcq", "hard": 0, "q": "لتقييم موقع جيدًا نجمع بين «كم» و«لماذا». أي مجموعة تجيب عن «لماذا»؟", "options": ["PV ومعدل الارتداد وCVR", "اختبارات قابلية الاستخدام والمقابلات والتقييم الإرشادي", "تحليلات الويب فقط", "اختبار A/B فقط"], "correct": 1, "no": 16, "first": false, "short": false, "lesson": "4-3", "title": "اختر الإجابة الصحيحة (16 درجة — درجة لكل سؤال)"}, {"type": "tfc", "hard": 1, "q": "يُعد التقييم الإرشادي مراجعة يجريها خبراء لواجهة المستخدم استنادًا إلى قواعد أو مبادئ إرشادية عملية.", "correct": true, "no": 17, "first": true, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة"}, {"type": "tfc", "hard": 1, "q": "المقابلات مع المستخدمين من طرق التقييم الكمي.", "correct": false, "no": 18, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة", "fix": "المقابلات من طرق التقييم النوعي؛ لأنها تستمع إلى آراء المستخدمين المباشرة لفهم احتياجاتهم واستيائهم."}, {"type": "tfc", "hard": 1, "q": "يساوي مؤشر PV دائمًا عدد الأشخاص الفريدين الذين زاروا الموقع.", "correct": false, "no": 19, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة", "fix": "PV يقيس إجمالي مرات المشاهدة وقد يشمل مشاهدات متكررة؛ لذلك لا يساوي عدد الأشخاص الفريدين."}, {"type": "tfc", "hard": 1, "q": "اختبار A/B طريقة كمية تقارن بين خيارين للتحقق من أيهما يؤدي إلى نتائج أفضل.", "correct": true, "no": 20, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة"}, {"type": "tfc", "hard": 1, "q": "معدل الارتداد مؤشر يوضح نسبة المستخدمين الذين حققوا إجراءً مستهدفًا.", "correct": false, "no": 21, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة", "fix": "المؤشر الذي يوضح نسبة من حققوا إجراءً مستهدفًا هو معدل التحويل (CVR)؛ أما معدل الارتداد فتختلف طريقة حسابه بين أدوات التحليلات (ومن أمثلته المبسطة نسبة الجلسات التي تنتهي بعد صفحة واحدة)."}, {"type": "tfc", "hard": 1, "q": "يكفي معدل الارتداد وحده لتفسير سبب ضعف تفاعل المستخدمين مع الصفحة.", "correct": false, "no": 22, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة", "fix": "معدل الارتداد قد يساعد مع مؤشرات أخرى على ملاحظة ضعف التفاعل، لكنه لا يفسر السبب وحده؛ ونحتاج إلى طرق نوعية (مقابلات أو اختبار قابلية استخدام) لمعرفة السبب."}, {"type": "tfc", "hard": 1, "q": "يقيس معدل التحويل (CVR) تحقيق هدف محدد في الموقع مثل التسجيل أو الشراء، مع تحديد المقام وطريقة الحساب.", "correct": true, "no": 23, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة"}, {"type": "tfc", "hard": 1, "q": "تعني قاعدة «منع الأخطاء» توضيح حالة النظام للمستخدمين بمؤشرات المعالجة ورسائل أخطاء الإدخال.", "correct": false, "no": 24, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة", "fix": "هذا وصف لقاعدة «وضوح حالة النظام»؛ أما «منع الأخطاء» فتعني أن يجعل التصميم من الصعب على المستخدمين ارتكاب الأخطاء."}, {"type": "tfc", "hard": 1, "q": "الأرقام تكشف ما يحدث، والمستخدمون يكشفون الأسباب؛ لذلك يفيد الجمع بين الأدلة الكمية والنوعية.", "correct": true, "no": 25, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة"}, {"type": "tfc", "hard": 1, "q": "التقييم النوعي طريقة تستخدم بيانات عددية لقياس السلوك والنتائج كميًا.", "correct": false, "no": 26, "first": false, "short": false, "lesson": "4-3", "title": "صح أم خطأ مع تصحيح الخطأ — لكل عبارة درجتان: ضع (صح) أو (خطأ)؛ وإذا اخترت (خطأ) فاكتب التصحيح في الصندوق الذي يظهر. العبارة الصحيحة تأخذ درجتين عند الحكم الصحيح، والعبارة الخاطئة تأخذ درجة للحكم ودرجة للتصحيح (تُصحَّح يدويًا ضمن الجزء الثاني) — 20 درجة", "fix": "استخدام البيانات العددية لقياس السلوك والنتائج هو التقييم الكمي؛ أما التقييم النوعي فيستخدم الملاحظة والمقابلات والأدلة الوصفية لفهم تجربة المستخدم وأسباب سلوكه."}, {"type": "essay", "kind": "term", "q": "الطريقة التي تُقيِّم نوعيًا من خلال مراقبة آراء المستخدمين وسلوكهم.", "model": "التقييم النوعي", "marks": 1, "no": 27, "first": true, "short": true, "lesson": "4-3", "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)", "part": "الجزء الثاني: الأسئلة المقالية وتصحيح الخطأ — 40 درجة"}, {"type": "essay", "kind": "term", "q": "الطريقة التي تُقيِّم كميًا باستخدام بيانات عددية.", "model": "التقييم الكمي", "marks": 1, "no": 28, "first": false, "short": true, "lesson": "4-3", "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "kind": "term", "q": "المؤشر المكوّن من حرفين الذي يُظهر عدد مرات مشاهدة صفحة ما.", "model": "PV (مشاهدات الصفحة)", "marks": 1, "no": 29, "first": false, "short": true, "lesson": "4-3", "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "kind": "term", "q": "الطريقة التي يحدد فيها الخبراء مشكلات واجهة المستخدم استنادًا إلى قواعد عملية.", "model": "التقييم الإرشادي (Heuristic Evaluation)", "marks": 1, "no": 30, "first": false, "short": true, "lesson": "4-3", "title": "اكتب المصطلح العلمي الدال على كل عبارة (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "kind": "define", "q": "معدل الارتداد (Bounce Rate)", "model": "مؤشر للتفاعل يختلف تعريفه وطريقة حسابه بحسب أداة التحليل وإعداداتها؛ لذلك يجب تفسيره وفق تعريف الأداة المستخدمة (ومن أمثلته المبسطة نسبة الجلسات التي تنتهي بعد صفحة واحدة).", "marks": 1, "no": 31, "first": true, "short": true, "lesson": "4-3", "title": "عرّف المصطلحات الآتية (4 درجات — درجة لكل مصطلح)"}, {"type": "essay", "kind": "define", "q": "معدل التحويل (CVR)", "model": "نسبة المستخدمين أو الجلسات التي حققت إجراءً مستهدفًا مثل التسجيل أو الشراء بحسب هدف الموقع، مع تحديد المقام وطريقة الحساب.", "marks": 1, "no": 32, "first": false, "short": true, "lesson": "4-3", "title": "عرّف المصطلحات الآتية (4 درجات — درجة لكل مصطلح)"}, {"type": "essay", "kind": "define", "q": "تحليلات الويب", "model": "جمع وقياس وتحليل بيانات استخدام الموقع لفهم الوصول والتفاعل والنتائج، وهي إحدى أدوات التقييم الكمي.", "marks": 1, "no": 33, "first": false, "short": true, "lesson": "4-3", "title": "عرّف المصطلحات الآتية (4 درجات — درجة لكل مصطلح)"}, {"type": "essay", "kind": "define", "q": "اختبار A/B", "model": "طريقة كمية تقارن بين خيارين (نسختين) للتحقق من أيهما يؤدي إلى نتائج أفضل.", "marks": 1, "no": 34, "first": false, "short": true, "lesson": "4-3", "title": "عرّف المصطلحات الآتية (4 درجات — درجة لكل مصطلح)"}, {"type": "essay", "kind": "fill", "q": "تشمل طرق تقييم الموقع تقييمًا ........ يساعد على فهم تجربة المستخدم من خلال الملاحظة والمقابلات، وتقييمًا ........ يقيس السلوك والنتائج بالأرقام.", "model": "نوعيًا — كميًا", "marks": 1, "no": 35, "first": true, "short": true, "lesson": "4-3", "title": "أكمل ما يأتي (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "kind": "fill", "q": "من المقاييس الشائعة ........ لإجمالي مرات مشاهدة الصفحة، و........ الذي يختلف تعريفه بحسب أداة التحليلات ويُستخدم لمتابعة التفاعل، و........ لنسبة المستخدمين أو الجلسات التي حققت هدفًا محددًا وفق طريقة الحساب.", "model": "PV — معدل الارتداد — معدل التحويل (CVR)", "marks": 1, "no": 36, "first": false, "short": true, "lesson": "4-3", "title": "أكمل ما يأتي (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "kind": "fill", "q": "الأرقام تكشف ........ ، والمستخدمون يكشفون ........ ؛ ولذلك نجمع بين «كم» و«........».", "model": "ما يحدث — الأسباب — لماذا", "marks": 1, "no": 37, "first": false, "short": true, "lesson": "4-3", "title": "أكمل ما يأتي (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "kind": "fill", "q": "من القواعد الإرشادية التي استخدمناها في هذا الدرس: ........ (هل التصميم والعمليات موحدة عبر الموقع؟)، و........ (هل من الصعب على المستخدمين ارتكاب الأخطاء؟)، و........ (هل حالة النظام موضحة بوضوح؟).", "model": "الاتساق — منع الأخطاء — وضوح حالة النظام", "marks": 1, "no": 38, "first": false, "short": true, "lesson": "4-3", "title": "أكمل ما يأتي (4 درجات — درجة لكل فقرة)"}, {"type": "essay", "kind": "compare", "q": "قارن بين «التقييم النوعي» و«التقييم الكمي» من حيث: الغرض، ومثال على تقنية لكل منهما. [3 درجات]", "model": "التقييم النوعي: غرضه فهم تجربة المستخدم وأسباب السلوك والمشكلات من خلال الملاحظة والمقابلات؛ ومن تقنياته اختبار قابلية الاستخدام والمقابلات — (1.5).\nالتقييم الكمي: غرضه قياس السلوك والنتائج باستخدام بيانات عددية ومقاييس محددة؛ ومن تقنياته تحليلات الويب (مثل PV) واختبار A/B — (1.5).", "marks": 3, "no": 39, "first": true, "short": false, "lesson": "4-3", "title": "قارن (6 درجات — 3 درجات لكل مقارنة)"}, {"type": "essay", "kind": "compare", "q": "قارن بين «PV» و«معدل التحويل (CVR)» من حيث: المعنى، وما الذي يوضحه كل منهما. [3 درجات]", "model": "PV: العدد الإجمالي لمرات مشاهدة الصفحة؛ يقيس إجمالي المشاهدات وقد يشمل مشاهدات متكررة، ولا يساوي عدد الأشخاص الفريدين — (1.5).\nمعدل التحويل CVR: نسبة المستخدمين أو الجلسات التي حققت إجراءً مستهدفًا؛ يساعد على قياس تحقيق هدف محدد مثل التسجيل أو الشراء، مع تحديد المقام وطريقة الحساب — (1.5).", "marks": 3, "no": 40, "first": false, "short": false, "lesson": "4-3", "title": "قارن (6 درجات — 3 درجات لكل مقارنة)"}, {"type": "essay", "kind": "why", "q": "علّل: لا يكفي معدل الارتداد وحده لتفسير سبب ضعف تفاعل المستخدمين مع الصفحة. [3 درجات]", "model": "لأن معدل الارتداد مؤشر كمي قد يساعد مع مؤشرات أخرى على ملاحظة ضعف التفاعل (1)، لكنه لا يفسر السبب وحده (1)، كما أن تعريفه وطريقة حسابه تختلف بين أدوات التحليلات، فنحتاج إلى طرق نوعية (مقابلات أو اختبار قابلية استخدام) لمعرفة السبب (1).", "marks": 3, "no": 41, "first": true, "short": false, "lesson": "4-3", "title": "علّل (3 درجات)"}, {"type": "essay", "kind": "exam", "q": "اشرح لماذا ينبغي لفريق موقع إلكتروني استخدام كل من التقييم النوعي والكمي بدلًا من استخدام أحدهما فقط. [6 درجات]", "model": "• التقييم الكمي يصف ما يحدث (كم) بالأرقام، مثل PV ومعدل الارتداد وCVR — (1.5).\n• لكن الأرقام لا تفسر الأسباب وحدها، وإنما تشير إلى أين ننظر — (1).\n• التقييم النوعي يساعد على فهم تجربة المستخدم وأسباب المشكلات (لماذا) من خلال اختبار قابلية الاستخدام والمقابلات والتقييم الإرشادي — (1.5).\n• لكن الملاحظة النوعية لا تمثل جميع المستخدمين بالضرورة — (1).\n• الجمع بينهما يعطي صورة أوضح ويبرر توصية بتحسين الموقع بأكثر من نوع من الأدلة — (1).", "marks": 6, "no": 42, "first": true, "short": false, "lesson": "4-3", "title": "سؤال على نمط الامتحان (6 درجات)"}, {"type": "essay", "kind": "apply", "q": "[طبّق ما تعلمته] أظهرت أداة التحليلات مؤشرًا يشير إلى ضعف التفاعل في موقع مدرسة.\n(أ) اذكر مقياسًا كميًا يساعد على ملاحظة المشكلة. (درجة)\n(ب) اذكر طريقة نوعية لفهم سبب المشكلة. (درجة)\n(ج) اذكر حلًّا محتملًا يحتاج إلى اختبار. (درجة)", "model": "(أ) مثال: معدل الارتداد أو PV أو CVR لصفحة معينة، مع الرجوع إلى تعريف الأداة المستخدمة — (1).\n(ب) مثال: اختبار قابلية استخدام قصير أو مقابلة مع طلاب أو أولياء أمور لمعرفة سبب مغادرتهم الصفحة — (1).\n(ج) مثال: تبسيط الصفحة الرئيسة وجعل الرابط المهم أوضح، ثم اختباره (مثلًا باختبار A/B) للتأكد من أنه يحسّن النتائج — (1).", "marks": 3, "no": 43, "first": true, "short": false, "lesson": "4-3", "title": "طبّق ما تعلمته (7 درجات)"}, {"type": "essay", "kind": "apply", "q": "[فكّر كمهندس] متجر كتب إلكتروني صغير يريد معرفة ما إذا كان موقعه يعمل لصالح العملاء، وتبيّن أن إجمالي المشاهدات مرتفع بينما معدل التحويل منخفض.\n(أ) ماذا يعني ذلك؟ (درجة)\n(ب) اذكر طريقة نوعية تساعدك على معرفة السبب. (درجة)\n(ج) اذكر صعوبة قد يواجهها مستخدم هاتف أو زائر لأول مرة ولا تظهر في إجمالي المشاهدات. (درجة)\n(د) أوصِ بطريقتي التقييم اللتين ينبغي للمتجر استخدامهما، مع ذكر سبب واحد. (درجة)", "model": "(أ) أن كثيرًا من الناس يصلون إلى الموقع لكن عددًا منهم لا يتخذ الإجراء المستهدف؛ والأرقام تشير فقط إلى أين ننظر ولا تحدد السبب — (1).\n(ب) اختبار قابلية استخدام قصير أو مقابلة مع المستخدمين — (1).\n(ج) مثال: صعوبة قراءة النص أو الضغط على أزرار صغيرة في شاشة الهاتف، أو صعوبة العثور على الكتاب أو خطوات الشراء لزائر جديد — (1).\n(د) استخدام التقييم الكمي (تحليلات الويب) والنوعي (اختبار قابلية الاستخدام أو المقابلات) معًا؛ لأن الأرقام توضح ما يحدث والمستخدمين يوضحون السبب — (1).", "marks": 4, "no": 44, "first": false, "short": false, "lesson": "4-3", "title": "طبّق ما تعلمته (7 درجات)"}];
+
+const TOTAL_TIME = 70 * 60; // 70 دقيقة
+let timeLeft = TOTAL_TIME, timerInterval, examStartTimestamp = null, submitted = false, studentName = "";
+const userAnswers = new Array(questions.length).fill(null);
+const fixAnswers = {};
+const KIND = {term:"اكتب المصطلح",define:"عرّف",fill:"أكمل",compare:"قارن",why:"علّل",apply:"طبّق",exam:"سؤال على نمط الامتحان"};
+
+function typeBadge(item){
+  if(item.type==="mcq") return '<span class="q-type-badge badge-mcq">اختر</span>';
+  if(item.type==="tf") return '<span class="q-type-badge badge-tf">صح أم خطأ</span>';
+  if(item.type==="tfc") return '<span class="q-type-badge badge-tf">صح أم خطأ + صحّح</span><span class="mk">درجتان</span>';
+  return '<span class="q-type-badge badge-essay">'+KIND[item.kind]+'</span><span class="mk">'+item.marks+' درجة</span>';
+}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+function renderAll(){
+  const area=document.getElementById('quiz-area'); area.innerHTML='';
+  questions.forEach((item,idx)=>{
+    if(item.first){
+      if(item.part){ const h=document.createElement('div'); h.className='sec-hdr'; h.textContent=item.part; area.appendChild(h); }
+      const s=document.createElement('div'); s.className='sub-hdr'; s.textContent=item.title; area.appendChild(s);
+    }
+    const card=document.createElement('div'); card.className='card'; card.id='card-'+idx;
+    let body='';
+    if(item.type==='mcq'){
+      body='<div class="options">'+item.options.map((o,i)=>`<label class="option" data-o="${i}"><input type="radio" name="q${idx}"><span>${esc(o)}</span></label>`).join('')+'</div>';
+    } else if(item.type==='tf' || item.type==='tfc'){
+      body='<div class="options"><label class="option" data-o="true"><input type="radio" name="q'+idx+'"><span>✔️ صح</span></label><label class="option" data-o="false"><input type="radio" name="q'+idx+'"><span>❌ خطأ</span></label></div>';
+    } else {
+      body=`<textarea class="essay-input ${item.short?'short-input':''}" id="essay-${idx}" placeholder="اكتب إجابتك هنا..."></textarea>`;
+    }
+    if(item.type==='tfc') body+='<div class="fix-box" id="fix-box-'+idx+'"><label>✏️ صحّح الخطأ في العبارة:</label><textarea class="essay-input short-input" id="fix-'+idx+'" placeholder="اكتب العبارة الصحيحة أو صحّح الجزء الخاطئ..."></textarea></div>';
+    card.innerHTML=`<div>${typeBadge(item)}<span class="q-number">${item.no}</span></div><div class="q-text">${esc(item.q).replace(/\n/g,'<br>')}</div>${body}`;
+    area.appendChild(card);
+    if(item.type==='essay'){
+      card.querySelector('textarea').addEventListener('input',function(){userAnswers[idx]=this.value;updateProgress();});
+    } else {
+      card.querySelectorAll('.option').forEach(opt=>opt.addEventListener('click',function(){
+        const v=this.dataset.o; userAnswers[idx]=(item.type==='tf'||item.type==='tfc')?(v==='true'):parseInt(v); if(item.type==='tfc'){ const fb=document.getElementById('fix-box-'+idx); if(fb) fb.style.display=(v==='false')?'block':'none'; }
+        card.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+        this.classList.add('selected'); this.querySelector('input').checked=true;
+        card.classList.remove('unanswered'); updateProgress();
+      }));
+    }
+    if(item.type==='tfc'){ const ta=document.getElementById('fix-'+idx); ta.addEventListener('input',function(){ fixAnswers[idx]=this.value; card.classList.remove('unanswered'); updateProgress(); }); }
+  });
+  updateProgress();
+}
+function isAnswered(i){const a=userAnswers[i], t=questions[i].type; if(t==='essay') return a&&a.trim()!==''; if(t==='tfc') return a!==null&&a!==undefined&&(a===true||(fixAnswers[i]||'').trim()!==''); return a!==null&&a!==undefined;}
+function updateProgress(){
+  let n=0; questions.forEach((_,i)=>{if(isAnswered(i))n++;});
+  document.getElementById('progress-bar').style.width=(n/questions.length*100)+'%';
+  document.getElementById('progress-label').textContent=`تمت الإجابة عن ${n} من ${questions.length} سؤالًا`;
+}
+
+let audioCtx = null;
+function initAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+}
+function playTick(freq, duration){
+  if(!audioCtx) return;
+  try{
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }catch(e){}
+}
+
+function formatTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return m + ':' + s;
+}
+
+
+function startTimer(){
+  const el=document.getElementById('timer'), fl=document.getElementById('timer-float');
+  examStartTimestamp=examStartTimestamp||Date.now();
+  function tick(){
+    if(submitted) return;
+    timeLeft=Math.max(0,TOTAL_TIME-Math.floor((Date.now()-examStartTimestamp)/1000));
+    el.textContent=fl.textContent=formatTime(timeLeft);
+    if(timeLeft<=300){el.classList.add('warn');fl.classList.add('warn');}
+    if(timeLeft<=60&&timeLeft>0) playTick(500+(60-timeLeft)*10,timeLeft<=10?0.18:0.1);
+    if(timeLeft<=0){clearInterval(timerInterval);finishExam(true);}
+  }
+  tick(); timerInterval=setInterval(tick,1000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!submitted)tick();});
+}
+
+let finalA=0, finalAMax=0, wrongQuestionNumbers=[], examDurationText='', essayAnswersList=[];
+function finishExam(auto){
+  if(submitted) return; submitted=true; clearInterval(timerInterval);
+  const elapsed=Math.min(TOTAL_TIME,Math.floor((Date.now()-examStartTimestamp)/1000));
+  examDurationText=formatTime(elapsed);
+  const rv=document.getElementById('review-area'); rv.innerHTML='';
+  let score=0,max=0,wMax=0; wrongQuestionNumbers=[]; essayAnswersList=[];
+  questions.forEach((item,idx)=>{
+    const a=userAnswers[idx], div=document.createElement('div'), label=`سؤال ${item.no}`;
+    const head=`<div>${typeBadge(item)}<span class="q-number">${label}</span></div><div class="q-lesson">${LESSONS[item.lesson]}</div><div class="q-text">${esc(item.q).replace(/\n/g,'<br>')}</div>`;
+    if(item.type==='essay'){
+      wMax+=item.marks; div.className='card review-item essay';
+      const txt=(a&&a.trim()!=='')?a:'لم تتم الإجابة';
+      essayAnswersList.push({num:label,q:item.q,a:txt,model:item.model,marks:item.marks});
+      div.innerHTML=head+`<div class="answer-line essay">إجابة الطالب: ${esc(txt)}</div><div class="answer-line model">نموذج الإجابة (${item.marks} درجة):\n${esc(item.model)}</div>`;
+    } else {
+      const wgt=(item.type==='tfc'&&item.correct)?2:1; max+=wgt; const ok=a===item.correct; if(ok)score+=wgt; else wrongQuestionNumbers.push(label);
+      const fmt=v=>item.type==='mcq'?(v===null?'لم تتم الإجابة':item.options[v]):(v===null?'لم تتم الإجابة':(v?'صح':'خطأ'));
+      const corr=item.type==='mcq'?item.options[item.correct]:(item.correct?'صح':'خطأ');
+      div.className='card review-item'+(ok?'':' wrong');
+      let extra=''; if(item.type==='tfc'){ if(item.correct===false){ wMax+=1; const ft=(fixAnswers[idx]||'').trim(); const fx=(a===false&&ft)?ft:'لم تتم الإجابة'; essayAnswersList.push({num:label+' (تصحيح الخطأ)',q:item.q,a:fx,model:item.fix,marks:1}); extra=`<div class="answer-line essay">تصحيح الطالب: ${esc(fx)}</div><div class="answer-line model">نموذج التصحيح (1 درجة):\n${esc(item.fix)}</div>`; } else { extra='<div class="answer-line model">عبارة صحيحة — لا تحتاج إلى تصحيح (الدرجتان للحكم الصحيح).</div>'; } }
+      div.innerHTML=head+(ok?`<div class="answer-line correct">الإجابة: ${esc(fmt(a))} ✓</div>`:`<div class="answer-line wrong">إجابة الطالب: ${esc(fmt(a))} ✗</div><div class="answer-line correct">الإجابة الصحيحة: ${esc(corr)}</div>`)+extra;
+    }
+    rv.appendChild(div);
+  });
+  finalA=score; finalAMax=max;
+  const pct=Math.round(score/max*100);
+  document.getElementById('score-num').textContent=`الجزء الأول: ${score} / ${max}`;
+  let msg,em; if(pct>=90){msg='ممتاز! أداء رائع';em='🏆';} else if(pct>=75){msg='جيد جدًا';em='😄';} else if(pct>=50){msg='جيد، يحتاج إلى مزيد من المراجعة';em='🙂';} else {msg='يُنصح بمراجعة الدروس من البداية';em='😕';}
+  document.getElementById('score-emoji').textContent=em;
+  document.getElementById('score-msg').innerHTML=`الاسم: <strong>${esc(studentName)}</strong><br>التاريخ: ${new Date().toLocaleDateString('ar-EG')}<br>الوقت المستغرق: <strong>${examDurationText}</strong> من أصل 70:00<br>الجزء الأول (موضوعي): ${pct}% — ${msg}<br>الجزء الثاني (مقالي): من ${wMax} درجة — يُصحَّح يدويًا بمقارنة إجابتك بنموذج الإجابة أسفل كل سؤال.${auto?'<br><strong style="color:var(--wrong);">تم تسليم الامتحان تلقائيًا لانتهاء الوقت</strong>':''}`;
+  ['quiz-area','submit-box'].forEach(i=>document.getElementById(i).style.display='none');
+  document.getElementById('timer-float').style.display='none';
+  document.querySelector('.progress-wrap').style.display='none'; document.getElementById('progress-label').style.display='none';
+  document.getElementById('results').style.display='block'; window.scrollTo({top:0,behavior:'auto'});
+  setTimeout(preparePdf,400);
+}
+
+function buildWhatsAppSummaryText(){
+  const d='----------------------', L=[];
+  L.push('*تقرير '+EXAM_TITLE+'*','*Prepared by Eng.Marco Edwer*',d);
+  L.push(`*الاسم:* ${studentName}`,`*التاريخ:* ${new Date().toLocaleDateString('ar-EG')}`,`*الوقت المستغرق:* ${examDurationText} من أصل 70:00`);
+  L.push(`*الجزء الأول (موضوعي):* ${finalA} / ${finalAMax}`);
+  L.push(wrongQuestionNumbers.length?`*الفقرات الخاطئة:* ${wrongQuestionNumbers.join('، ')}`:'*لا توجد أخطاء في الجزء الموضوعي*',d,'*إجابات الجزء المقالي (40 درجة — للتصحيح اليدوي):*');
+  essayAnswersList.forEach(e=>{L.push(`${e.num} [${e.marks}]: ${e.q}`,`الإجابة: ${e.a}`,'. . .');});
+  L.push(d,'تفاصيل كل الأسئلة ونموذج الإجابة مرفقة في ملف PDF.');
+  return L.join('\n');
+}
+
+// ===== إنشاء ملف PDF (مقسّم إلى أجزاء صغيرة ليعمل على الموبايل والتابلت) =====
+let pdfBlob=null, pdfFileName='', pdfUrl='', pdfPromise=null, pdfAutoTried=false;
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+function setPdfStatus(t){ const el=document.getElementById('send-status'); if(el) el.textContent=t; }
+function nextFrame(){ return new Promise(r=>setTimeout(r,30)); }
+
+async function buildPdfBlob(onProgress){
+  const wrapper=document.getElementById('pdf-report');
+  wrapper.innerHTML='';
+  const clone=document.getElementById('report-content').cloneNode(true);
+  clone.querySelectorAll('.action-buttons,#send-status,#pdf-open-wrap').forEach(e=>e.remove());
+  wrapper.appendChild(clone);
+
+  const blocks=[clone.querySelector('.score-card'), ...clone.querySelectorAll('.review-item')].filter(Boolean);
+  const { jsPDF } = window.jspdf;
+  const pdf=new jsPDF('p','mm','a4');
+  const PW=210, PH=297, M=8, CW=PW-2*M, BOTTOM=PH-M;
+  let y=M;
+
+  for(let i=0;i<blocks.length;i++){
+    if(onProgress) onProgress(i+1,blocks.length);
+    await nextFrame();
+    const canvas=await html2canvas(blocks[i],{scale:1.6,backgroundColor:'#ffffff',useCORS:true});
+    const h=canvas.height*CW/canvas.width;
+    if(h<=BOTTOM-M){
+      if(y+h>BOTTOM){ pdf.addPage(); y=M; }
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.85),'JPEG',M,y,CW,h);
+      y+=h+3;
+    } else {
+      // عنصر أطول من صفحة كاملة: يُقسَّم إلى شرائح
+      const pxPerMm=canvas.width/CW, slicePx=Math.floor((BOTTOM-M)*pxPerMm);
+      for(let sy=0; sy<canvas.height; sy+=slicePx){
+        const sh=Math.min(slicePx,canvas.height-sy);
+        const part=document.createElement('canvas'); part.width=canvas.width; part.height=sh;
+        part.getContext('2d').drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);
+        const ph=sh/pxPerMm;
+        if(y+ph>BOTTOM){ pdf.addPage(); y=M; }
+        pdf.addImage(part.toDataURL('image/jpeg',0.85),'JPEG',M,y,CW,ph);
+        y+=ph+3; part.width=part.height=0;
+      }
+    }
+    canvas.width=canvas.height=0;
+  }
+  wrapper.innerHTML='';
+  return pdf.output('blob');
+}
+
+function preparePdf(){
+  if(pdfPromise) return pdfPromise;
+  pdfFileName=('تقرير_'+(studentName||'طالب').replace(/[\\\/:*?"<>|\s]+/g,'_')+'.pdf');
+  setPdfStatus('⏳ جاري تجهيز ملف PDF... (قد يستغرق دقيقة، لا تغلق الصفحة)');
+  pdfPromise=buildPdfBlob((n,t)=>setPdfStatus('⏳ جاري تجهيز ملف PDF... '+n+' / '+t))
+    .then(blob=>{
+      pdfBlob=blob;
+      try{ pdfUrl=URL.createObjectURL(blob); }catch(e){}
+      const wrap=document.getElementById('pdf-open-wrap');
+      const link=document.getElementById('pdf-open-link');
+      if(wrap&&link&&pdfUrl){ link.href=pdfUrl; wrap.style.display='block'; }
+      document.getElementById('download-pdf-btn').disabled=false;
+      if(!IS_IOS && !pdfAutoTried){
+        pdfAutoTried=true;
+        triggerAnchorDownload();
+        setPdfStatus('✅ تم تجهيز التقرير وبدأ تحميله. لو لم يظهر في التنزيلات اضغط زر «تحميل التقرير PDF».');
+      } else {
+        setPdfStatus('✅ التقرير جاهز. اضغط زر «تحميل التقرير PDF».');
+      }
+      return blob;
+    })
+    .catch(err=>{
+      console.error(err);
+      pdfPromise=null;
+      setPdfStatus('⚠️ تعذّر تجهيز ملف PDF. اضغط «تحميل التقرير PDF» للمحاولة مرة أخرى.');
+      document.getElementById('download-pdf-btn').disabled=false;
+      return null;
+    });
+  return pdfPromise;
+}
+
+function triggerAnchorDownload(){
+  if(!pdfUrl) return;
+  const a=document.createElement('a');
+  a.href=pdfUrl; a.download=pdfFileName; a.style.display='none';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ if(a.parentNode) a.parentNode.removeChild(a); },1000);
+}
+
+async function downloadPdfNow(){
+  if(!pdfBlob){
+    const btn=document.getElementById('download-pdf-btn'); btn.disabled=true;
+    await preparePdf(); btn.disabled=false;
+    if(!pdfBlob) return;
+  }
+  const file=new File([pdfBlob],pdfFileName,{type:'application/pdf'});
+  if(IS_IOS && navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file],title:EXAM_TITLE});
+      setPdfStatus('✅ اختر «حفظ في الملفات» لحفظ التقرير على الجهاز.');
+      return;
+    }catch(err){
+      if(err&&err.name==='AbortError') return;
+    }
+  }
+  triggerAnchorDownload();
+  setPdfStatus('✅ تم طلب تحميل الملف. لو لم يظهر اضغط رابط «فتح الملف» أسفل الزر.');
+}
+
+document.getElementById('download-pdf-btn').addEventListener('click',downloadPdfNow);
+
+document.getElementById('send-wa-btn').addEventListener('click', async function(){
+  const btn=this; btn.disabled=true;
+  try{
+    if(!pdfBlob){ setPdfStatus('⏳ جاري تجهيز تقرير PDF...'); await preparePdf(); }
+    if(!pdfBlob){ setPdfStatus('⚠️ تعذّر تجهيز ملف PDF، حاول مرة أخرى.'); return; }
+    const file=new File([pdfBlob],pdfFileName,{type:'application/pdf'});
+    const summaryText=buildWhatsAppSummaryText();
+    let shared=false;
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{
+        setPdfStatus('📤 اختر واتساب من قائمة المشاركة لإرسال التقرير...');
+        await navigator.share({files:[file],title:'تقرير الامتحان',text:summaryText});
+        setPdfStatus('✅ تم فتح قائمة المشاركة'); shared=true;
+      }catch(err){
+        if(err&&err.name==='AbortError'){ setPdfStatus('تم إلغاء المشاركة.'); return; }
+      }
+    }
+    if(!shared){
+      triggerAnchorDownload();
+      const waText=summaryText+'\n\nتم تحميل ملف تقرير الامتحان (PDF) على جهازك، برجاء إرفاقه في هذه المحادثة.';
+      window.open('https://wa.me/'+TEACHER_PHONE+'?text='+encodeURIComponent(waText),'_blank');
+      setPdfStatus('تم تحميل ملف PDF وفتح واتساب — برجاء إرفاق الملف يدويًا في المحادثة.');
+    }
+  }catch(err){
+    setPdfStatus('حدث خطأ أثناء تجهيز التقرير، برجاء المحاولة مرة أخرى.');
+  } finally { btn.disabled=false; }
+});
+
+
+document.getElementById('submit-btn').addEventListener('click',()=>{
+  const miss=[]; questions.forEach((_,i)=>{if(!isAnswered(i))miss.push(i);});
+  if(miss.length){
+    const w=document.getElementById('not-answered-warning');
+    w.style.display='block'; w.style.color='var(--wrong)'; w.style.fontWeight='700'; w.style.marginBottom='10px';
+    w.textContent=`لم تجب عن ${miss.length} سؤالًا. اضغط مرة أخرى للتسليم أو عُد لإكمالها.`;
+    miss.forEach(i=>document.getElementById('card-'+i).classList.add('unanswered'));
+    document.getElementById('card-'+miss[0]).scrollIntoView({behavior:'smooth',block:'center'});
+    if(!window.__warned){window.__warned=true;return;}
+  }
+  finishExam(false);
+});
+
+// ===== قفل المحاولة الواحدة (على نفس المتصفح) =====
+const LOCK_KEY='exam_lock_4_3_comprehensive';
+try{ if(/[?&]reset=1/.test(location.search)) localStorage.removeItem(LOCK_KEY); }catch(e){}
+function isLocked(){ return false; } // الامتحان متاح لأكثر من محاولة
+function lockExam(name){ /* بدون قفل */ }
+function showLocked(){
+  let who='';
+  try{ const d=JSON.parse(localStorage.getItem(LOCK_KEY)); if(d&&d.name) who=' باسم ('+d.name+')'; }catch(e){}
+  const ss=document.getElementById('start-screen');
+  ss.style.display='block';
+  ss.innerHTML='<div style="font-size:3rem;">🔒</div><h2>تم أداء هذا الامتحان من قبل</h2><p>تم دخول الامتحان من هذا الجهاز'+who+' ولا يمكن إعادته أكثر من مرة.<br>إذا كان هناك خطأ، تواصل مع المعلم.</p>';
+}
+const STATE_KEY='exam_state_4_3_comprehensive';
+const NOTIFY_URL=""; // رابط Google Apps Script الذي يستقبل تقارير الطلاب (فارغ = بدون إرسال)
+function notify(p){ if(!NOTIFY_URL) return; try{ p.exam=EXAM_TITLE; p.sentAt=new Date().toLocaleString('ar-EG'); fetch(NOTIFY_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p),keepalive:true}).catch(function(){}); }catch(e){} }
+function saveState(){ if(!studentName||submitted||!examStartTimestamp) return; try{ localStorage.setItem(STATE_KEY,JSON.stringify({name:studentName,start:examStartTimestamp,answers:userAnswers,fixes:fixAnswers})); }catch(e){} }
+function clearState(){ try{ localStorage.removeItem(STATE_KEY); }catch(e){} }
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STATE_KEY)); }catch(e){ return null; } }
+const _up=updateProgress; updateProgress=function(){ _up(); saveState(); };
+const _fin=finishExam;
+finishExam=function(auto){
+  if(submitted) return; _fin(auto); clearState();
+  const pct=Math.round(finalA/finalAMax*100);
+  notify({event:'submit',name:studentName,scoreA:finalA,maxA:finalAMax,percent:pct,duration:examDurationText,wrong:wrongQuestionNumbers,essay:essayAnswersList.map(function(e){return {num:e.num,marks:e.marks,q:e.q,a:e.a};}),auto:!!auto});
+  if(NOTIFY_URL){ const m=document.getElementById('send-status'); if(m){ const n=document.createElement('div'); n.style.cssText='margin:8px 0;font-weight:700;color:#0a7a3d'; n.textContent='✅ تم إرسال نتيجتك وإجاباتك إلى المعلم تلقائيًا.'; m.parentNode.insertBefore(n,m); } }
+};
+const _pp=preparePdf;
+preparePdf=function(){ const first=!pdfPromise; const r=_pp(); if(first&&NOTIFY_URL){ r.then(function(blob){ if(!blob) return; const fr=new FileReader(); fr.onload=function(){ notify({event:'pdf',name:studentName,filename:pdfFileName,pdf:String(fr.result).split(',')[1]}); }; fr.readAsDataURL(blob); }).catch(function(){}); } return r; };
+function showExamUI(){
+  document.getElementById('start-screen').style.display='none';
+  document.querySelector('.progress-wrap').style.display='block';
+  document.getElementById('progress-label').style.display='block';
+  document.getElementById('submit-box').style.display='block';
+  document.getElementById('timer-float').style.display='block';
+}
+function restoreAnswers(ans,fixes){
+  Object.assign(fixAnswers,fixes||{});
+  (ans||[]).forEach(function(v,idx){
+    if(v===null||v===undefined||!questions[idx]) return; userAnswers[idx]=v; const card=document.getElementById('card-'+idx); if(!card) return;
+    if(questions[idx].type==='essay'){ card.querySelector('textarea').value=v; }
+    else { const o=card.querySelector('.option[data-o="'+String(v)+'"]'); if(o){ o.classList.add('selected'); o.querySelector('input').checked=true; } }
+  });
+  questions.forEach(function(q,i){ if(q.type==='tfc'){ const ta=document.getElementById('fix-'+i), fb=document.getElementById('fix-box-'+i); if(ta&&fixAnswers[i]) ta.value=fixAnswers[i]; if(fb) fb.style.display=(userAnswers[i]===false)?'block':'none'; } });
+  updateProgress();
+}
+document.getElementById('start-btn').addEventListener('click',function(){
+  const inp=document.getElementById('student-name'), name=inp.value.trim();
+  if(!name){document.getElementById('name-warning').style.display='block';inp.focus();return;}
+  studentName=name; examStartTimestamp=null; clearState(); initAudio(); showExamUI();
+  renderAll(); startTimer(); saveState(); notify({event:'start',name:name});
+  window.scrollTo({top:0,behavior:'auto'});
+});
+(function autoResume(){
+  const st=loadState(); if(!st||!st.name||!st.start) return;
+  studentName=st.name; examStartTimestamp=st.start;
+  const left=TOTAL_TIME-Math.floor((Date.now()-st.start)/1000);
+  if(left<=0){ (st.answers||[]).forEach(function(v,i){ userAnswers[i]=v; }); Object.assign(fixAnswers,st.fixes||{}); showExamUI(); renderAll(); finishExam(true); return; }
+  showExamUI(); renderAll(); restoreAnswers(st.answers,st.fixes); startTimer(); notify({event:'resume',name:st.name});
+})();
+</script>
+</body>
+</html>
