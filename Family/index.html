@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><meta name="claude:viewport-fit-sides" content="cover">
-<title>مواعيد  اجتماع العيلة بكنيسة الإخوة ببني خالد</title>
+<title>تنظيم مواعيد اجتماعات عيلة يسوع</title>
 <link id="fontlink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&amp;family=Tajawal:wght@400;500;700;800&amp;display=swap">
 <style id="css">
 /* Layout: a compact navy header with gold rays and the logo, four stat tiles, a search box with two tabs (Fridays / People), a hard-shadow card for the coming Friday, boxed rows for past Fridays, and expandable person cards that show how many times each person came. Colors come from the logo. */
@@ -444,11 +444,11 @@ h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; color: #fff; }
       '</form></section>';
   }
 
-  function viewHtml(now) { return adminHtml() + (ui.tab === 'people' ? peopleHtml(now) : meetingsHtml(now)); }
+  function viewHtml(now) { return settingsHtml() + adminHtml() + (ui.tab === 'people' ? peopleHtml(now) : meetingsHtml(now)); }
   function render() {
     var now = new Date();
     app.innerHTML = '<div class="wrap">' + topHtml() + statsHtml(now) + barHtml() + '<div id="view">' + viewHtml(now) + '</div>' +
-      '<footer class="foot">صفحة تنظيم خاصة بمسئول الاجتماع. الأسماء تُحسب بدون الألقاب (د/، الأخ/) فيُحسب الشخص مرة واحدة مهما اختلف شكل كتابة اسمه.</footer></div>';
+      '<footer class="foot">صفحة تنظيم خاصة بمسئول الاجتماع. الأسماء تُحسب بدون الألقاب (د/، الأخ/) فيُحسب الشخص مرة واحدة مهما اختلف شكل كتابة اسمه.<p style="margin-top:10px"><button class="mini" type="button" data-act="settings">دخول المسئول</button></p></footer></div>';
   }
   function refreshView() { readDraft(); $('#view').innerHTML = viewHtml(new Date()); }
 
@@ -499,22 +499,57 @@ h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; color: #fff; }
       '<script id="app-js">' + document.getElementById('app-js').textContent + '<' + '/script>';
     return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>' + reset + '</style></head><body>' + content + '</body></html>';
   }
+  /* ---------- Saving through Google Apps Script (shared, password protected) ---------- */
+  var API_URL = 'https://script.google.com/macros/s/AKfycbxBva41s3LaOXDQrDdmgxaP43K5luVbNtkETPCJEKoWrDSMWGplpggD41uLVeOyW-qN/exec';
+  var PW = '';
+  try { PW = localStorage.getItem('fam_pw') || ''; } catch (e) {}
+  (function () {
+    var m = /[#&]admin=([^&]+)/.exec(location.hash);
+    if (m) {
+      PW = decodeURIComponent(m[1]);
+      try { localStorage.setItem('fam_pw', PW); } catch (e) {}
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    }
+  })();
+  ui.canEdit = !!PW;
+  var apiReady = function () { return API_URL && API_URL.indexOf('PUT_') !== 0; };
+  async function callApi(payload) {
+    var r = await fetch(API_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+    return r.json();
+  }
   async function persist(meetings) {
     setMsg('جارٍ الحفظ…');
     var btn = $('#save'); if (btn) btn.disabled = true;
     try {
-      var art = (window.claude && claude.use) ? await claude.use('artifact') : null;
-      if (!art) { setMsg('الحفظ غير متاح من هذا العرض. افتح الصفحة من حسابك على Claude.', true); if (btn) btn.disabled = false; return; }
-      await art.publish(buildDoc({ meetings: meetings }));
+      if (!apiReady()) throw { code: 'noapi' };
+      var res = await callApi({ action: 'save', password: PW, meetings: meetings });
+      if (!res.ok) throw { code: res.error };
       state.meetings = meetings; ui.adminOpen = false; ui.draft = null; ui.confirmDel = null; ui.msg = '';
       render();
     } catch (e) {
       var c = e && e.code;
-      var t = c === 'conflict' ? 'تم تعديل الصفحة من مكان آخر وتم تحميل أحدث نسخة. أعد المحاولة.'
-        : (c === 'not_writer' || c === 'not_granted') ? 'ليس لديك صلاحية تعديل هذه الصفحة.'
-        : 'تعذّر الحفظ. حاول مرة أخرى.';
+      var t = c === 'password' ? 'كلمة السر غير صحيحة. افتح "دخول المسئول" وأدخلها من جديد.'
+        : c === 'noapi' ? 'لم يتم ربط الصفحة بالحفظ بعد.'
+        : 'تعذّر الحفظ. تأكد من الإنترنت وحاول مرة أخرى.';
       setMsg(t, true); if (btn) btn.disabled = false;
     }
+  }
+  async function loadData() {
+    if (!apiReady()) return;
+    try {
+      var r = await fetch(API_URL, { cache: 'no-store' });
+      var j = await r.json();
+      if (j && Array.isArray(j.meetings)) state.meetings = j.meetings;
+    } catch (e) {}
+  }
+  function settingsHtml() {
+    if (!ui.settingsOpen) return '';
+    return '<section class="admin" id="settings"><h3>دخول المسئول</h3>' +
+      '<p class="pending">اكتب كلمة السر مرة واحدة، وسيتذكرها هذا الجهاز.</p>' +
+      '<div class="field"><label for="s-pw">كلمة السر</label><input class="inp" id="s-pw" type="password" autocomplete="off" value="' + esc(PW) + '"></div>' +
+      '<p class="msg' + (ui.msgErr ? ' err' : '') + '" id="msg" role="status">' + esc(ui.msg) + '</p>' +
+      '<div class="actions"><button class="btn" type="button" data-act="save-settings">دخول</button><button class="btn ghost" type="button" data-act="close-settings">إغلاق</button>' +
+      (PW ? '<button class="mini danger" type="button" data-act="logout">تسجيل خروج</button>' : '') + '</div></section>';
   }
   function submitForm() {
     readDraft();
@@ -543,6 +578,19 @@ h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; color: #fff; }
     else if (act === 'del') { ui.confirmDel = id; refreshView(); }
     else if (act === 'del-no') { ui.confirmDel = null; refreshView(); }
     else if (act === 'del-yes') { persist(state.meetings.filter(function (x) { return x.id !== id; })); }
+    else if (act === 'settings') { ui.settingsOpen = true; ui.msg = ''; render(); var s = $('#settings'); if (s) s.scrollIntoView({ block: 'start' }); }
+    else if (act === 'close-settings') { ui.settingsOpen = false; render(); }
+    else if (act === 'save-settings') {
+      var pw = $('#s-pw').value.trim();
+      if (!pw) return setMsg('اكتب كلمة السر.', true);
+      setMsg('جارٍ التحقق…');
+      (apiReady() ? callApi({ action: 'check', password: pw }) : Promise.resolve({ ok: true })).then(function (res) {
+        if (!res.ok) return setMsg('كلمة السر غير صحيحة.', true);
+        PW = pw; try { localStorage.setItem('fam_pw', PW); } catch (e) {}
+        ui.canEdit = true; ui.settingsOpen = false; render();
+      }).catch(function () { setMsg('تعذّر الاتصال. حاول مرة أخرى.', true); });
+    }
+    else if (act === 'logout') { PW = ''; try { localStorage.removeItem('fam_pw'); } catch (e) {} ui.canEdit = false; ui.settingsOpen = false; ui.adminOpen = false; ui.draft = null; render(); }
     else if (act === 'close-admin') { ui.adminOpen = false; ui.draft = null; render(); }
     else if (act === 'add-item') { readDraft(); ui.draft.items.push({ role: '', name: '' }); render(); var rs = document.querySelectorAll('.irow [data-name]'); if (rs.length) rs[rs.length - 1].focus(); }
     else if (act === 'rm-item') { readDraft(); ui.draft.items.splice(Number(t.dataset.i), 1); if (!ui.draft.items.length) ui.draft.items.push({ role: '', name: '' }); render(); }
@@ -553,5 +601,6 @@ h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; color: #fff; }
   });
 
   render();
+  loadData().then(render);
 })();
 </script></body></html>
