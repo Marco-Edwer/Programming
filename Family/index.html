@@ -1,7 +1,6 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<meta name="claude:viewport-fit-sides" content="cover">
-<title>تنظيم عيلة يسوع</title>
-<link id="fontlink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Tajawal:wght@400;500;700;800&display=swap">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><meta name="claude:viewport-fit-sides" content="cover">
+<title>تنظيم مواعيد اجتماع عيلة يسوع</title>
+<link id="fontlink" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&amp;family=Tajawal:wght@400;500;700;800&amp;display=swap">
 <style id="css">
 /* Layout: a compact navy header with gold rays and the logo, four stat tiles, a search box with two tabs (Fridays / People), a hard-shadow card for the coming Friday, boxed rows for past Fridays, and expandable person cards that show how many times each person came. Colors come from the logo. */
 :root {
@@ -224,21 +223,6 @@ h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; color: #fff; }
     }
    ],
    "note": ""
-  },
-  {
-   "id": "m-20261106",
-   "date": "2026-11-20",
-   "items": [
-    {
-     "role": "الكلمة",
-     "name": "لا"
-    },
-    {
-     "role": "الترنيم",
-     "name": "لا"
-    }
-   ],
-   "note": ""
   }
  ]
 }</script>
@@ -248,7 +232,7 @@ h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; color: #fff; }
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var DATA = JSON.parse(document.getElementById('data').textContent);
   var state = { meetings: DATA.meetings.slice() };
-  var ui = { canEdit: false, tab: 'meetings', q: '', shown: 12, adminOpen: false, draft: null, confirmDel: null, msg: '', msgErr: false };
+  var ui = { canEdit: true, tab: 'meetings', q: '', shown: 12, adminOpen: false, draft: null, confirmDel: null, msg: '', msgErr: false };
   var app = document.getElementById('app');
   document.documentElement.setAttribute('lang', 'ar');
   document.documentElement.setAttribute('dir', 'rtl');
@@ -569,13 +553,5 @@ h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.12; color: #fff; }
   });
 
   render();
-  (async function () {
-    try {
-      var u = (window.claude && claude.use) ? await claude.use('user') : null;
-      if (u && u.canEdit()) { ui.canEdit = true; if (!ui.adminOpen) render(); }
-    } catch (e) {}
-  })();
 })();
-</script>
-
-</body></html>
+</script></body></html>
