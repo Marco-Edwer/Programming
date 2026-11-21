@@ -87,6 +87,18 @@
   .mbox h3{margin:0 0 6px;font-size:1.25em;color:var(--navy);font-weight:800}
   .mbox p{margin:0;color:#334155}
   @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .rv-wrap{text-align:left;margin-top:18px}
+  .rv-title{font-weight:800;color:var(--navy);font-size:1.12em;margin:0 0 4px;text-align:center}
+  .rv-sub{color:var(--muted);font-size:.9em;text-align:center;margin-bottom:8px}
+  .rv-item{border:2px solid #fecaca;background:#fff7f7;border-radius:14px;padding:12px 14px;margin:10px 0}
+  .rv-q{font-weight:700;margin-bottom:8px}
+  .rv-q b{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;
+    align-items:center;justify-content:center;font-size:.85em;margin-right:8px;vertical-align:middle}
+  .rv-a,.rv-c{border-radius:10px;padding:7px 12px;margin:5px 0;font-weight:600}
+  .rv-a{background:#fee2e2;color:#991b1b}
+  .rv-c{background:#dcfce7;color:#166534}
+  .rv-a small,.rv-c small{display:block;font-weight:700;opacity:.8;font-size:.78em;letter-spacing:.03em;text-transform:uppercase}
+  .rv-ok{background:#dcfce7;color:#166534;border-radius:14px;padding:14px;font-weight:700;text-align:center;margin-top:16px}
   .hidden{display:none}
 </style>
 </head>
@@ -137,6 +149,7 @@
     </div>
     <div class="score"><span id="scoreBox"></span><small>out of 10</small></div>
     <p>Your result has been saved. You can close this page now.</p>
+    <div id="review"></div>
   </div>
 
 </div>
@@ -244,6 +257,24 @@ function onPick(el){
   if(!document.querySelector(".card.missing")) document.getElementById("err2").textContent = "";
 }
 
+function renderReview(wrong){
+  const box = document.getElementById("review");
+  if(!wrong.length){
+    box.innerHTML = '<div class="rv-ok">Excellent! All your answers are correct 🎉</div>';
+    return;
+  }
+  box.innerHTML = '<div class="rv-wrap"><div class="rv-title">Review your mistakes</div>' +
+    '<div class="rv-sub">' + wrong.length + (wrong.length===1 ? " question" : " questions") + ' to review</div>' +
+    wrong.map(w=>{
+      const x = QUESTIONS[w.i];
+      return '<div class="rv-item">' +
+        '<div class="rv-q"><b>' + (w.i+1) + '</b>' + x.q + '</div>' +
+        '<div class="rv-a"><small>Your answer</small>' + LETTERS[w.chosen] + ') ' + x.o[w.chosen] + '</div>' +
+        '<div class="rv-c"><small>Correct answer</small>' + LETTERS[x.a] + ') ' + x.o[x.a] + '</div>' +
+      '</div>';
+    }).join("") + '</div>';
+}
+
 function showMissing(missing){
   const first = missing[0];
   document.getElementById("mtext").textContent = missing.length===1
@@ -268,9 +299,10 @@ async function submitExam(){
   QUESTIONS.forEach((x,i)=>{ if(!document.querySelector(`input[name=q${i}]:checked`)) missing.push(i); });
   if(missing.length){ showMissing(missing); return; }
   let score = 0;
+  const wrong = [];
   QUESTIONS.forEach((x,i)=>{
     const c = document.querySelector(`input[name=q${i}]:checked`);
-    if(+c.value===x.a) score++;
+    if(+c.value===x.a) score++; else wrong.push({i, chosen:+c.value});
   });
   const btn = document.getElementById("submitBtn");
   btn.disabled = true; err.textContent = "Saving...";
@@ -282,6 +314,7 @@ async function submitExam(){
     document.getElementById("who3").textContent = student.name;
     document.getElementById("whoid3").textContent = "ID: " + student.id;
     document.getElementById("scoreBox").textContent = score;
+    renderReview(wrong);
     document.getElementById("done").classList.remove("hidden");
     window.scrollTo(0,0);
   }catch(e){
