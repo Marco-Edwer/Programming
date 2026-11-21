@@ -91,6 +91,10 @@
     font-variant-numeric:tabular-nums;font-size:1.05em}
   .timer.warn{background:#fee2e2;color:var(--red);animation:blink 1s infinite}
   @keyframes blink{50%{opacity:.55}}
+  .back{background:#fff;border:2px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 16px;
+    margin-top:10px;font-family:inherit;font-weight:700;font-size:.88em;cursor:pointer}
+  .back:hover{border-color:#8fcfc6;color:var(--teal-d)}
+  .btn.ghost{background:#fff;color:var(--teal-d);border:2px solid var(--line);box-shadow:none;margin-top:10px}
   .hidden{display:none}
 </style>
 </head>
@@ -124,6 +128,7 @@
       <div class="lbl">Student</div>
       <div class="nm" id="who2"></div>
       <div class="sid" id="whoid"></div>
+      <div><button class="back" id="backBtn" onclick="askBack()">Wrong ID? Go back</button></div>
     </div>
     <div class="top">
       <div class="row"><span id="prog">0 / 10 answered</span><span class="timer" id="timer">⏱ 10:00</span></div>
@@ -152,6 +157,16 @@
     <h3>Almost there!</h3>
     <p id="mtext"></p>
     <button class="btn" id="mbtn">OK</button>
+  </div>
+</div>
+
+<div id="modal2" class="modal hidden">
+  <div class="mbox">
+    <div class="mico">?</div>
+    <h3>Wrong ID?</h3>
+    <p>Go back to enter a different ID? The answers on this page will be cleared.</p>
+    <button class="btn" id="backYes" onclick="goBack()">Yes, go back</button>
+    <button class="btn ghost" onclick="closeBack()">Stay here</button>
   </div>
 </div>
 
@@ -211,7 +226,7 @@ async function startExam(){
     }
     if(DEVICE_LOCK) localStorage.setItem(KEY, id);
     const name = res.name || id;
-    student = {id, name};
+    student = {id, name, token: res.token};
     document.getElementById("who2").textContent = name;
     document.getElementById("whoid").textContent = "ID: " + id;
     renderQuestions();
@@ -247,6 +262,41 @@ function startTimer(){
   };
   tick();
   timerId = setInterval(tick, 250);
+}
+
+function askBack(){
+  if(submitting || timeUp) return;
+  document.getElementById("modal2").classList.remove("hidden");
+}
+function closeBack(){ document.getElementById("modal2").classList.add("hidden"); }
+
+async function goBack(){
+  const yes = document.getElementById("backYes");
+  yes.disabled = true;
+  try{
+    const res = await api({action:"cancel", id:student.id, token:student.token});
+    if(!res.ok) throw new Error();
+    clearInterval(timerId);
+    inProgress = false; timeUp = false; submitting = false;
+    student = {};
+    document.getElementById("questions").innerHTML = "";
+    document.getElementById("prog").textContent = "0 / " + QUESTIONS.length + " answered";
+    document.getElementById("barfill").style.width = "0%";
+    const t = document.getElementById("timer");
+    t.classList.remove("warn"); t.textContent = "⏱ " + fmt(DURATION_MIN*60000);
+    document.getElementById("err2").textContent = "";
+    document.getElementById("exam").classList.add("hidden");
+    document.getElementById("login").classList.remove("hidden");
+    document.getElementById("sid").value = "";
+    document.getElementById("err").textContent = "";
+    document.getElementById("startBtn").disabled = false;
+    closeBack();
+    window.scrollTo(0,0);
+  }catch(e){
+    closeBack();
+    document.getElementById("err2").textContent = "Could not go back. Check your internet and try again.";
+  }
+  yes.disabled = false;
 }
 
 function renderQuestions(){
@@ -309,7 +359,7 @@ async function submitExam(auto){
   submitting = true; btn.disabled = true;
   err.textContent = timeUp ? "Time is up! Saving your answers..." : "Saving...";
   try{
-    const res = await api({action:"submit", id:student.id, score});
+    const res = await api({action:"submit", id:student.id, score, token:student.token});
     if(!res.ok) throw new Error();
     inProgress = false;
     clearInterval(timerId);
