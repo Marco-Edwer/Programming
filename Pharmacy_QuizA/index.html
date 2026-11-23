@@ -118,6 +118,10 @@
     </div>
     <label class="f" for="sid">Student ID</label>
     <input type="text" id="sid" inputmode="numeric" autocomplete="off" placeholder="Enter your ID">
+    <div id="nameBox" class="hidden">
+      <label class="f" for="sname">Full Name</label>
+      <input type="text" id="sname" autocomplete="off" dir="auto" placeholder="Type your full name">
+    </div>
     <button class="btn" id="startBtn" onclick="startExam()">Start Quiz</button>
     <div id="err" class="err"></div>
     <div class="note">Once you press Start, you cannot enter the quiz again. Do not close or refresh the page until you submit.</div>
@@ -190,6 +194,8 @@ const QUESTIONS = [
 // Device lock off: the one-entry rule is enforced by the server using the student ID.
 const DEVICE_LOCK = false;
 const KEY = "exam_done_IT_intro";
+const QUIZ_ID = "q1";
+const SESS_KEY = "quiz_session_" + QUIZ_ID;
 const LETTERS = ["A","B","C","D","E","F"];
 let student = {};
 let inProgress = false;
@@ -215,18 +221,30 @@ async function startExam(){
   if(!id){ err.textContent = "Please enter your Student ID."; return; }
   const btn = document.getElementById("startBtn");
   btn.disabled = true; err.textContent = "Checking...";
+  const sess = loadSess();
+  if(sess && sess.id === id){ err.textContent = "Restoring your quiz..."; await resumeSession(sess); return; }
   try{
-    const res = await api({action:"start", id});
+    const nameVisible = !document.getElementById("nameBox").classList.contains("hidden");
+    const typedName = document.getElementById("sname").value.trim();
+    if(nameVisible && typedName.length < 3){ err.textContent = "Please type your full name."; btn.disabled = false; return; }
+    const res = await api(nameVisible ? {action:"start", id, name:typedName} : {action:"start", id});
     if(!res.ok){
+      if(res.reason==="need_name"){
+        document.getElementById("nameBox").classList.remove("hidden");
+        err.textContent = "This ID has no registered name. Type your full name, then press Start again.";
+        document.getElementById("sname").focus();
+        btn.disabled = false; return;
+      }
       if(res.reason==="not_registered") err.textContent = "This ID is not registered. Check your ID or contact your instructor.";
       else if(res.reason==="closed") err.textContent = "The quiz is not open now.";
-      else if(res.reason==="already_entered") err.textContent = "This ID has already entered the quiz.";
+      else if(res.reason==="already_entered") err.textContent = "This ID has already entered the quiz. If you lost the page, contact your instructor.";
       else err.textContent = "Error, please try again.";
       btn.disabled = false; return;
     }
     if(DEVICE_LOCK) localStorage.setItem(KEY, id);
     const name = res.name || id;
     student = {id, name, token: res.token};
+    saveSess({id, name, token: res.token, answers:{}});
     document.getElementById("who2").textContent = name;
     document.getElementById("whoid").textContent = "ID: " + id;
     renderQuestions();
@@ -246,8 +264,8 @@ function fmt(ms){
   return String(Math.floor(t/60)).padStart(2,"0") + ":" + String(t%60).padStart(2,"0");
 }
 
-function startTimer(){
-  endTime = Date.now() + DURATION_MIN*60000;
+function startTimer(ms){
+  endTime = Date.now() + (typeof ms === "number" ? ms : DURATION_MIN*60000);
   const el = document.getElementById("timer");
   const tick = function(){
     const left = endTime - Date.now();
@@ -264,6 +282,54 @@ function startTimer(){
   timerId = setInterval(tick, 250);
 }
 
+function loadSess(){ try{ return JSON.parse(localStorage.getItem(SESS_KEY) || "null"); }catch(e){ return null; } }
+function saveSess(o){ try{ localStorage.setItem(SESS_KEY, JSON.stringify(o)); }catch(e){} }
+function clearSess(){ try{ localStorage.removeItem(SESS_KEY); }catch(e){} }
+function saveAnswer(el){
+  const s = loadSess();
+  if(!s) return;
+  s.answers = s.answers || {};
+  s.answers[el.name.slice(1)] = el.value;
+  saveSess(s);
+}
+function restoreAnswers(ans){
+  Object.keys(ans).forEach(i=>{
+    const r = document.querySelector('input[name=q' + i + '][value="' + ans[i] + '"]');
+    if(r){ r.checked = true; onPick(r); }
+  });
+}
+
+async function resumeSession(sess){
+  const err = document.getElementById("err");
+  const btn = document.getElementById("startBtn");
+  try{
+    const res = await api({action:"resume", id:sess.id, token:sess.token});
+    if(!res.ok){
+      clearSess();
+      if(res.reason === "time_over") err.textContent = "Your time is over. You cannot enter this quiz again.";
+      else if(res.reason === "already_submitted") err.textContent = "This quiz has already been submitted.";
+      else err.textContent = "Could not restore your quiz. Please contact your instructor.";
+      btn.disabled = false;
+      return false;
+    }
+    student = {id:sess.id, name:res.name || sess.name || sess.id, token:sess.token};
+    document.getElementById("who2").textContent = student.name;
+    document.getElementById("whoid").textContent = "ID: " + student.id;
+    renderQuestions();
+    restoreAnswers(sess.answers || {});
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("exam").classList.remove("hidden");
+    inProgress = true;
+    startTimer(res.remaining);
+    window.scrollTo(0,0);
+    return true;
+  }catch(e){
+    err.textContent = "Connection error. Check your internet, then press Start to continue your quiz.";
+    btn.disabled = false;
+    return false;
+  }
+}
+
 function askBack(){
   if(submitting || timeUp) return;
   document.getElementById("modal2").classList.remove("hidden");
@@ -278,7 +344,7 @@ async function goBack(){
     if(!res.ok) throw new Error();
     clearInterval(timerId);
     inProgress = false; timeUp = false; submitting = false;
-    student = {};
+    student = {}; clearSess();
     document.getElementById("questions").innerHTML = "";
     document.getElementById("prog").textContent = "0 / " + QUESTIONS.length + " answered";
     document.getElementById("barfill").style.width = "0%";
@@ -288,6 +354,8 @@ async function goBack(){
     document.getElementById("exam").classList.add("hidden");
     document.getElementById("login").classList.remove("hidden");
     document.getElementById("sid").value = "";
+    document.getElementById("sname").value = "";
+    document.getElementById("nameBox").classList.add("hidden");
     document.getElementById("err").textContent = "";
     document.getElementById("startBtn").disabled = false;
     closeBack();
@@ -315,6 +383,7 @@ function answeredCount(){
 }
 
 function onPick(el){
+  saveAnswer(el);
   const card = el.closest(".card");
   card.querySelectorAll(".opt").forEach(l=>l.classList.remove("sel"));
   el.closest(".opt").classList.add("sel");
@@ -360,9 +429,17 @@ async function submitExam(auto){
   err.textContent = timeUp ? "Time is up! Saving your answers..." : "Saving...";
   try{
     const res = await api({action:"submit", id:student.id, score, token:student.token});
-    if(!res.ok) throw new Error();
+    if(!res.ok){
+      if(res.reason === "time_over"){
+        inProgress = false; clearInterval(timerId); clearSess();
+        err.textContent = "Time is over, so your answers could not be saved. Please contact your instructor.";
+        return;
+      }
+      throw new Error();
+    }
     inProgress = false;
     clearInterval(timerId);
+    clearSess();
     document.getElementById("exam").classList.add("hidden");
     document.getElementById("who3").textContent = student.name;
     document.getElementById("whoid3").textContent = "ID: " + student.id;
@@ -375,6 +452,19 @@ async function submitExam(auto){
     btn.disabled = false;
   }
 }
+document.getElementById("sid").addEventListener("input", function(){
+  document.getElementById("nameBox").classList.add("hidden");
+});
+
+(function(){
+  const s = loadSess();
+  if(s && s.id){
+    document.getElementById("sid").value = s.id;
+    document.getElementById("err").textContent = "Restoring your quiz...";
+    document.getElementById("startBtn").disabled = true;
+    resumeSession(s);
+  }
+})();
 </script>
 </body>
 </html>
